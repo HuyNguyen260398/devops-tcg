@@ -360,7 +360,7 @@ export const conceptCards = [
       alt: "Bright encrypted TLS tunnel joining a client and server",
     },
     definition:
-      "Transport Layer Security (TLS) is the modern protocol for authenticating peers and protecting data in transit with encryption and integrity checks.",
+      "Transport Layer Security (TLS) is the modern protocol for authenticating servers and optionally clients while protecting data in transit with encryption and integrity checks.",
     keywords: [
       "certificate",
       "handshake",
@@ -391,7 +391,8 @@ export const conceptCards = [
       },
       {
         step: 3,
-        description: "The peers authenticate and derive shared session keys.",
+        description:
+          "The client authenticates the server and both derive keys; client authentication is optional.",
       },
       {
         step: 4,

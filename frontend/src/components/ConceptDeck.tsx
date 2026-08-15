@@ -43,7 +43,6 @@ export function ConceptDeck({ cards }: ConceptDeckProps) {
       </header>
 
       <ConceptCard
-        key={card.id}
         card={card}
         canGoPrevious={canGoPrevious}
         canGoNext={canGoNext}

@@ -40,8 +40,8 @@ in `src/data/conceptCards.ts`, separately from the presentation components.
 To add a concept:
 
 1. Add an optimized local image under `public/images/`.
-2. Record its creator, source URL, and license in
-   `public/images/ATTRIBUTION.md`.
+2. Record third-party creator, source URL, and license details—or generated
+   asset tool and creation date—in `public/images/ATTRIBUTION.md`.
 3. Add one complete `ConceptCardData` object to `conceptCards` with a unique
    `id` and card number.
 4. Extend the content-contract and browser acceptance tests.

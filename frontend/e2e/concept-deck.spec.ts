@@ -85,6 +85,7 @@ test("navigates the shipped deck with a live bounded counter", async ({
   await expect(next).toBeEnabled();
 
   await next.click();
+  await expect(next).toBeFocused();
   await expect(
     page.getByRole("button", { name: "CDN card, front shown" }),
   ).toBeVisible();
@@ -158,6 +159,36 @@ test("keeps the Reverse Proxy card readable at 200 percent text zoom", async ({
   await expect(
     page.getByRole("heading", { name: "Reverse Proxy" }),
   ).toBeVisible();
+
+  const front = page.getByTestId("card-front");
+  const frontScroll = await front.evaluate((node) => ({
+    overflowY: getComputedStyle(node).overflowY,
+    scrollHeight: node.scrollHeight,
+    clientHeight: node.clientHeight,
+  }));
+  expect(frontScroll.overflowY).toBe("auto");
+  expect(frontScroll.scrollHeight).toBeGreaterThan(frontScroll.clientHeight);
+  await front.evaluate((node) => {
+    node.scrollTop = node.scrollHeight;
+  });
+  await expect(front.getByText("gateway", { exact: true })).toBeVisible();
+
+  await page.getByRole("button", { name: "Show card back" }).click();
+  const back = page.getByTestId("card-back");
+  const backScroll = await back.evaluate((node) => ({
+    overflowY: getComputedStyle(node).overflowY,
+    scrollHeight: node.scrollHeight,
+    clientHeight: node.clientHeight,
+  }));
+  expect(backScroll.overflowY).toBe("auto");
+  expect(backScroll.scrollHeight).toBeGreaterThan(backScroll.clientHeight);
+  await back.evaluate((node) => {
+    node.scrollTop = node.scrollHeight;
+  });
+  await expect(
+    back.getByText("The response returns to the client through the proxy."),
+  ).toBeVisible();
+
   const size = await page.evaluate(() => ({
     viewport: document.documentElement.clientWidth,
     content: document.documentElement.scrollWidth,

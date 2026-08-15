@@ -99,5 +99,9 @@ describe("conceptCards", () => {
     expect(ssl?.definition).toMatch(/deprecated/i);
     expect(ssl?.definition).toMatch(/use TLS/i);
     expect(tls?.definition).toMatch(/modern protocol/i);
+    expect(tls?.definition).toMatch(/optionally clients/i);
+    expect(tls?.howItWorks[2]?.description).toMatch(
+      /client authentication is optional/i,
+    );
   });
 });

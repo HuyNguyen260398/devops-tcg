@@ -21,8 +21,12 @@ export function ConceptCard({
   onPrevious,
   onNext,
 }: ConceptCardProps) {
-  const [isFlipped, setIsFlipped] = useState(false);
-  const toggleCard = () => setIsFlipped((currentFace) => !currentFace);
+  const [flippedCardId, setFlippedCardId] = useState<string | null>(null);
+  const isFlipped = flippedCardId === card.id;
+  const toggleCard = () =>
+    setFlippedCardId((currentCardId) =>
+      currentCardId === card.id ? null : card.id,
+    );
 
   return (
     <div className="w-full">
@@ -47,7 +51,7 @@ export function ConceptCard({
             data-testid="card-front"
             aria-hidden={isFlipped}
           >
-            <CardFront card={card} />
+            <CardFront key={card.id} card={card} />
           </section>
           <section
             className="card-face-back"
@@ -63,9 +67,15 @@ export function ConceptCard({
         canGoPrevious={canGoPrevious}
         canGoNext={canGoNext}
         isFlipped={isFlipped}
-        onPrevious={onPrevious}
+        onPrevious={() => {
+          setFlippedCardId(null);
+          onPrevious();
+        }}
         onFlip={toggleCard}
-        onNext={onNext}
+        onNext={() => {
+          setFlippedCardId(null);
+          onNext();
+        }}
       />
     </div>
   );

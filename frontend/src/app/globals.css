@@ -87,7 +87,9 @@ button,
 .card-face-front,
 .card-face-back {
   height: 100%;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
   border: 1px solid rgb(255 255 255 / 0.12);
   border-radius: 26px;
   background:
