@@ -1,0 +1,5 @@
+region            = "ap-southeast-1"
+name_prefix       = "devops-tcg-prod"
+site_bucket_name  = "devops-tcg-prod-site-123456789012"
+route53_zone_name = "nghuy.link"
+site_domain       = "tcg.nghuy.link"
