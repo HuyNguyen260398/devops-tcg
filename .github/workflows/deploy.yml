@@ -1,0 +1,137 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy production
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: ${{ steps.tf.outputs.site_url }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 9
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+          cache-dependency-path: frontend/pnpm-lock.yaml
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: pnpm install --frozen-lockfile
+
+      - name: Check frontend formatting
+        working-directory: frontend
+        run: pnpm format:check
+
+      - name: Lint frontend
+        working-directory: frontend
+        run: pnpm lint
+
+      - name: Type-check frontend
+        working-directory: frontend
+        run: pnpm typecheck
+
+      - name: Run unit tests with coverage
+        working-directory: frontend
+        run: pnpm test:coverage
+
+      - name: Build static export
+        working-directory: frontend
+        run: pnpm build
+
+      - name: Install Playwright Chromium
+        working-directory: frontend
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Run browser acceptance tests
+        working-directory: frontend
+        run: pnpm test:e2e
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_version: 1.15.5
+          terraform_wrapper: false
+
+      - name: Configure AWS credentials through OIDC
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Initialize remote state
+        working-directory: infra/envs/prod
+        run: >-
+          terraform init -reconfigure
+          -backend-config="bucket=${{ vars.STATE_BUCKET_NAME }}"
+          -backend-config="region=${{ vars.AWS_REGION }}"
+          -backend-config="dynamodb_table=${{ vars.LOCK_TABLE_NAME }}"
+
+      - name: Apply production infrastructure
+        working-directory: infra/envs/prod
+        run: >-
+          terraform apply -auto-approve -input=false
+          -var="region=${{ vars.AWS_REGION }}"
+          -var="site_bucket_name=${{ vars.SITE_BUCKET_NAME }}"
+          -var="route53_zone_name=${{ vars.ROUTE53_ZONE_NAME }}"
+          -var="site_domain=${{ vars.SITE_DOMAIN }}"
+
+      - name: Capture and validate Terraform outputs
+        id: tf
+        working-directory: infra/envs/prod
+        run: |
+          bucket="$(terraform output -raw site_bucket_name)"
+          distribution_id="$(terraform output -raw distribution_id)"
+          site_url="$(terraform output -raw site_url)"
+          expected_url="https://${{ vars.SITE_DOMAIN }}"
+
+          if [ "$site_url" != "$expected_url" ]; then
+            echo "Terraform site_url '$site_url' does not match '$expected_url'." >&2
+            exit 1
+          fi
+
+          {
+            echo "bucket=$bucket"
+            echo "distribution_id=$distribution_id"
+            echo "site_url=$site_url"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Build deployable static export
+        working-directory: frontend
+        run: pnpm build
+
+      - name: Sync static export
+        run: aws s3 sync frontend/out "s3://${{ steps.tf.outputs.bucket }}" --delete
+
+      - name: Invalidate CloudFront
+        run: >-
+          aws cloudfront create-invalidation
+          --distribution-id "${{ steps.tf.outputs.distribution_id }}"
+          --paths "/*"
+
+      - name: Verify production HTTPS
+        run: >-
+          curl --fail --show-error --location
+          --retry 12 --retry-all-errors --retry-delay 10
+          "${{ steps.tf.outputs.site_url }}"
