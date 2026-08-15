@@ -86,9 +86,9 @@ describe("conceptCards", () => {
         card.components.every(({ name, description }) => name && description),
       ).toBe(true);
       expect(card.howItWorks.map(({ step }) => step)).toEqual([1, 2, 3, 4]);
-      expect(
-        card.howItWorks.every(({ description }) => description),
-      ).toBe(true);
+      expect(card.howItWorks.every(({ description }) => description)).toBe(
+        true,
+      );
     }
   });
 

@@ -87,11 +87,13 @@ export const conceptCards = [
       },
       {
         step: 3,
-        description: "On a cache miss, the edge fetches content from the origin.",
+        description:
+          "On a cache miss, the edge fetches content from the origin.",
       },
       {
         step: 4,
-        description: "The edge caches the content and returns it to the client.",
+        description:
+          "The edge caches the content and returns it to the client.",
       },
     ],
   },
@@ -133,7 +135,8 @@ export const conceptCards = [
       { step: 1, description: "NGINX accepts an incoming connection." },
       {
         step: 2,
-        description: "It matches the request against server and location rules.",
+        description:
+          "It matches the request against server and location rules.",
       },
       {
         step: 3,
@@ -179,7 +182,8 @@ export const conceptCards = [
     howItWorks: [
       {
         step: 1,
-        description: "The client sends a request to the reverse proxy endpoint.",
+        description:
+          "The client sends a request to the reverse proxy endpoint.",
       },
       {
         step: 2,
@@ -187,7 +191,8 @@ export const conceptCards = [
       },
       {
         step: 3,
-        description: "A selected backend service handles the forwarded request.",
+        description:
+          "A selected backend service handles the forwarded request.",
       },
       {
         step: 4,
@@ -274,15 +279,18 @@ export const conceptCards = [
       },
       {
         step: 2,
-        description: "The resolver uses its cache or queries the DNS hierarchy.",
+        description:
+          "The resolver uses its cache or queries the DNS hierarchy.",
       },
       {
         step: 3,
-        description: "An authoritative nameserver returns the requested record.",
+        description:
+          "An authoritative nameserver returns the requested record.",
       },
       {
         step: 4,
-        description: "The resolver caches the answer and returns it to the device.",
+        description:
+          "The resolver caches the answer and returns it to the device.",
       },
     ],
   },
@@ -378,7 +386,8 @@ export const conceptCards = [
       },
       {
         step: 2,
-        description: "The server selects parameters and presents its certificate.",
+        description:
+          "The server selects parameters and presents its certificate.",
       },
       {
         step: 3,
@@ -418,7 +427,8 @@ export const conceptCards = [
     howItWorks: [
       {
         step: 1,
-        description: "The client opens a transport connection to the SSH server.",
+        description:
+          "The client opens a transport connection to the SSH server.",
       },
       {
         step: 2,
@@ -430,7 +440,8 @@ export const conceptCards = [
       },
       {
         step: 4,
-        description: "An encrypted channel carries commands, files, or tunnels.",
+        description:
+          "An encrypted channel carries commands, files, or tunnels.",
       },
     ],
   },
