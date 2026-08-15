@@ -9,7 +9,7 @@ describe("Home", () => {
     expect(
       screen.getByRole("heading", { name: "DevOps TCG" }),
     ).toBeInTheDocument();
-    expect(screen.getByText("01 / 01")).toBeInTheDocument();
+    expect(screen.getByText("01 / 09")).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: "Proxy card, front shown" }),
     ).toBeInTheDocument();

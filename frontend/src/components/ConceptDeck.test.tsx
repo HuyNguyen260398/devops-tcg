@@ -5,9 +5,13 @@ import { conceptCards } from "@/data/conceptCards";
 import { ConceptDeck } from "./ConceptDeck";
 
 describe("ConceptDeck", () => {
-  it("renders the Proxy front and disables one-card navigation", () => {
+  it("renders the first of nine cards with bounded initial navigation", () => {
     render(<ConceptDeck cards={conceptCards} />);
 
+    expect(
+      screen.getByRole("heading", { name: "DevOps TCG" }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("01 / 09")).toBeInTheDocument();
     expect(screen.getByText(conceptCards[0].definition)).toBeInTheDocument();
     for (const keyword of conceptCards[0].keywords) {
       expect(screen.getByText(keyword)).toBeInTheDocument();
@@ -15,7 +19,7 @@ describe("ConceptDeck", () => {
     expect(
       screen.getByRole("button", { name: "Previous card" }),
     ).toBeDisabled();
-    expect(screen.getByRole("button", { name: "Next card" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Next card" })).toBeEnabled();
   });
 
   it("flips with the control, Enter, Space, and card click", async () => {
@@ -61,36 +65,43 @@ describe("ConceptDeck", () => {
     }
   });
 
-  it("shows readable fallback content when the local image fails", () => {
+  it("uses the active concept in missing-image fallback text", async () => {
+    const user = userEvent.setup();
     render(<ConceptDeck cards={conceptCards} />);
 
+    await user.click(screen.getByRole("button", { name: "Next card" }));
     fireEvent.error(
-      screen.getByRole("img", { name: conceptCards[0].image.alt }),
+      screen.getByRole("img", { name: conceptCards[1].image.alt }),
     );
-    expect(screen.getByText("Proxy network concept")).toBeInTheDocument();
+    expect(screen.getByText("CDN network concept")).toBeInTheDocument();
   });
 
-  it("navigates within a multi-card hardcoded deck", async () => {
+  it("updates the card and live counter in both directions", async () => {
     const user = userEvent.setup();
-    const secondCard = {
-      ...conceptCards[0],
-      id: "proxy-two",
-      cardNumber: "#002",
-      title: "Proxy Two",
-    };
+    render(<ConceptDeck cards={conceptCards} />);
 
-    render(<ConceptDeck cards={[conceptCards[0], secondCard]} />);
-
+    await user.click(screen.getByRole("button", { name: "Show card back" }));
     await user.click(screen.getByRole("button", { name: "Next card" }));
     expect(
-      screen.getByRole("button", { name: "Proxy Two card, front shown" }),
+      screen.getByRole("button", { name: "CDN card, front shown" }),
     ).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Next card" })).toBeDisabled();
+    expect(screen.getByText("02 / 09")).toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: "Previous card" }));
     expect(
       screen.getByRole("button", { name: "Proxy card, front shown" }),
     ).toBeInTheDocument();
+    expect(screen.getByText("01 / 09")).toBeInTheDocument();
+  });
+
+  it("disables both directions for an explicit one-card deck", () => {
+    render(<ConceptDeck cards={conceptCards.slice(0, 1)} />);
+
+    expect(screen.getByText("01 / 01")).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Previous card" }),
+    ).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Next card" })).toBeDisabled();
   });
 
   it("renders a readable empty-deck message", () => {

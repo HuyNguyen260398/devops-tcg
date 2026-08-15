@@ -28,7 +28,7 @@ export function CardFront({ card }: CardFrontProps) {
             aria-label={card.image.alt}
             className="flex h-full items-center justify-center bg-[radial-gradient(circle_at_center,_rgba(34,211,238,0.18),_transparent_65%)] px-8 text-center text-sm font-semibold uppercase tracking-[0.2em] text-cyan-100"
           >
-            Proxy network concept
+            {card.title} {card.type.toLowerCase()} concept
           </div>
         ) : (
           // The static export must preserve this exact local path; next/image

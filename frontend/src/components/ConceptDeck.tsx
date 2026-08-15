@@ -8,6 +8,9 @@ interface ConceptDeckProps {
   readonly cards: readonly ConceptCardData[];
 }
 
+const formatPosition = (position: number) =>
+  position.toString().padStart(2, "0");
+
 export function ConceptDeck({ cards }: ConceptDeckProps) {
   const [activeIndex, setActiveIndex] = useState(0);
 
@@ -21,6 +24,24 @@ export function ConceptDeck({ cards }: ConceptDeckProps) {
 
   return (
     <section aria-label="Concept card deck" className="w-full max-w-[350px]">
+      <header className="mb-6 flex w-full items-end justify-between border-b border-white/10 pb-4">
+        <div>
+          <p className="mb-1 text-[0.65rem] font-semibold tracking-[0.28em] text-cyan-200/70">
+            CONCEPT STUDY DECK
+          </p>
+          <h1 className="text-2xl font-black uppercase tracking-[0.12em] text-white sm:text-3xl">
+            DevOps TCG
+          </h1>
+        </div>
+        <p
+          aria-label={`Card ${activeIndex + 1} of ${cards.length}`}
+          aria-live="polite"
+          className="pb-1 font-mono text-xs font-semibold tracking-[0.18em] text-slate-300"
+        >
+          {formatPosition(activeIndex + 1)} / {formatPosition(cards.length)}
+        </p>
+      </header>
+
       <ConceptCard
         key={card.id}
         card={card}
