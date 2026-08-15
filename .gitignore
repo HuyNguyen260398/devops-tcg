@@ -1,1 +1,59 @@
+# Superpowers local artifacts
 .superpowers/
+
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Next.js and frontend outputs
+.next/
+out/
+dist/
+build/
+
+# Tests and tooling
+coverage/
+playwright-report/
+test-results/
+*.tsbuildinfo
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment and local configuration
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# Terraform
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+*.tfplan
+tfplan
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+*.tfvars
+!*.tfvars.example
+.terraformrc
+terraform.rc
+
+# Editors
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Operating systems
+.DS_Store
+Thumbs.db
