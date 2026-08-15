@@ -1,8 +1,8 @@
 # DevOps TCG Frontend
 
 The frontend is a Next.js 14 App Router application exported entirely as static
-files. Card content is typed and stored locally; production performs no API,
-authentication, persistence, or third-party image requests.
+files. Its nine-card collection is typed and stored locally; production performs
+no API, authentication, persistence, or third-party image requests.
 
 ## Development
 
@@ -61,4 +61,4 @@ hardcoded cards do not require component changes.
 ## Asset Attribution
 
 See [public/images/ATTRIBUTION.md](public/images/ATTRIBUTION.md). Production uses
-only the committed `/images/proxy-thumbnail.webp` asset.
+only the committed local `*-thumbnail.webp` assets listed there.
