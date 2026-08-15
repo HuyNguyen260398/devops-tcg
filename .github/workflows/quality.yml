@@ -1,0 +1,163 @@
+name: Quality
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  changes:
+    name: Detect infrastructure changes
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      infra: ${{ steps.filter.outputs.infra }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Detect changed paths
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            infra:
+              - 'infra/**'
+
+  frontend:
+    name: Frontend quality and browser tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 9
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+          cache-dependency-path: frontend/pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Check formatting
+        run: pnpm format:check
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Type-check
+        run: pnpm typecheck
+
+      - name: Run unit tests with coverage
+        run: pnpm test:coverage
+
+      - name: Build static export
+        run: pnpm build
+
+      - name: Install Playwright Chromium
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Run browser acceptance tests
+        run: pnpm test:e2e
+
+  terraform:
+    name: Terraform offline quality
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_version: 1.15.5
+
+      - name: Set up TFLint
+        uses: terraform-linters/setup-tflint@v5
+
+      - name: Check Terraform formatting
+        run: terraform fmt -check -recursive infra
+
+      - name: Initialize Terraform roots without remote state
+        run: |
+          terraform -chdir=infra/bootstrap init -backend=false
+          terraform -chdir=infra/modules/frontend init -backend=false
+          terraform -chdir=infra/modules/domain init -backend=false
+          terraform -chdir=infra/envs/prod init -backend=false
+
+      - name: Validate Terraform roots
+        run: |
+          terraform -chdir=infra/bootstrap validate
+          terraform -chdir=infra/modules/frontend validate
+          terraform -chdir=infra/envs/prod validate
+
+      - name: Run native Terraform tests
+        run: |
+          terraform -chdir=infra/bootstrap test
+          terraform -chdir=infra/modules/frontend test
+          terraform -chdir=infra/modules/domain test
+
+      - name: Run TFLint
+        run: tflint --chdir=infra --recursive
+
+      - name: Run Checkov
+        uses: bridgecrewio/checkov-action@v12
+        with:
+          directory: infra
+          framework: terraform
+          quiet: true
+
+  terraform-plan:
+    name: Terraform production plan
+    if: needs.changes.outputs.infra == 'true'
+    needs: [changes, terraform]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_version: 1.15.5
+
+      - name: Configure AWS credentials through OIDC
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ secrets.AWS_PLAN_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Initialize remote state
+        working-directory: infra/envs/prod
+        run: >-
+          terraform init -reconfigure
+          -backend-config="bucket=${{ vars.STATE_BUCKET_NAME }}"
+          -backend-config="region=${{ vars.AWS_REGION }}"
+          -backend-config="dynamodb_table=${{ vars.LOCK_TABLE_NAME }}"
+
+      - name: Plan production infrastructure
+        working-directory: infra/envs/prod
+        run: >-
+          terraform plan -input=false
+          -var="region=${{ vars.AWS_REGION }}"
+          -var="site_bucket_name=${{ vars.SITE_BUCKET_NAME }}"
+          -var="route53_zone_name=${{ vars.ROUTE53_ZONE_NAME }}"
+          -var="site_domain=${{ vars.SITE_DOMAIN }}"
