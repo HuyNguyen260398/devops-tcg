@@ -12,7 +12,9 @@ describe("ConceptDeck", () => {
     for (const keyword of conceptCards[0].keywords) {
       expect(screen.getByText(keyword)).toBeInTheDocument();
     }
-    expect(screen.getByRole("button", { name: "Previous card" })).toBeDisabled();
+    expect(
+      screen.getByRole("button", { name: "Previous card" }),
+    ).toBeDisabled();
     expect(screen.getByRole("button", { name: "Next card" })).toBeDisabled();
   });
 
@@ -20,7 +22,9 @@ describe("ConceptDeck", () => {
     const user = userEvent.setup();
     render(<ConceptDeck cards={conceptCards} />);
 
-    const card = screen.getByRole("button", { name: "Proxy card, front shown" });
+    const card = screen.getByRole("button", {
+      name: "Proxy card, front shown",
+    });
     const front = screen.getByTestId("card-front");
     const back = screen.getByTestId("card-back");
 
@@ -47,7 +51,9 @@ describe("ConceptDeck", () => {
     const back = screen.getByTestId("card-back");
 
     for (const item of conceptCards[0].components) {
-      expect(within(back).getByText(item.name, { selector: "dt" })).toBeInTheDocument();
+      expect(
+        within(back).getByText(item.name, { selector: "dt" }),
+      ).toBeInTheDocument();
       expect(within(back).getByText(item.description)).toBeInTheDocument();
     }
     for (const item of conceptCards[0].howItWorks) {
@@ -58,7 +64,9 @@ describe("ConceptDeck", () => {
   it("shows readable fallback content when the local image fails", () => {
     render(<ConceptDeck cards={conceptCards} />);
 
-    fireEvent.error(screen.getByRole("img", { name: conceptCards[0].image.alt }));
+    fireEvent.error(
+      screen.getByRole("img", { name: conceptCards[0].image.alt }),
+    );
     expect(screen.getByText("Proxy network concept")).toBeInTheDocument();
   });
 });

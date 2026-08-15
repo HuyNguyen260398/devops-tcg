@@ -20,13 +20,17 @@ export function ConceptDeck({ cards }: ConceptDeckProps) {
   const card = cards[activeIndex];
 
   return (
-    <ConceptCard
-      key={card.id}
-      card={card}
-      canGoPrevious={canGoPrevious}
-      canGoNext={canGoNext}
-      onPrevious={() => setActiveIndex((index) => Math.max(0, index - 1))}
-      onNext={() => setActiveIndex((index) => Math.min(cards.length - 1, index + 1))}
-    />
+    <section aria-label="Concept card deck" className="w-full max-w-[350px]">
+      <ConceptCard
+        key={card.id}
+        card={card}
+        canGoPrevious={canGoPrevious}
+        canGoNext={canGoNext}
+        onPrevious={() => setActiveIndex((index) => Math.max(0, index - 1))}
+        onNext={() =>
+          setActiveIndex((index) => Math.min(cards.length - 1, index + 1))
+        }
+      />
+    </section>
   );
 }

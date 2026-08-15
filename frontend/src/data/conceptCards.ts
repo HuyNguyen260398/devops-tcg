@@ -14,12 +14,19 @@ export const conceptCards = [
     },
     definition:
       "A proxy receives a request from one system and forwards it to another on the requester’s behalf.",
-    keywords: ["intermediary", "forward proxy", "reverse proxy", "routing", "caching"],
+    keywords: [
+      "intermediary",
+      "forward proxy",
+      "reverse proxy",
+      "routing",
+      "caching",
+    ],
     components: [
       { name: "Client", description: "Originates the request." },
       {
         name: "Proxy",
-        description: "Receives traffic and applies routing, security, or caching rules.",
+        description:
+          "Receives traffic and applies routing, security, or caching rules.",
       },
       {
         name: "Destination server",
@@ -30,13 +37,18 @@ export const conceptCards = [
       { step: 1, description: "The client sends its request to the proxy." },
       {
         step: 2,
-        description: "The proxy evaluates the request and applies configured policies.",
+        description:
+          "The proxy evaluates the request and applies configured policies.",
       },
       {
         step: 3,
-        description: "An allowed request is forwarded to the destination server.",
+        description:
+          "An allowed request is forwarded to the destination server.",
       },
-      { step: 4, description: "The response returns through the proxy to the client." },
+      {
+        step: 4,
+        description: "The response returns through the proxy to the client.",
+      },
     ],
   },
 ] as const satisfies readonly ConceptCardData[];
