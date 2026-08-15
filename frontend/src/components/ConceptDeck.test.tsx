@@ -69,4 +69,33 @@ describe("ConceptDeck", () => {
     );
     expect(screen.getByText("Proxy network concept")).toBeInTheDocument();
   });
+
+  it("navigates within a multi-card hardcoded deck", async () => {
+    const user = userEvent.setup();
+    const secondCard = {
+      ...conceptCards[0],
+      id: "proxy-two",
+      cardNumber: "#002",
+      title: "Proxy Two",
+    };
+
+    render(<ConceptDeck cards={[conceptCards[0], secondCard]} />);
+
+    await user.click(screen.getByRole("button", { name: "Next card" }));
+    expect(
+      screen.getByRole("button", { name: "Proxy Two card, front shown" }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Next card" })).toBeDisabled();
+
+    await user.click(screen.getByRole("button", { name: "Previous card" }));
+    expect(
+      screen.getByRole("button", { name: "Proxy card, front shown" }),
+    ).toBeInTheDocument();
+  });
+
+  it("renders a readable empty-deck message", () => {
+    render(<ConceptDeck cards={[]} />);
+
+    expect(screen.getByText("No concept cards available.")).toBeInTheDocument();
+  });
 });

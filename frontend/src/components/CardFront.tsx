@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useState } from "react";
 import type { ConceptCardData } from "@/types/concept";
 
@@ -32,12 +31,14 @@ export function CardFront({ card }: CardFrontProps) {
             Proxy network concept
           </div>
         ) : (
-          <Image
+          // The static export must preserve this exact local path; next/image
+          // rewrites it to an absolute URL even when optimization is disabled.
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
             src={card.image.src}
             alt={card.image.alt}
-            fill
-            priority
-            sizes="(max-width: 639px) calc(100vw - 36px), 346px"
+            loading="eager"
+            decoding="async"
             className="h-full w-full object-cover object-center"
             onError={() => setImageFailed(true)}
           />
