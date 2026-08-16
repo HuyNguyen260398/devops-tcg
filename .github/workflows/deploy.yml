@@ -21,6 +21,45 @@ jobs:
       name: production
       url: ${{ steps.tf.outputs.site_url }}
     steps:
+      # Runs before checkout and the test suite so an unconfigured deployment
+      # fails in seconds, naming what is missing, rather than after the full
+      # build with an opaque "Input required and not supplied: aws-region".
+      - name: Verify deployment configuration
+        env:
+          AWS_REGION: ${{ vars.AWS_REGION }}
+          STATE_BUCKET_NAME: ${{ vars.STATE_BUCKET_NAME }}
+          LOCK_TABLE_NAME: ${{ vars.LOCK_TABLE_NAME }}
+          SITE_BUCKET_NAME: ${{ vars.SITE_BUCKET_NAME }}
+          ROUTE53_ZONE_NAME: ${{ vars.ROUTE53_ZONE_NAME }}
+          SITE_DOMAIN: ${{ vars.SITE_DOMAIN }}
+          AWS_DEPLOY_ROLE_ARN: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+        run: |
+          missing=()
+          for name in AWS_REGION STATE_BUCKET_NAME LOCK_TABLE_NAME \
+            SITE_BUCKET_NAME ROUTE53_ZONE_NAME SITE_DOMAIN AWS_DEPLOY_ROLE_ARN; do
+            if [ -z "${!name}" ]; then
+              missing+=("$name")
+            fi
+          done
+
+          if [ "${#missing[@]}" -gt 0 ]; then
+            {
+              echo "### Deployment is not configured"
+              echo
+              echo "Set the following in the repository or the \`production\` environment:"
+              for name in "${missing[@]}"; do
+                echo "- \`$name\`"
+              done
+              echo
+              echo 'See "AWS and GitHub Setup" in README.md.'
+            } >> "$GITHUB_STEP_SUMMARY"
+
+            echo "Missing deployment configuration: ${missing[*]}" >&2
+            exit 1
+          fi
+
+          echo "All required deployment configuration is present."
+
       - name: Check out repository
         uses: actions/checkout@v7
 
