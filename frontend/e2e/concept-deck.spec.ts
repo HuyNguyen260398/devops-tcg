@@ -201,9 +201,20 @@ test("slides the deck in the requested direction", async ({ page }) => {
   await page.getByRole("button", { name: "Next card" }).click();
   const track = page.getByTestId("deck-track");
   await expect(track).toHaveAttribute("data-direction", "next");
-  expect(
-    await track.evaluate((node) => getComputedStyle(node).animationName),
-  ).not.toBe("none");
+  const firstAnimatedTrack = await track.elementHandle();
+  const firstAnimation = await track.evaluate((node) => ({
+    name: getComputedStyle(node).animationName,
+    duration: getComputedStyle(node).animationDuration,
+  }));
+  expect(firstAnimation.name).not.toBe("none");
+  expect(firstAnimation.duration).toBe("0.28s");
+
+  await page.getByRole("button", { name: "Next card" }).click();
+  await expect(page.getByText("03 / 09")).toBeVisible();
+  expect(await firstAnimatedTrack!.evaluate((node) => node.isConnected)).toBe(
+    false,
+  );
+  await expect(track).toHaveAttribute("data-direction", "next");
 
   await page.getByRole("button", { name: "Previous card" }).click();
   await expect(track).toHaveAttribute("data-direction", "previous");
@@ -269,7 +280,13 @@ test("keeps the complete deck navigation inside the viewport", async ({
 
   expect(dimensions.pageHeight).toBeLessThanOrEqual(dimensions.viewportHeight);
   const activeCardBounds = await card(page).boundingBox();
+  const activeContentBounds = await page
+    .getByTestId("card-front")
+    .locator("h2")
+    .locator("../..")
+    .boundingBox();
   expect(activeCardBounds).not.toBeNull();
+  expect(activeContentBounds).not.toBeNull();
 
   for (const name of ["Previous card", "Next card"]) {
     const arrow = page.getByRole("button", { name });
@@ -283,14 +300,14 @@ test("keeps the complete deck navigation inside the viewport", async ({
     if (name === "Previous card") {
       expect(bounds!.x).toBeLessThanOrEqual(16);
       expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(
-        activeCardBounds!.x + 20,
+        activeContentBounds!.x,
       );
     } else {
       expect(
         dimensions.viewportWidth - (bounds!.x + bounds!.width),
       ).toBeLessThanOrEqual(16);
       expect(bounds!.x).toBeGreaterThanOrEqual(
-        activeCardBounds!.x + activeCardBounds!.width - 20,
+        activeContentBounds!.x + activeContentBounds!.width,
       );
     }
   }

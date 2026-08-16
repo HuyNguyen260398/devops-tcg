@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import type { ConceptCardData } from "@/types/concept";
 
 interface DeckPreviewProps {
@@ -6,6 +9,8 @@ interface DeckPreviewProps {
 }
 
 export function DeckPreview({ card, position }: DeckPreviewProps) {
+  const [imageFailed, setImageFailed] = useState(false);
+
   return (
     <div
       aria-hidden="true"
@@ -15,14 +20,19 @@ export function DeckPreview({ card, position }: DeckPreviewProps) {
       className={`deck-preview deck-preview-${position}`}
     >
       <div className="deck-preview-surface">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={card.image.src}
-          alt=""
-          loading="lazy"
-          decoding="async"
-          className="h-full w-full object-cover object-center"
-        />
+        {imageFailed ? (
+          <div className="deck-preview-image-fallback" />
+        ) : (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={card.image.src}
+            alt=""
+            loading="lazy"
+            decoding="async"
+            className="h-full w-full object-cover object-center"
+            onError={() => setImageFailed(true)}
+          />
+        )}
         <div className="deck-preview-shade" />
         <div className="deck-preview-copy">
           <span>{card.type}</span>

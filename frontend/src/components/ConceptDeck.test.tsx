@@ -74,6 +74,21 @@ describe("ConceptDeck", () => {
     expect(screen.getAllByTestId(/deck-preview-/)).toHaveLength(2);
   });
 
+  it("replaces a failed decorative preview image with a styled fallback", () => {
+    render(<ConceptDeck cards={conceptCards} random={() => 0.999999} />);
+
+    const preview = screen.getByTestId("deck-preview-next");
+    const image = preview.querySelector("img");
+    expect(image).not.toBeNull();
+
+    fireEvent.error(image!);
+
+    expect(preview.querySelector("img")).toBeNull();
+    expect(
+      preview.querySelector(".deck-preview-image-fallback"),
+    ).not.toBeNull();
+  });
+
   it("renders all back-face learning content", async () => {
     const user = userEvent.setup();
     render(<ConceptDeck cards={conceptCards} random={() => 0.999999} />);
