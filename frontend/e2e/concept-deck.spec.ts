@@ -42,6 +42,13 @@ const images = [
 const card = (page: import("@playwright/test").Page) =>
   page.locator(".concept-card[data-face]");
 
+// Neighbouring cards stay mounted, so face queries must target the centre.
+const front = (page: import("@playwright/test").Page) =>
+  card(page).getByTestId("card-front");
+
+const slot = (page: import("@playwright/test").Page, offset: number) =>
+  page.locator(`.deck-slot[data-slot="${offset}"]`);
+
 async function activeTitle(page: import("@playwright/test").Page) {
   const label = await card(page).getAttribute("aria-label");
 
@@ -185,39 +192,165 @@ test("centers the stacked header and shows faded adjacent cards", async ({
     titleBounds!.y + titleBounds!.height,
   );
 
-  const previews = page.locator("[data-deck-preview]");
-  await expect(previews).toHaveCount(2);
-  for (const preview of await previews.all()) {
-    await expect(preview).toHaveAttribute("aria-hidden", "true");
-    expect(
-      await preview.evaluate((node) => Number(getComputedStyle(node).opacity)),
-    ).toBeLessThan(1);
+  for (const offset of [-1, 1]) {
+    const neighbour = slot(page, offset);
+    await expect(neighbour).toHaveCount(1);
+    await expect(neighbour.locator(".concept-card")).toHaveAttribute(
+      "aria-hidden",
+      "true",
+    );
+
+    const style = await neighbour.evaluate((node) => ({
+      opacity: Number(getComputedStyle(node).opacity),
+      events: getComputedStyle(node).pointerEvents,
+    }));
+    expect(style.opacity).toBeGreaterThan(0);
+    expect(style.opacity).toBeLessThan(1);
+    expect(style.events).toBe("none");
+  }
+
+  const staged = page.locator('.deck-slot[data-slot="2"]');
+  await expect(staged).toHaveCount(1);
+  expect(
+    await staged.evaluate((node) => Number(getComputedStyle(node).opacity)),
+  ).toBe(0);
+});
+
+test("shows keyboard focus on the card edge, not as a panel around it", async ({
+  page,
+}) => {
+  await page.goto("/");
+  const active = card(page);
+  await expect(active).toBeVisible(); // The card only exists after hydration.
+  await page.keyboard.press("Tab");
+
+  await expect
+    .poll(() => active.evaluate((node) => node.matches(":focus-visible")))
+    .toBe(true);
+
+  const focus = await active.evaluate((node) => ({
+    shadow: getComputedStyle(node).boxShadow,
+  }));
+
+  // Keyboard focus must stay visible for accessibility.
+  expect(focus.shadow).toContain("rgb(103, 232, 249)");
+  // But never as an opaque offset band, which reads as a panel behind the card.
+  expect(focus.shadow).not.toContain("rgb(5, 7, 20)");
+
+  const spreads = [...focus.shadow.matchAll(/(\d+)px(?=[,)]|\s*$)/g)].map(
+    (match) => Number(match[1]),
+  );
+  expect(Math.max(...spreads)).toBeLessThanOrEqual(4);
+});
+
+test("flips against the page background with nothing bright behind the faces", async ({
+  page,
+}) => {
+  await page.goto("/");
+  const active = card(page);
+  await expect(active).toBeVisible();
+
+  // Freeze the flip at its midpoint, where both faces are edge-on and whatever
+  // sits behind them is fully exposed.
+  await active.evaluate((node) => {
+    const inner = node.querySelector<HTMLElement>(".concept-card-inner")!;
+    inner.style.transition = "none";
+    inner.style.transform = "rotateY(90deg)";
+  });
+
+  const behind = await page.evaluate(() => {
+    const el = document.querySelector(".concept-card[data-face]")!;
+    const rect = el.getBoundingClientRect();
+    return document
+      .elementsFromPoint(rect.x + rect.width / 2, rect.y + rect.height / 2)
+      .map((node) => getComputedStyle(node).backgroundImage)
+      .filter((image) => image !== "none");
+  });
+
+  // The foil must not be left behind the faces as a bright slab.
+  expect(behind.filter((image) => image.includes("conic-gradient"))).toEqual(
+    [],
+  );
+  // What shows through mid-flip is the dark page background itself.
+  expect(behind).toHaveLength(1);
+  expect(behind[0]).toContain("rgb(5, 7, 20)");
+
+  // The foil edge still belongs to the faces, so it turns away with them.
+  const rim = await active
+    .locator(".card-face-front")
+    .evaluate((node) => getComputedStyle(node).backgroundImage);
+  expect(rim).toContain("conic-gradient");
+});
+
+test("never parks a neighbouring card behind the centred card", async ({
+  page,
+}) => {
+  await page.goto("/");
+
+  const centre = await slot(page, 0).boundingBox();
+  expect(centre).not.toBeNull();
+
+  for (const offset of [-1, 1]) {
+    const neighbour = await slot(page, offset).boundingBox();
+    expect(neighbour).not.toBeNull();
+
+    const overlaps =
+      neighbour!.x < centre!.x + centre!.width &&
+      neighbour!.x + neighbour!.width > centre!.x;
+    expect(overlaps, `slot ${offset} sits behind the centred card`).toBe(false);
   }
 });
 
-test("slides the deck in the requested direction", async ({ page }) => {
+test("flips the centred card with Space after the pointer scrolls it", async ({
+  page,
+}) => {
   await page.goto("/");
+  const active = card(page);
+
+  await active.hover();
+  await page.mouse.wheel(0, 200);
+  await expect
+    .poll(() => page.evaluate(() => document.activeElement?.tagName))
+    .toBe("BODY");
+
+  await page.keyboard.press("Space");
+  await expect(active).toHaveAttribute("data-face", "back");
+
+  await page.keyboard.press("Enter");
+  await expect(active).toHaveAttribute("data-face", "front");
+});
+
+test("travels the neighbouring card into the centre without remounting it", async ({
+  page,
+}) => {
+  await page.goto("/");
+
+  const motion = await slot(page, 1).evaluate((node) => ({
+    property: getComputedStyle(node).transitionProperty,
+    duration: getComputedStyle(node).transitionDuration,
+  }));
+  expect(motion.property).toContain("transform");
+  expect(motion.duration).toContain("0.42s");
+
+  const incoming = await slot(page, 1).elementHandle();
+  const outgoing = await slot(page, 0).elementHandle();
+  expect(incoming).not.toBeNull();
+  expect(outgoing).not.toBeNull();
 
   await page.getByRole("button", { name: "Next card" }).click();
   const track = page.getByTestId("deck-track");
   await expect(track).toHaveAttribute("data-direction", "next");
-  const firstAnimatedTrack = await track.elementHandle();
-  const firstAnimation = await track.evaluate((node) => ({
-    name: getComputedStyle(node).animationName,
-    duration: getComputedStyle(node).animationDuration,
-  }));
-  expect(firstAnimation.name).not.toBe("none");
-  expect(firstAnimation.duration).toBe("0.28s");
 
-  await page.getByRole("button", { name: "Next card" }).click();
-  await expect(page.getByText("03 / 09")).toBeVisible();
-  expect(await firstAnimatedTrack!.evaluate((node) => node.isConnected)).toBe(
-    false,
-  );
-  await expect(track).toHaveAttribute("data-direction", "next");
+  // The very element that was peeking on the right is now the centred card,
+  // which is what makes the movement read as travel rather than a swap.
+  await expect.poll(() => incoming!.getAttribute("data-slot")).toBe("0");
+  expect(await incoming!.evaluate((node) => node.isConnected)).toBe(true);
+  expect(await outgoing!.getAttribute("data-slot")).toBe("-1");
 
   await page.getByRole("button", { name: "Previous card" }).click();
   await expect(track).toHaveAttribute("data-direction", "previous");
+  await expect.poll(() => outgoing!.getAttribute("data-slot")).toBe("0");
+  expect(await incoming!.getAttribute("data-slot")).toBe("1");
 });
 
 test("loads a unique local image for every card", async ({ page }) => {
@@ -280,8 +413,7 @@ test("keeps the complete deck navigation inside the viewport", async ({
 
   expect(dimensions.pageHeight).toBeLessThanOrEqual(dimensions.viewportHeight);
   const activeCardBounds = await card(page).boundingBox();
-  const activeContentBounds = await page
-    .getByTestId("card-front")
+  const activeContentBounds = await front(page)
     .locator("h2")
     .locator("../..")
     .boundingBox();
@@ -317,8 +449,7 @@ test("keeps the complete deck navigation inside the viewport", async ({
   ).toHaveCount(0);
   await expect(page.getByText("Flip for anatomy and flow")).toHaveCount(0);
 
-  const front = page.getByTestId("card-front");
-  const frontLayout = await front.evaluate((node) => ({
+  const frontLayout = await front(page).evaluate((node) => ({
     height: node.clientHeight,
     overflowY: getComputedStyle(node).overflowY,
   }));
@@ -341,18 +472,18 @@ test("keeps the Reverse Proxy card readable at 200 percent text zoom", async ({
     page.getByRole("heading", { name: "Reverse Proxy" }),
   ).toBeVisible();
 
-  const front = page.getByTestId("card-front");
-  const frontScroll = await front.evaluate((node) => ({
+  const activeFront = front(page);
+  const frontScroll = await activeFront.evaluate((node) => ({
     overflowY: getComputedStyle(node).overflowY,
     scrollHeight: node.scrollHeight,
     clientHeight: node.clientHeight,
   }));
   expect(frontScroll.overflowY).toBe("auto");
   expect(frontScroll.scrollHeight).toBeGreaterThan(frontScroll.clientHeight);
-  await front.evaluate((node) => {
+  await activeFront.evaluate((node) => {
     node.scrollTop = node.scrollHeight;
   });
-  await expect(front.getByText("gateway", { exact: true })).toBeVisible();
+  await expect(activeFront.getByText("gateway", { exact: true })).toBeVisible();
 
   await card(page).click();
   const back = page.getByTestId("card-back");
@@ -383,7 +514,7 @@ test("removes transition for reduced motion", async ({ page }) => {
 
   await expect
     .poll(() =>
-      page
+      card(page)
         .locator(".concept-card-inner")
         .evaluate((node) => getComputedStyle(node).transitionDuration),
     )
@@ -392,9 +523,9 @@ test("removes transition for reduced motion", async ({ page }) => {
   await page.getByRole("button", { name: "Next card" }).click();
   await expect
     .poll(() =>
-      page
-        .getByTestId("deck-track")
-        .evaluate((node) => getComputedStyle(node).animationName),
+      slot(page, 0).evaluate(
+        (node) => getComputedStyle(node).transitionDuration,
+      ),
     )
-    .toBe("none");
+    .toBe("0s");
 });

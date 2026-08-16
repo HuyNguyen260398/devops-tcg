@@ -1,11 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { shuffleCards, type RandomSource } from "@/lib/shuffle";
 import type { ConceptCardData } from "@/types/concept";
 import { ConceptCard } from "./ConceptCard";
 import { DeckControls } from "./DeckControls";
-import { DeckPreview } from "./DeckPreview";
 
 interface ConceptDeckProps {
   readonly cards: readonly ConceptCardData[];
@@ -17,6 +16,22 @@ const formatPosition = (position: number) =>
 
 const wrapIndex = (index: number, length: number) =>
   ((index % length) + length) % length;
+
+// Cards within this many slots of the centre stay mounted. The outermost ring
+// is staged off-stage and invisible so an arriving card can travel in rather
+// than appear at its neighbouring position.
+const SLOT_RADIUS = 2;
+
+// The shortest signed distance from the active card, so the deck can loop
+// without a card ever jumping the long way around the order.
+const slotOffset = (index: number, activeIndex: number, length: number) => {
+  const half = Math.floor(length / 2);
+  const offset = index - activeIndex;
+
+  if (offset > half) return offset - length;
+  if (offset < -half) return offset + length;
+  return offset;
+};
 
 type NavigationDirection = "previous" | "next";
 
@@ -72,17 +87,28 @@ interface DeckOrder {
   readonly cards: readonly ConceptCardData[];
 }
 
-interface DeckMotion {
-  readonly direction: NavigationDirection;
-  readonly sequence: number;
-}
-
 export function ConceptDeck({ cards, random = Math.random }: ConceptDeckProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [deckOrder, setDeckOrder] = useState<DeckOrder | null>(null);
-  const [motion, setMotion] = useState<DeckMotion | null>(null);
+  const [direction, setDirection] = useState<NavigationDirection | null>(null);
+  const [isFlipped, setIsFlipped] = useState(false);
   const activeCardRef = useRef<HTMLDivElement>(null);
   const restoreActiveFocus = useRef(false);
+  const deckLength = deckOrder?.cards.length ?? 0;
+
+  const navigate = useCallback(
+    (requested: NavigationDirection, shouldRestoreCardFocus = false) => {
+      if (deckLength < 2) return;
+
+      restoreActiveFocus.current = shouldRestoreCardFocus;
+      setDirection(requested);
+      setIsFlipped(false);
+      setActiveIndex((index) =>
+        wrapIndex(index + (requested === "next" ? 1 : -1), deckLength),
+      );
+    },
+    [deckLength],
+  );
 
   useEffect(() => {
     if (cards.length === 0) return;
@@ -93,7 +119,7 @@ export function ConceptDeck({ cards, random = Math.random }: ConceptDeckProps) {
       cards: shuffleCards(cards, random),
     });
     setActiveIndex(0);
-    setMotion(null);
+    setDirection(null);
   }, [cards, random]);
 
   useEffect(() => {
@@ -102,6 +128,40 @@ export function ConceptDeck({ cards, random = Math.random }: ConceptDeckProps) {
     activeCardRef.current?.focus();
     restoreActiveFocus.current = false;
   }, [activeIndex]);
+
+  // Deck shortcuts listen on the document so they keep working when focus sits
+  // outside the card, such as after the pointer scrolls a card face.
+  useEffect(() => {
+    if (deckLength === 0) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) {
+        return;
+      }
+
+      const target = event.target as HTMLElement | null;
+
+      if (event.key === "Enter" || event.key === " ") {
+        // A focused control keeps Enter and Space for its own activation.
+        if (target?.closest("button")) return;
+
+        event.preventDefault();
+        setIsFlipped((flipped) => !flipped);
+        return;
+      }
+
+      if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+
+      event.preventDefault();
+      const cardHasFocus =
+        activeCardRef.current === target ||
+        Boolean(target && activeCardRef.current?.contains(target));
+      navigate(event.key === "ArrowRight" ? "next" : "previous", cardHasFocus);
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [deckLength, navigate]);
 
   if (cards.length === 0) {
     return <p>No concept cards available.</p>;
@@ -117,67 +177,44 @@ export function ConceptDeck({ cards, random = Math.random }: ConceptDeckProps) {
 
   const shuffledCards = deckOrder.cards;
   const hasMultipleCards = shuffledCards.length > 1;
-  const card = shuffledCards[activeIndex];
-  const previousCard =
-    shuffledCards[wrapIndex(activeIndex - 1, shuffledCards.length)];
-  const nextCard =
-    shuffledCards[wrapIndex(activeIndex + 1, shuffledCards.length)];
-
-  const navigate = (
-    direction: NavigationDirection,
-    shouldRestoreCardFocus = false,
-  ) => {
-    if (!hasMultipleCards) return;
-
-    restoreActiveFocus.current = shouldRestoreCardFocus;
-    setMotion((current) => ({
-      direction,
-      sequence: (current?.sequence ?? 0) + 1,
-    }));
-    setActiveIndex((index) =>
-      wrapIndex(index + (direction === "next" ? 1 : -1), shuffledCards.length),
-    );
-  };
 
   return (
     <section
       aria-label="Concept card deck"
       className="concept-deck flex min-h-0 w-full flex-1 flex-col"
-      onKeyDown={(event) => {
-        if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
-        if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) {
-          return;
-        }
-
-        event.preventDefault();
-        const eventTarget = event.target as Node;
-        const cardHasFocus =
-          activeCardRef.current === eventTarget ||
-          Boolean(activeCardRef.current?.contains(eventTarget));
-        navigate(
-          event.key === "ArrowRight" ? "next" : "previous",
-          cardHasFocus,
-        );
-      }}
     >
       <DeckHeader position={activeIndex + 1} total={shuffledCards.length} />
 
       <div className="deck-carousel relative flex min-h-0 w-full flex-1">
         <div
-          key={motion?.sequence ?? 0}
           data-testid="deck-track"
-          data-direction={motion?.direction}
-          className="deck-track relative flex min-h-0 w-full flex-1 items-stretch justify-center"
+          data-direction={direction ?? undefined}
+          className="deck-track relative min-h-0 w-full flex-1"
         >
-          {hasMultipleCards ? (
-            <DeckPreview card={previousCard} position="previous" />
-          ) : null}
-          <div className="deck-active-card relative z-10 flex min-h-0">
-            <ConceptCard ref={activeCardRef} card={card} />
-          </div>
-          {hasMultipleCards ? (
-            <DeckPreview card={nextCard} position="next" />
-          ) : null}
+          {shuffledCards.map((deckCard, index) => {
+            const offset = slotOffset(index, activeIndex, shuffledCards.length);
+
+            if (Math.abs(offset) > SLOT_RADIUS) return null;
+
+            const isActive = offset === 0;
+
+            return (
+              <div
+                key={deckCard.id}
+                data-testid={`deck-slot-${deckCard.id}`}
+                data-slot={offset}
+                className="deck-slot"
+              >
+                <ConceptCard
+                  ref={isActive ? activeCardRef : undefined}
+                  card={deckCard}
+                  isActive={isActive}
+                  isFlipped={isFlipped}
+                  onToggle={() => setIsFlipped((flipped) => !flipped)}
+                />
+              </div>
+            );
+          })}
         </div>
       </div>
 

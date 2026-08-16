@@ -5,6 +5,11 @@ import { describe, expect, it } from "vitest";
 import { conceptCards } from "@/data/conceptCards";
 import { ConceptDeck } from "./ConceptDeck";
 
+const slot = (cardId: string) =>
+  document.querySelector<HTMLElement>(`[data-testid="deck-slot-${cardId}"]`);
+
+const slotOf = (cardId: string) => slot(cardId)?.getAttribute("data-slot");
+
 describe("ConceptDeck", () => {
   it("renders the title above its counter with enabled carousel controls", () => {
     render(<ConceptDeck cards={conceptCards} random={() => 0.999999} />);
@@ -17,9 +22,10 @@ describe("ConceptDeck", () => {
       "01 / 09",
     );
     expect(screen.queryByText("CONCEPT STUDY DECK")).not.toBeInTheDocument();
-    expect(screen.getByText(conceptCards[0].definition)).toBeInTheDocument();
+    const active = within(slot("proxy")!);
+    expect(active.getByText(conceptCards[0].definition)).toBeInTheDocument();
     for (const keyword of conceptCards[0].keywords) {
-      expect(screen.getByText(keyword)).toBeInTheDocument();
+      expect(active.getByText(keyword)).toBeInTheDocument();
     }
     const previous = screen.getByRole("button", { name: "Previous card" });
     const next = screen.getByRole("button", { name: "Next card" });
@@ -60,33 +66,135 @@ describe("ConceptDeck", () => {
     expect(screen.queryByText("Flip for anatomy and flow")).toBeNull();
   });
 
-  it("shows decorative previous and next cards behind the active card", () => {
+  it("flips the centred card when Space is pressed outside the card", async () => {
     render(<ConceptDeck cards={conceptCards} random={() => 0.999999} />);
 
-    expect(screen.getByTestId("deck-preview-previous")).toHaveAttribute(
-      "data-card-title",
-      "SSH",
-    );
-    expect(screen.getByTestId("deck-preview-next")).toHaveAttribute(
-      "data-card-title",
-      "CDN",
-    );
-    expect(screen.getAllByTestId(/deck-preview-/)).toHaveLength(2);
+    const card = screen.getByRole("button", {
+      name: "Proxy card, front shown",
+    });
+    expect(card).toHaveAttribute("data-face", "front");
+
+    // Scrolling the card with a wheel leaves focus on the document body.
+    fireEvent.keyDown(document.body, { key: " " });
+
+    expect(card).toHaveAttribute("data-face", "back");
   });
 
-  it("replaces a failed decorative preview image with a styled fallback", () => {
+  it("flips the centred card when Enter is pressed outside the card", () => {
     render(<ConceptDeck cards={conceptCards} random={() => 0.999999} />);
 
-    const preview = screen.getByTestId("deck-preview-next");
-    const image = preview.querySelector("img");
-    expect(image).not.toBeNull();
+    const card = screen.getByRole("button", {
+      name: "Proxy card, front shown",
+    });
 
-    fireEvent.error(image!);
+    fireEvent.keyDown(document.body, { key: "Enter" });
 
-    expect(preview.querySelector("img")).toBeNull();
+    expect(card).toHaveAttribute("data-face", "back");
+  });
+
+  it("leaves Space to a focused arrow button instead of flipping", async () => {
+    const user = userEvent.setup();
+    render(<ConceptDeck cards={conceptCards} random={() => 0.999999} />);
+
+    screen.getByRole("button", { name: "Next card" }).focus();
+    await user.keyboard(" ");
+
     expect(
-      preview.querySelector(".deck-preview-image-fallback"),
+      screen.getByRole("button", { name: "CDN card, front shown" }),
+    ).toHaveAttribute("data-face", "front");
+    expect(screen.getByText("02 / 09")).toBeInTheDocument();
+  });
+
+  it("places each neighbouring card in its own signed slot", () => {
+    render(<ConceptDeck cards={conceptCards} random={() => 0.999999} />);
+
+    expect(slotOf("proxy")).toBe("0");
+    expect(slotOf("cdn")).toBe("1");
+    expect(slotOf("ssh")).toBe("-1");
+  });
+
+  it("stages the card beyond each visible neighbour so none can pop in", () => {
+    render(<ConceptDeck cards={conceptCards} random={() => 0.999999} />);
+
+    expect(slotOf("nginx")).toBe("2");
+    expect(slotOf("tls")).toBe("-2");
+    expect(slot("reverse-proxy")).toBeNull();
+    expect(screen.getAllByTestId(/^deck-slot-/)).toHaveLength(5);
+  });
+
+  it("moves the same card element between slots instead of remounting it", async () => {
+    const user = userEvent.setup();
+    render(<ConceptDeck cards={conceptCards} random={() => 0.999999} />);
+
+    const incoming = slot("cdn");
+    const outgoing = slot("proxy");
+    expect(incoming).not.toBeNull();
+
+    await user.click(screen.getByRole("button", { name: "Next card" }));
+
+    expect(slot("cdn")).toBe(incoming);
+    expect(slot("proxy")).toBe(outgoing);
+    expect(incoming).toHaveAttribute("data-slot", "0");
+    expect(outgoing).toHaveAttribute("data-slot", "-1");
+    expect(incoming!.isConnected).toBe(true);
+  });
+
+  it("keeps every mounted card's element ids unique", () => {
+    render(<ConceptDeck cards={conceptCards} random={() => 0.999999} />);
+
+    const ids = [...document.querySelectorAll("[id]")].map((node) => node.id);
+
+    expect(ids.length).toBeGreaterThan(0);
+    expect([...new Set(ids)]).toHaveLength(ids.length);
+  });
+
+  it("hides every off-centre slot from assistive technology and focus", () => {
+    render(<ConceptDeck cards={conceptCards} random={() => 0.999999} />);
+
+    for (const id of ["cdn", "nginx", "ssh", "tls"]) {
+      const card = slot(id)!.querySelector(".concept-card")!;
+      expect(card).toHaveAttribute("aria-hidden", "true");
+      expect(card).not.toHaveAttribute("tabindex");
+      expect(card).not.toHaveAttribute("role", "button");
+    }
+
+    const active = slot("proxy")!.querySelector(".concept-card")!;
+    expect(active).toHaveAttribute("role", "button");
+    expect(active).toHaveAttribute("tabindex", "0");
+    expect(active).not.toHaveAttribute("aria-hidden");
+  });
+
+  it("renders a back face only for the centred card", async () => {
+    const user = userEvent.setup();
+    render(<ConceptDeck cards={conceptCards} random={() => 0.999999} />);
+
+    expect(screen.getAllByTestId("card-back")).toHaveLength(1);
+    expect(slot("cdn")!.querySelector('[data-testid="card-back"]')).toBeNull();
+
+    await user.click(screen.getByRole("button", { name: "Next card" }));
+
+    expect(screen.getAllByTestId("card-back")).toHaveLength(1);
+    expect(
+      slot("cdn")!.querySelector('[data-testid="card-back"]'),
     ).not.toBeNull();
+  });
+
+  it("returns a flipped card to its front once it leaves the centre", async () => {
+    const user = userEvent.setup();
+    render(<ConceptDeck cards={conceptCards} random={() => 0.999999} />);
+
+    const card = screen.getByRole("button", {
+      name: "Proxy card, front shown",
+    });
+    await user.click(card);
+    expect(card).toHaveAttribute("data-face", "back");
+
+    await user.click(screen.getByRole("button", { name: "Next card" }));
+    await user.click(screen.getByRole("button", { name: "Previous card" }));
+
+    expect(
+      screen.getByRole("button", { name: "Proxy card, front shown" }),
+    ).toHaveAttribute("data-face", "front");
   });
 
   it("renders all back-face learning content", async () => {

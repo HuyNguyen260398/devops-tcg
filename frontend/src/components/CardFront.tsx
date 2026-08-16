@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import type { ConceptCardData } from "@/types/concept";
 
 interface CardFrontProps {
@@ -9,6 +9,10 @@ interface CardFrontProps {
 
 export function CardFront({ card }: CardFrontProps) {
   const [imageFailed, setImageFailed] = useState(false);
+  // Several cards are mounted at once, so section ids must not collide.
+  const headingId = useId();
+  const definitionHeadingId = `${headingId}-definition`;
+  const keywordsHeadingId = `${headingId}-keywords`;
 
   return (
     <article className="relative flex h-full flex-col">
@@ -65,11 +69,11 @@ export function CardFront({ card }: CardFrontProps) {
         </div>
 
         <section
-          aria-labelledby="definition-heading"
+          aria-labelledby={definitionHeadingId}
           className="mb-4 rounded-2xl border border-white/10 bg-white/[0.055] p-4 shadow-inner backdrop-blur-sm"
         >
           <h3
-            id="definition-heading"
+            id={definitionHeadingId}
             className="mb-2 text-[0.62rem] font-bold uppercase tracking-[0.2em] text-cyan-200"
           >
             Basic definition
@@ -77,9 +81,9 @@ export function CardFront({ card }: CardFrontProps) {
           <p className="text-sm leading-6 text-slate-100">{card.definition}</p>
         </section>
 
-        <section aria-labelledby="keywords-heading">
+        <section aria-labelledby={keywordsHeadingId}>
           <h3
-            id="keywords-heading"
+            id={keywordsHeadingId}
             className="mb-2 text-[0.62rem] font-bold uppercase tracking-[0.2em] text-violet-200"
           >
             Key words
