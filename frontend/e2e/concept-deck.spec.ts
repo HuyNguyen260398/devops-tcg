@@ -39,34 +39,65 @@ const images = [
   ],
 ] as const;
 
+const card = (page: import("@playwright/test").Page) =>
+  page.locator(".concept-card[data-face]");
+
+async function activeTitle(page: import("@playwright/test").Page) {
+  const label = await card(page).getAttribute("aria-label");
+
+  if (!label) {
+    throw new Error("The active card is missing its accessible label");
+  }
+
+  return label.replace(/ card, (?:front|back) shown$/, "");
+}
+
+async function navigateToCard(
+  page: import("@playwright/test").Page,
+  title: string,
+) {
+  const next = page.getByRole("button", { name: "Next card" });
+
+  for (let position = 1; position <= images.length; position += 1) {
+    if ((await activeTitle(page)) === title) return;
+    if (await next.isDisabled()) break;
+    await next.click();
+  }
+
+  throw new Error(`Could not find the ${title} card in the shuffled deck`);
+}
+
 test("loads front-first and flips both directions", async ({ page }) => {
   await page.goto("/");
-  const card = page.getByRole("button", { name: "Proxy card, front shown" });
+  const activeCard = card(page);
+  const title = await activeTitle(page);
 
-  await expect(card).toHaveAttribute("data-face", "front");
-  await page.getByRole("button", { name: "Show card back" }).click();
-  await expect(
-    page.getByRole("button", { name: "Proxy card, back shown" }),
-  ).toHaveAttribute("data-face", "back");
+  await expect(activeCard).toHaveAttribute("data-face", "front");
+  await expect(page.getByRole("button", { name: /show card/i })).toHaveCount(0);
+  await activeCard.click();
+  await expect(activeCard).toHaveAttribute(
+    "aria-label",
+    `${title} card, back shown`,
+  );
+  await expect(activeCard).toHaveAttribute("data-face", "back");
   await expect(page.getByRole("heading", { name: "Components" })).toBeVisible();
   await expect(
     page.getByRole("heading", { name: "How it works" }),
   ).toBeVisible();
-  await page.getByRole("button", { name: "Show card front" }).click();
-  await expect(card).toHaveAttribute("data-face", "front");
+  await activeCard.click();
+  await expect(activeCard).toHaveAttribute("data-face", "front");
 });
 
 test("supports keyboard use and first-card navigation", async ({ page }) => {
   await page.goto("/");
-  const card = page.getByRole("button", { name: "Proxy card, front shown" });
+  const activeCard = card(page);
 
-  await card.focus();
+  await activeCard.focus();
   await page.keyboard.press("Enter");
-  await expect(
-    page.getByRole("button", { name: "Proxy card, back shown" }),
-  ).toBeFocused();
+  await expect(activeCard).toHaveAttribute("data-face", "back");
+  await expect(activeCard).toBeFocused();
   await page.keyboard.press("Space");
-  await expect(card).toHaveAttribute("data-face", "front");
+  await expect(activeCard).toHaveAttribute("data-face", "front");
   await expect(
     page.getByRole("button", { name: "Previous card" }),
   ).toBeDisabled();
@@ -84,23 +115,33 @@ test("navigates the shipped deck with a live bounded counter", async ({
   await expect(previous).toBeDisabled();
   await expect(next).toBeEnabled();
 
-  await next.click();
-  await expect(next).toBeFocused();
-  await expect(
-    page.getByRole("button", { name: "CDN card, front shown" }),
-  ).toBeVisible();
-  await expect(page.getByText("02 / 09")).toBeVisible();
+  const seen = new Set<string>();
 
-  for (let position = 3; position <= 9; position += 1) {
-    await next.click();
+  for (let position = 1; position <= images.length; position += 1) {
+    await expect(
+      page.getByText(`${position.toString().padStart(2, "0")} / 09`),
+    ).toBeVisible();
+    seen.add(await activeTitle(page));
+
+    if (position < images.length) {
+      await next.click();
+      if (position < images.length - 1) {
+        await expect(next).toBeFocused();
+      }
+    }
   }
 
-  await expect(
-    page.getByRole("button", { name: "SSH card, front shown" }),
-  ).toBeVisible();
-  await expect(page.getByText("09 / 09")).toBeVisible();
+  expect(seen.size).toBe(images.length);
   await expect(next).toBeDisabled();
   await expect(previous).toBeEnabled();
+
+  for (let position = images.length; position > 1; position -= 1) {
+    await previous.click();
+  }
+
+  await expect(page.getByText("01 / 09")).toBeVisible();
+  await expect(previous).toBeDisabled();
+  await expect(next).toBeEnabled();
 });
 
 test("loads a unique local image for every card", async ({ page }) => {
@@ -115,19 +156,26 @@ test("loads a unique local image for every card", async ({ page }) => {
   });
 
   await page.goto("/");
+  const loadedSources = new Set<string>();
 
-  for (const [index, [alt, src]] of images.entries()) {
-    const image = page.getByRole("img", { name: alt });
-    await expect(image).toHaveAttribute("src", src);
+  for (let position = 1; position <= images.length; position += 1) {
+    const image = card(page).locator(".card-face-front img");
+    const source = await image.getAttribute("src");
+
+    expect(source).not.toBeNull();
+    loadedSources.add(source!);
     await expect
       .poll(() => image.evaluate((node: HTMLImageElement) => node.naturalWidth))
       .toBeGreaterThan(0);
 
-    if (index < images.length - 1) {
+    if (position < images.length) {
       await page.getByRole("button", { name: "Next card" }).click();
     }
   }
 
+  expect([...loadedSources].sort()).toEqual(
+    images.map(([, source]) => source).sort(),
+  );
   expect(externalImages).toEqual([]);
 });
 
@@ -154,15 +202,16 @@ test("keeps the complete deck navigation inside the viewport", async ({
   }));
 
   expect(dimensions.pageHeight).toBeLessThanOrEqual(dimensions.viewportHeight);
-  await expect(
-    page.getByRole("button", { name: "Previous card" }),
-  ).toBeInViewport({ ratio: 1 });
-  await expect(
-    page.getByRole("button", { name: "Show card back" }),
-  ).toBeInViewport({ ratio: 1 });
-  await expect(page.getByRole("button", { name: "Next card" })).toBeInViewport({
-    ratio: 1,
-  });
+  for (const name of ["Previous card", "Next card"]) {
+    const arrow = page.getByRole("button", { name });
+    await expect(arrow).toBeInViewport({ ratio: 1 });
+
+    const bounds = await arrow.boundingBox();
+    expect(bounds).not.toBeNull();
+    expect(bounds!.width).toBeGreaterThanOrEqual(44);
+    expect(bounds!.height).toBeGreaterThanOrEqual(44);
+  }
+  await expect(page.getByRole("button", { name: /show card/i })).toHaveCount(0);
   await expect(
     page.getByText("Click the card or use Enter or Space to flip it."),
   ).toBeInViewport({ ratio: 1 });
@@ -182,9 +231,7 @@ test("keeps the Reverse Proxy card readable at 200 percent text zoom", async ({
   test.skip(testInfo.project.name !== "mobile");
   await page.goto("/");
 
-  for (let position = 1; position < 4; position += 1) {
-    await page.getByRole("button", { name: "Next card" }).click();
-  }
+  await navigateToCard(page, "Reverse Proxy");
   await page.evaluate(() => {
     document.documentElement.style.fontSize = "200%";
   });
@@ -206,7 +253,7 @@ test("keeps the Reverse Proxy card readable at 200 percent text zoom", async ({
   });
   await expect(front.getByText("gateway", { exact: true })).toBeVisible();
 
-  await page.getByRole("button", { name: "Show card back" }).click();
+  await card(page).click();
   const back = page.getByTestId("card-back");
   const backScroll = await back.evaluate((node) => ({
     overflowY: getComputedStyle(node).overflowY,
