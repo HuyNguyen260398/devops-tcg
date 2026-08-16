@@ -388,6 +388,61 @@ test("loads a unique local image for every card", async ({ page }) => {
   expect(externalImages).toEqual([]);
 });
 
+test("keeps the arrows clear of the card at phone widths", async ({
+  page,
+}, testInfo) => {
+  test.skip(testInfo.project.name !== "mobile");
+
+  for (const width of [320, 375, 390, 412]) {
+    await page.setViewportSize({ width, height: 700 });
+    await page.goto("/");
+    await expect(card(page)).toBeVisible();
+
+    const centre = await slot(page, 0).boundingBox();
+    expect(centre).not.toBeNull();
+
+    for (const name of ["Previous card", "Next card"]) {
+      const arrow = await page.getByRole("button", { name }).boundingBox();
+      expect(arrow).not.toBeNull();
+
+      const overlaps =
+        arrow!.x < centre!.x + centre!.width &&
+        arrow!.x + arrow!.width > centre!.x;
+      expect(overlaps, `${name} covers the card at ${width}px`).toBe(false);
+      expect(arrow!.width).toBeGreaterThanOrEqual(44);
+      expect(arrow!.height).toBeGreaterThanOrEqual(44);
+    }
+  }
+});
+
+test("navigates the deck with a touch swipe", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "mobile");
+  await page.goto("/");
+  await expect(page.getByText("01 / 09")).toBeVisible();
+
+  const track = page.getByTestId("deck-track");
+  const box = await track.boundingBox();
+  const midY = box!.y + box!.height / 2;
+  const touch = (clientX: number, clientY: number) => ({
+    clientX,
+    clientY,
+    pointerType: "touch",
+    isPrimary: true,
+    bubbles: true,
+  });
+
+  await track.dispatchEvent(
+    "pointerdown",
+    touch(box!.x + box!.width - 40, midY),
+  );
+  await track.dispatchEvent("pointerup", touch(box!.x + 40, midY));
+  await expect(page.getByText("02 / 09")).toBeVisible();
+
+  await track.dispatchEvent("pointerdown", touch(box!.x + 40, midY));
+  await track.dispatchEvent("pointerup", touch(box!.x + box!.width - 40, midY));
+  await expect(page.getByText("01 / 09")).toBeVisible();
+});
+
 test("does not overflow at 320 pixels", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== "mobile");
   await page.goto("/");

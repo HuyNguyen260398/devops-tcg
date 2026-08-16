@@ -22,6 +22,10 @@ const wrapIndex = (index: number, length: number) =>
 // than appear at its neighbouring position.
 const SLOT_RADIUS = 2;
 
+// A touch drag must clear this horizontally, and be more horizontal than
+// vertical, before it counts as a swipe rather than a scroll of the card face.
+const SWIPE_THRESHOLD = 45;
+
 // The shortest signed distance from the active card, so the deck can loop
 // without a card ever jumping the long way around the order.
 const slotOffset = (index: number, activeIndex: number, length: number) => {
@@ -94,6 +98,8 @@ export function ConceptDeck({ cards, random = Math.random }: ConceptDeckProps) {
   const [isFlipped, setIsFlipped] = useState(false);
   const activeCardRef = useRef<HTMLDivElement>(null);
   const restoreActiveFocus = useRef(false);
+  const swipeStart = useRef<{ x: number; y: number } | null>(null);
+  const suppressFlip = useRef(false);
   const deckLength = deckOrder?.cards.length ?? 0;
 
   const navigate = useCallback(
@@ -178,6 +184,34 @@ export function ConceptDeck({ cards, random = Math.random }: ConceptDeckProps) {
   const shuffledCards = deckOrder.cards;
   const hasMultipleCards = shuffledCards.length > 1;
 
+  const toggleFlip = () => {
+    // A swipe still ends in a click, which must not also flip the card.
+    if (suppressFlip.current) {
+      suppressFlip.current = false;
+      return;
+    }
+
+    setIsFlipped((flipped) => !flipped);
+  };
+
+  const endSwipe = (event: React.PointerEvent) => {
+    const start = swipeStart.current;
+    swipeStart.current = null;
+
+    if (start === null) return;
+
+    const deltaX = event.clientX - start.x;
+    const deltaY = event.clientY - start.y;
+    const isSwipe =
+      Math.abs(deltaX) >= SWIPE_THRESHOLD &&
+      Math.abs(deltaX) > Math.abs(deltaY);
+
+    if (!isSwipe) return;
+
+    suppressFlip.current = true;
+    navigate(deltaX < 0 ? "next" : "previous");
+  };
+
   return (
     <section
       aria-label="Concept card deck"
@@ -185,7 +219,19 @@ export function ConceptDeck({ cards, random = Math.random }: ConceptDeckProps) {
     >
       <DeckHeader position={activeIndex + 1} total={shuffledCards.length} />
 
-      <div className="deck-carousel relative flex min-h-0 w-full flex-1">
+      <div
+        className="deck-carousel relative flex min-h-0 w-full flex-1"
+        onPointerDown={(event) => {
+          // Mouse drags stay available for selecting card text.
+          if (event.pointerType === "mouse") return;
+          swipeStart.current = { x: event.clientX, y: event.clientY };
+        }}
+        onPointerUp={endSwipe}
+        onPointerCancel={() => {
+          // The browser took the gesture over to scroll a card face.
+          swipeStart.current = null;
+        }}
+      >
         <div
           data-testid="deck-track"
           data-direction={direction ?? undefined}
@@ -210,7 +256,7 @@ export function ConceptDeck({ cards, random = Math.random }: ConceptDeckProps) {
                   card={deckCard}
                   isActive={isActive}
                   isFlipped={isFlipped}
-                  onToggle={() => setIsFlipped((flipped) => !flipped)}
+                  onToggle={toggleFlip}
                 />
               </div>
             );

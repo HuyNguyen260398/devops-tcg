@@ -105,6 +105,94 @@ describe("ConceptDeck", () => {
     expect(screen.getByText("02 / 09")).toBeInTheDocument();
   });
 
+  // jsdom has no PointerEvent, and fireEvent's fallback drops the coordinates,
+  // so build events that carry the geometry the deck actually reads.
+  const pointer = (
+    type: string,
+    clientX: number,
+    clientY: number,
+    pointerType: string,
+  ) => {
+    const event = new MouseEvent(type, {
+      bubbles: true,
+      cancelable: true,
+      clientX,
+      clientY,
+    });
+    Object.defineProperty(event, "pointerType", { value: pointerType });
+    return event;
+  };
+
+  const swipe = (deltaX: number, deltaY = 0, pointerType = "touch") => {
+    const surface = screen.getByTestId("deck-track");
+
+    fireEvent(surface, pointer("pointerdown", 200, 300, pointerType));
+    fireEvent(
+      surface,
+      pointer("pointerup", 200 + deltaX, 300 + deltaY, pointerType),
+    );
+  };
+
+  it("advances the deck on a leftward swipe", () => {
+    render(<ConceptDeck cards={conceptCards} random={() => 0.999999} />);
+
+    swipe(-80);
+
+    expect(
+      screen.getByRole("button", { name: "CDN card, front shown" }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("02 / 09")).toBeInTheDocument();
+  });
+
+  it("goes back on a rightward swipe", () => {
+    render(<ConceptDeck cards={conceptCards} random={() => 0.999999} />);
+
+    swipe(80);
+
+    expect(
+      screen.getByRole("button", { name: "SSH card, front shown" }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("09 / 09")).toBeInTheDocument();
+  });
+
+  it("ignores a drag too short to be a swipe", () => {
+    render(<ConceptDeck cards={conceptCards} random={() => 0.999999} />);
+
+    swipe(-20);
+
+    expect(screen.getByText("01 / 09")).toBeInTheDocument();
+  });
+
+  it("ignores a mostly vertical drag so card faces stay scrollable", () => {
+    render(<ConceptDeck cards={conceptCards} random={() => 0.999999} />);
+
+    swipe(-60, 140);
+
+    expect(screen.getByText("01 / 09")).toBeInTheDocument();
+  });
+
+  it("leaves mouse drags alone so text stays selectable", () => {
+    render(<ConceptDeck cards={conceptCards} random={() => 0.999999} />);
+
+    swipe(-80, 0, "mouse");
+
+    expect(screen.getByText("01 / 09")).toBeInTheDocument();
+  });
+
+  it("does not flip the card on the click that follows a swipe", () => {
+    render(<ConceptDeck cards={conceptCards} random={() => 0.999999} />);
+
+    const card = screen.getByRole("button", {
+      name: "Proxy card, front shown",
+    });
+    swipe(-80);
+    fireEvent.click(card);
+
+    expect(
+      screen.getByRole("button", { name: "CDN card, front shown" }),
+    ).toHaveAttribute("data-face", "front");
+  });
+
   it("places each neighbouring card in its own signed slot", () => {
     render(<ConceptDeck cards={conceptCards} random={() => 0.999999} />);
 

@@ -130,12 +130,18 @@ button,
 }
 
 .deck-track {
-  --deck-card-width: min(calc(100vw - 4.5rem), 350px);
+  /* The side arrows sit in the margin beside the card: 46px wide at a 0.5rem
+     inset needs 3.5rem each side, so the card yields 7rem on narrow screens
+     rather than letting the controls cover its artwork. The 350px cap means
+     this only affects viewports below roughly 470px. */
+  --deck-card-width: min(calc(100vw - 7rem), 350px);
   /* Half the centred card plus half a 0.9-scaled neighbour is 0.95 card
      widths, so anything below that parks a neighbour directly behind the
-     centred card and reads as a panel sitting behind the flip. The remaining
-     0.05 is the visible gap between them. */
-  --deck-gap: var(--deck-card-width);
+     centred card and reads as a panel sitting behind the flip. The tilt widens
+     a neighbour's painted box by about half its height times sin(2.5deg), so
+     the clearance is a fixed length rather than a share of the card width,
+     which would shrink on the phone widths that need it most. */
+  --deck-gap: calc(var(--deck-card-width) + 1.5rem);
 }
 
 /* Every mounted card keeps its own element and simply transitions between
@@ -209,7 +215,7 @@ button,
 }
 
 .concept-card-placeholder {
-  width: min(calc(100vw - 4.5rem), 350px);
+  width: min(calc(100vw - 7rem), 350px);
   max-width: 350px;
   margin-inline: auto;
   background: conic-gradient(
