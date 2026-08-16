@@ -96,6 +96,28 @@ button,
   perspective: 1200px;
 }
 
+.concept-card-placeholder {
+  background: conic-gradient(
+    from 210deg,
+    #67e8f9,
+    #8b5cf6,
+    #f6c453,
+    #22d3ee,
+    #67e8f9
+  );
+  box-shadow: 0 0 55px rgb(34 211 238 / 0.11);
+}
+
+.concept-card-placeholder-surface {
+  border: 1px solid rgb(255 255 255 / 0.12);
+  background:
+    radial-gradient(circle at 50% 25%, rgb(34 211 238 / 0.1), transparent 40%),
+    linear-gradient(145deg, rgb(15 35 65 / 0.98), rgb(5 11 28 / 0.99));
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.12),
+    0 28px 70px rgb(0 0 0 / 0.52);
+}
+
 .concept-card-inner {
   position: relative;
   height: 100%;
