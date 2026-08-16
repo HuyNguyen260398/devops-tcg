@@ -105,6 +105,29 @@ describe("ConceptDeck", () => {
       screen.getByRole("button", { name: "Proxy card, front shown" }),
     ).toBeInTheDocument();
     expect(screen.getByText("01 / 09")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Next card" })).toHaveFocus();
+  });
+
+  it("moves focus to the opposite arrow at both deck boundaries", async () => {
+    const user = userEvent.setup();
+    render(<ConceptDeck cards={conceptCards} random={() => 0.999999} />);
+
+    const previous = screen.getByRole("button", { name: "Previous card" });
+    const next = screen.getByRole("button", { name: "Next card" });
+
+    for (let position = 1; position < conceptCards.length; position += 1) {
+      await user.click(next);
+    }
+
+    expect(next).toBeDisabled();
+    expect(previous).toHaveFocus();
+
+    for (let position = conceptCards.length; position > 1; position -= 1) {
+      await user.click(previous);
+    }
+
+    expect(previous).toBeDisabled();
+    expect(next).toHaveFocus();
   });
 
   it("resets image failure state when navigation changes the card", async () => {

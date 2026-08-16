@@ -125,7 +125,9 @@ test("navigates the shipped deck with a live bounded counter", async ({
 
     if (position < images.length) {
       await next.click();
-      if (position < images.length - 1) {
+      if (position === images.length - 1) {
+        await expect(previous).toBeFocused();
+      } else {
         await expect(next).toBeFocused();
       }
     }
@@ -135,8 +137,13 @@ test("navigates the shipped deck with a live bounded counter", async ({
   await expect(next).toBeDisabled();
   await expect(previous).toBeEnabled();
 
-  for (let position = images.length; position > 1; position -= 1) {
+  for (let position: number = images.length; position > 1; position -= 1) {
     await previous.click();
+    if (position === 2) {
+      await expect(next).toBeFocused();
+    } else {
+      await expect(previous).toBeFocused();
+    }
   }
 
   await expect(page.getByText("01 / 09")).toBeVisible();
