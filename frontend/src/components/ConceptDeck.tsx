@@ -23,8 +23,11 @@ export function ConceptDeck({ cards }: ConceptDeckProps) {
   const card = cards[activeIndex];
 
   return (
-    <section aria-label="Concept card deck" className="w-full max-w-[350px]">
-      <header className="mb-6 flex w-full items-end justify-between border-b border-white/10 pb-4">
+    <section
+      aria-label="Concept card deck"
+      className="flex min-h-0 w-full max-w-[350px] flex-1 flex-col"
+    >
+      <header className="concept-deck-header flex w-full shrink-0 items-end justify-between border-b border-white/10">
         <div>
           <p className="mb-1 text-[0.65rem] font-semibold tracking-[0.28em] text-cyan-200/70">
             CONCEPT STUDY DECK

@@ -18,7 +18,7 @@ export function DeckControls({
   return (
     <nav
       aria-label="Card controls"
-      className="mt-5 grid w-full grid-cols-3 gap-2 sm:gap-3"
+      className="deck-controls grid w-full shrink-0 grid-cols-3 gap-2 sm:gap-3"
     >
       <button
         type="button"

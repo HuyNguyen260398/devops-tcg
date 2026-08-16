@@ -143,6 +143,39 @@ test("does not overflow at 320 pixels", async ({ page }, testInfo) => {
   expect(size.content).toBeLessThanOrEqual(size.viewport);
 });
 
+test("keeps the complete deck navigation inside the viewport", async ({
+  page,
+}) => {
+  await page.goto("/");
+
+  const dimensions = await page.evaluate(() => ({
+    viewportHeight: document.documentElement.clientHeight,
+    pageHeight: document.documentElement.scrollHeight,
+  }));
+
+  expect(dimensions.pageHeight).toBeLessThanOrEqual(dimensions.viewportHeight);
+  await expect(
+    page.getByRole("button", { name: "Previous card" }),
+  ).toBeInViewport({ ratio: 1 });
+  await expect(
+    page.getByRole("button", { name: "Show card back" }),
+  ).toBeInViewport({ ratio: 1 });
+  await expect(page.getByRole("button", { name: "Next card" })).toBeInViewport({
+    ratio: 1,
+  });
+  await expect(
+    page.getByText("Click the card or use Enter or Space to flip it."),
+  ).toBeInViewport({ ratio: 1 });
+
+  const front = page.getByTestId("card-front");
+  const frontLayout = await front.evaluate((node) => ({
+    height: node.clientHeight,
+    overflowY: getComputedStyle(node).overflowY,
+  }));
+  expect(frontLayout.height).toBeGreaterThan(44);
+  expect(frontLayout.overflowY).toBe("auto");
+});
+
 test("keeps the Reverse Proxy card readable at 200 percent text zoom", async ({
   page,
 }, testInfo) => {
