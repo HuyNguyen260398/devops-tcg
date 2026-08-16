@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import Home from "./page";
 
 describe("Home", () => {
-  it("renders deck identity, count, shuffled card, and instruction", async () => {
+  it("renders the shuffled deck without helper text", async () => {
     render(<Home />);
 
     expect(
@@ -14,7 +14,8 @@ describe("Home", () => {
     ).toBeInTheDocument();
     expect(screen.getByText("01 / 09")).toBeInTheDocument();
     expect(
-      screen.getByText(/click the card or use enter or space/i),
-    ).toBeInTheDocument();
+      screen.queryByText(/click the card or use enter or space/i),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByText(/flip for anatomy and flow/i)).toBeNull();
   });
 });

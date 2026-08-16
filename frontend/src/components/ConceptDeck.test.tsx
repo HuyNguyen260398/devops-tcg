@@ -6,14 +6,17 @@ import { conceptCards } from "@/data/conceptCards";
 import { ConceptDeck } from "./ConceptDeck";
 
 describe("ConceptDeck", () => {
-  it("renders the simplified header and bounded arrow controls", () => {
+  it("renders the title above its counter with enabled carousel controls", () => {
     render(<ConceptDeck cards={conceptCards} random={() => 0.999999} />);
 
-    expect(
-      screen.getByRole("heading", { name: "DevOps TCG" }),
-    ).toBeInTheDocument();
+    const heading = screen.getByRole("heading", { name: "DevOps TCG" });
+    const header = heading.closest("header");
+
+    expect(header).not.toBeNull();
+    expect(within(header!).getByLabelText("Card 1 of 9")).toHaveTextContent(
+      "01 / 09",
+    );
     expect(screen.queryByText("CONCEPT STUDY DECK")).not.toBeInTheDocument();
-    expect(screen.getByText("01 / 09")).toBeInTheDocument();
     expect(screen.getByText(conceptCards[0].definition)).toBeInTheDocument();
     for (const keyword of conceptCards[0].keywords) {
       expect(screen.getByText(keyword)).toBeInTheDocument();
@@ -21,7 +24,7 @@ describe("ConceptDeck", () => {
     const previous = screen.getByRole("button", { name: "Previous card" });
     const next = screen.getByRole("button", { name: "Next card" });
 
-    expect(previous).toBeDisabled();
+    expect(previous).toBeEnabled();
     expect(next).toBeEnabled();
     expect(previous.querySelector('svg[aria-hidden="true"]')).not.toBeNull();
     expect(next.querySelector('svg[aria-hidden="true"]')).not.toBeNull();
@@ -43,6 +46,7 @@ describe("ConceptDeck", () => {
     await user.click(card);
     expect(front).toHaveAttribute("aria-hidden", "true");
     expect(back).toHaveAttribute("aria-hidden", "false");
+    expect(screen.queryByText("Flip to return to the front")).toBeNull();
 
     card.focus();
     await user.keyboard("{Enter}");
@@ -53,6 +57,21 @@ describe("ConceptDeck", () => {
 
     await user.click(card);
     expect(front).toHaveAttribute("aria-hidden", "false");
+    expect(screen.queryByText("Flip for anatomy and flow")).toBeNull();
+  });
+
+  it("shows decorative previous and next cards behind the active card", () => {
+    render(<ConceptDeck cards={conceptCards} random={() => 0.999999} />);
+
+    expect(screen.getByTestId("deck-preview-previous")).toHaveAttribute(
+      "data-card-title",
+      "SSH",
+    );
+    expect(screen.getByTestId("deck-preview-next")).toHaveAttribute(
+      "data-card-title",
+      "CDN",
+    );
+    expect(screen.getAllByTestId(/deck-preview-/)).toHaveLength(2);
   });
 
   it("renders all back-face learning content", async () => {
@@ -105,29 +124,65 @@ describe("ConceptDeck", () => {
       screen.getByRole("button", { name: "Proxy card, front shown" }),
     ).toBeInTheDocument();
     expect(screen.getByText("01 / 09")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Next card" })).toHaveFocus();
+    expect(screen.getByRole("button", { name: "Previous card" })).toHaveFocus();
   });
 
-  it("moves focus to the opposite arrow at both deck boundaries", async () => {
+  it("wraps both arrow buttons infinitely", async () => {
     const user = userEvent.setup();
     render(<ConceptDeck cards={conceptCards} random={() => 0.999999} />);
 
     const previous = screen.getByRole("button", { name: "Previous card" });
     const next = screen.getByRole("button", { name: "Next card" });
 
-    for (let position = 1; position < conceptCards.length; position += 1) {
+    await user.click(previous);
+    expect(
+      screen.getByRole("button", { name: "SSH card, front shown" }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("09 / 09")).toBeInTheDocument();
+
+    await user.click(next);
+    expect(
+      screen.getByRole("button", { name: "Proxy card, front shown" }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("01 / 09")).toBeInTheDocument();
+
+    for (let position = 1; position <= conceptCards.length; position += 1) {
       await user.click(next);
     }
 
-    expect(next).toBeDisabled();
-    expect(previous).toHaveFocus();
+    expect(
+      screen.getByRole("button", { name: "Proxy card, front shown" }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("01 / 09")).toBeInTheDocument();
+    expect(previous).toBeEnabled();
+    expect(next).toBeEnabled();
+  });
 
-    for (let position = conceptCards.length; position > 1; position -= 1) {
-      await user.click(previous);
-    }
+  it("uses Left and Right arrows to loop with directional motion", async () => {
+    const user = userEvent.setup();
+    render(<ConceptDeck cards={conceptCards} random={() => 0.999999} />);
 
-    expect(previous).toBeDisabled();
-    expect(next).toHaveFocus();
+    screen.getByRole("button", { name: "Proxy card, front shown" }).focus();
+    await user.keyboard("{ArrowLeft}");
+
+    expect(
+      screen.getByRole("button", { name: "SSH card, front shown" }),
+    ).toHaveFocus();
+    expect(screen.getByTestId("deck-track")).toHaveAttribute(
+      "data-direction",
+      "previous",
+    );
+    expect(screen.getByText("09 / 09")).toBeInTheDocument();
+
+    await user.keyboard("{ArrowRight}");
+    expect(
+      screen.getByRole("button", { name: "Proxy card, front shown" }),
+    ).toHaveFocus();
+    expect(screen.getByTestId("deck-track")).toHaveAttribute(
+      "data-direction",
+      "next",
+    );
+    expect(screen.getByText("01 / 09")).toBeInTheDocument();
   });
 
   it("resets image failure state when navigation changes the card", async () => {

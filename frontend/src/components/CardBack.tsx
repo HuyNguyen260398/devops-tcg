@@ -69,10 +69,6 @@ export function CardBack({ card }: CardBackProps) {
           ))}
         </ol>
       </section>
-
-      <p className="mt-auto pt-3 text-center text-[0.6rem] font-semibold uppercase tracking-[0.2em] text-slate-400">
-        Flip to return to the front
-      </p>
     </article>
   );
 }

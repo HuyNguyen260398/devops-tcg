@@ -60,7 +60,6 @@ async function navigateToCard(
 
   for (let position = 1; position <= images.length; position += 1) {
     if ((await activeTitle(page)) === title) return;
-    if (await next.isDisabled()) break;
     await next.click();
   }
 
@@ -88,9 +87,12 @@ test("loads front-first and flips both directions", async ({ page }) => {
   await expect(activeCard).toHaveAttribute("data-face", "front");
 });
 
-test("supports keyboard use and first-card navigation", async ({ page }) => {
+test("supports flip keys and looping directional arrow-key navigation", async ({
+  page,
+}) => {
   await page.goto("/");
   const activeCard = card(page);
+  const initialTitle = await activeTitle(page);
 
   await activeCard.focus();
   await page.keyboard.press("Enter");
@@ -98,21 +100,34 @@ test("supports keyboard use and first-card navigation", async ({ page }) => {
   await expect(activeCard).toBeFocused();
   await page.keyboard.press("Space");
   await expect(activeCard).toHaveAttribute("data-face", "front");
+  await page.keyboard.press("ArrowLeft");
+  await expect(page.getByText("09 / 09")).toBeVisible();
+  expect(await activeTitle(page)).not.toBe(initialTitle);
+  await expect(activeCard).toBeFocused();
+
+  await page.keyboard.press("ArrowRight");
+  await expect(page.getByText("01 / 09")).toBeVisible();
+  expect(await activeTitle(page)).toBe(initialTitle);
+  await expect(page.getByTestId("deck-track")).toHaveAttribute(
+    "data-direction",
+    "next",
+  );
   await expect(
     page.getByRole("button", { name: "Previous card" }),
-  ).toBeDisabled();
+  ).toBeEnabled();
   await expect(page.getByRole("button", { name: "Next card" })).toBeEnabled();
 });
 
-test("navigates the shipped deck with a live bounded counter", async ({
+test("navigates the shipped deck infinitely with a live counter", async ({
   page,
 }) => {
   await page.goto("/");
   const previous = page.getByRole("button", { name: "Previous card" });
   const next = page.getByRole("button", { name: "Next card" });
+  const initialTitle = await activeTitle(page);
 
   await expect(page.getByText("01 / 09")).toBeVisible();
-  await expect(previous).toBeDisabled();
+  await expect(previous).toBeEnabled();
   await expect(next).toBeEnabled();
 
   const seen = new Set<string>();
@@ -125,30 +140,73 @@ test("navigates the shipped deck with a live bounded counter", async ({
 
     if (position < images.length) {
       await next.click();
-      if (position === images.length - 1) {
-        await expect(previous).toBeFocused();
-      } else {
-        await expect(next).toBeFocused();
-      }
+      await expect(next).toBeFocused();
     }
   }
 
   expect(seen.size).toBe(images.length);
-  await expect(next).toBeDisabled();
+  await expect(next).toBeEnabled();
   await expect(previous).toBeEnabled();
 
-  for (let position: number = images.length; position > 1; position -= 1) {
-    await previous.click();
-    if (position === 2) {
-      await expect(next).toBeFocused();
-    } else {
-      await expect(previous).toBeFocused();
-    }
-  }
-
+  await next.click();
   await expect(page.getByText("01 / 09")).toBeVisible();
-  await expect(previous).toBeDisabled();
+  expect(await activeTitle(page)).toBe(initialTitle);
+  await expect(next).toBeFocused();
+
+  await previous.click();
+  await expect(page.getByText("09 / 09")).toBeVisible();
+  await expect(previous).toBeFocused();
+  await expect(previous).toBeEnabled();
   await expect(next).toBeEnabled();
+});
+
+test("centers the stacked header and shows faded adjacent cards", async ({
+  page,
+}) => {
+  await page.goto("/");
+
+  const title = page.getByRole("heading", { name: "DevOps TCG" });
+  const counter = page.getByLabel("Card 1 of 9");
+  const [titleBounds, counterBounds, viewportWidth] = await Promise.all([
+    title.boundingBox(),
+    counter.boundingBox(),
+    page.evaluate(() => document.documentElement.clientWidth),
+  ]);
+
+  expect(titleBounds).not.toBeNull();
+  expect(counterBounds).not.toBeNull();
+  expect(
+    Math.abs(titleBounds!.x + titleBounds!.width / 2 - viewportWidth / 2),
+  ).toBeLessThanOrEqual(1);
+  expect(
+    Math.abs(counterBounds!.x + counterBounds!.width / 2 - viewportWidth / 2),
+  ).toBeLessThanOrEqual(1);
+  expect(counterBounds!.y).toBeGreaterThanOrEqual(
+    titleBounds!.y + titleBounds!.height,
+  );
+
+  const previews = page.locator("[data-deck-preview]");
+  await expect(previews).toHaveCount(2);
+  for (const preview of await previews.all()) {
+    await expect(preview).toHaveAttribute("aria-hidden", "true");
+    expect(
+      await preview.evaluate((node) => Number(getComputedStyle(node).opacity)),
+    ).toBeLessThan(1);
+  }
+});
+
+test("slides the deck in the requested direction", async ({ page }) => {
+  await page.goto("/");
+
+  await page.getByRole("button", { name: "Next card" }).click();
+  const track = page.getByTestId("deck-track");
+  await expect(track).toHaveAttribute("data-direction", "next");
+  expect(
+    await track.evaluate((node) => getComputedStyle(node).animationName),
+  ).not.toBe("none");
+
+  await page.getByRole("button", { name: "Previous card" }).click();
+  await expect(track).toHaveAttribute("data-direction", "previous");
 });
 
 test("loads a unique local image for every card", async ({ page }) => {
@@ -204,11 +262,15 @@ test("keeps the complete deck navigation inside the viewport", async ({
   await page.goto("/");
 
   const dimensions = await page.evaluate(() => ({
+    viewportWidth: document.documentElement.clientWidth,
     viewportHeight: document.documentElement.clientHeight,
     pageHeight: document.documentElement.scrollHeight,
   }));
 
   expect(dimensions.pageHeight).toBeLessThanOrEqual(dimensions.viewportHeight);
+  const activeCardBounds = await card(page).boundingBox();
+  expect(activeCardBounds).not.toBeNull();
+
   for (const name of ["Previous card", "Next card"]) {
     const arrow = page.getByRole("button", { name });
     await expect(arrow).toBeInViewport({ ratio: 1 });
@@ -217,11 +279,26 @@ test("keeps the complete deck navigation inside the viewport", async ({
     expect(bounds).not.toBeNull();
     expect(bounds!.width).toBeGreaterThanOrEqual(44);
     expect(bounds!.height).toBeGreaterThanOrEqual(44);
+
+    if (name === "Previous card") {
+      expect(bounds!.x).toBeLessThanOrEqual(16);
+      expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(
+        activeCardBounds!.x + 20,
+      );
+    } else {
+      expect(
+        dimensions.viewportWidth - (bounds!.x + bounds!.width),
+      ).toBeLessThanOrEqual(16);
+      expect(bounds!.x).toBeGreaterThanOrEqual(
+        activeCardBounds!.x + activeCardBounds!.width - 20,
+      );
+    }
   }
   await expect(page.getByRole("button", { name: /show card/i })).toHaveCount(0);
   await expect(
     page.getByText("Click the card or use Enter or Space to flip it."),
-  ).toBeInViewport({ ratio: 1 });
+  ).toHaveCount(0);
+  await expect(page.getByText("Flip for anatomy and flow")).toHaveCount(0);
 
   const front = page.getByTestId("card-front");
   const frontLayout = await front.evaluate((node) => ({
@@ -294,4 +371,13 @@ test("removes transition for reduced motion", async ({ page }) => {
         .evaluate((node) => getComputedStyle(node).transitionDuration),
     )
     .toBe("0s");
+
+  await page.getByRole("button", { name: "Next card" }).click();
+  await expect
+    .poll(() =>
+      page
+        .getByTestId("deck-track")
+        .evaluate((node) => getComputedStyle(node).animationName),
+    )
+    .toBe("none");
 });

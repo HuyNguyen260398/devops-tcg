@@ -1,5 +1,3 @@
-import { useEffect, useRef } from "react";
-
 interface DeckControlsProps {
   readonly canGoPrevious: boolean;
   readonly canGoNext: boolean;
@@ -13,31 +11,15 @@ export function DeckControls({
   onPrevious,
   onNext,
 }: DeckControlsProps) {
-  const previousButtonRef = useRef<HTMLButtonElement>(null);
-  const nextButtonRef = useRef<HTMLButtonElement>(null);
-  const previousCanGoPrevious = useRef(canGoPrevious);
-  const previousCanGoNext = useRef(canGoNext);
   const buttonClassName =
     "deck-arrow pointer-events-auto absolute flex h-[46px] w-[46px] items-center justify-center rounded-full border border-cyan-200/35 bg-[#071226]/95 text-cyan-50 shadow-[0_0_24px_rgba(34,211,238,0.18)] backdrop-blur-md transition-[border-color,background-color,transform,opacity] duration-200 hover:border-cyan-200/70 hover:bg-cyan-300/15 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#050714] disabled:cursor-not-allowed disabled:opacity-35 disabled:hover:border-cyan-200/35 disabled:hover:bg-[#071226]/95";
-
-  useEffect(() => {
-    if (previousCanGoPrevious.current && !canGoPrevious && canGoNext) {
-      nextButtonRef.current?.focus();
-    } else if (previousCanGoNext.current && !canGoNext && canGoPrevious) {
-      previousButtonRef.current?.focus();
-    }
-
-    previousCanGoPrevious.current = canGoPrevious;
-    previousCanGoNext.current = canGoNext;
-  }, [canGoNext, canGoPrevious]);
 
   return (
     <nav
       aria-label="Card controls"
-      className="deck-controls pointer-events-none absolute inset-0 z-20"
+      className="deck-controls pointer-events-none fixed inset-0 z-30"
     >
       <button
-        ref={previousButtonRef}
         type="button"
         aria-label="Previous card"
         disabled={!canGoPrevious}
@@ -59,7 +41,6 @@ export function DeckControls({
         </svg>
       </button>
       <button
-        ref={nextButtonRef}
         type="button"
         aria-label="Next card"
         disabled={!canGoNext}

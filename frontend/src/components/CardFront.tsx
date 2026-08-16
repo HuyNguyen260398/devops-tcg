@@ -95,10 +95,6 @@ export function CardFront({ card }: CardFrontProps) {
             ))}
           </ul>
         </section>
-
-        <p className="mt-auto pt-3 text-center text-[0.6rem] font-semibold uppercase tracking-[0.2em] text-slate-400">
-          Flip for anatomy and flow
-        </p>
       </div>
     </article>
   );

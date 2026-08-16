@@ -1,9 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { shuffleCards, type RandomSource } from "@/lib/shuffle";
 import type { ConceptCardData } from "@/types/concept";
 import { ConceptCard } from "./ConceptCard";
+import { DeckControls } from "./DeckControls";
+import { DeckPreview } from "./DeckPreview";
 
 interface ConceptDeckProps {
   readonly cards: readonly ConceptCardData[];
@@ -12,6 +14,11 @@ interface ConceptDeckProps {
 
 const formatPosition = (position: number) =>
   position.toString().padStart(2, "0");
+
+const wrapIndex = (index: number, length: number) =>
+  ((index % length) + length) % length;
+
+type NavigationDirection = "previous" | "next";
 
 interface DeckHeaderProps {
   readonly position: number | null;
@@ -22,7 +29,7 @@ function DeckHeader({ position, total }: DeckHeaderProps) {
   const ready = position !== null;
 
   return (
-    <header className="concept-deck-header flex w-full shrink-0 items-end justify-between border-b border-white/10">
+    <header className="concept-deck-header mx-auto flex w-full max-w-[350px] shrink-0 flex-col items-center border-b border-white/10 text-center">
       <h1 className="text-2xl font-black uppercase tracking-[0.12em] text-white sm:text-3xl">
         DevOps TCG
       </h1>
@@ -30,7 +37,7 @@ function DeckHeader({ position, total }: DeckHeaderProps) {
         aria-label={ready ? `Card ${position} of ${total}` : undefined}
         aria-live={ready ? "polite" : undefined}
         aria-hidden={ready ? undefined : true}
-        className="pb-1 font-mono text-xs font-semibold tracking-[0.18em] text-slate-300"
+        className="mt-1 font-mono text-xs font-semibold tracking-[0.18em] text-slate-300"
       >
         {ready ? formatPosition(position) : "--"} / {formatPosition(total)}
       </p>
@@ -42,7 +49,7 @@ function DeckPlaceholder({ total }: { readonly total: number }) {
   return (
     <section
       aria-label="Concept card deck"
-      className="flex min-h-0 w-full max-w-[350px] flex-1 flex-col"
+      className="concept-deck flex min-h-0 w-full flex-1 flex-col"
     >
       <DeckHeader position={null} total={total} />
       <div
@@ -51,7 +58,7 @@ function DeckPlaceholder({ total }: { readonly total: number }) {
         aria-label="Shuffling cards"
         className="concept-card-layout flex min-h-0 w-full flex-1 flex-col"
       >
-        <div className="concept-card concept-card-placeholder relative mx-auto flex min-h-0 w-full max-w-[350px] flex-1 flex-col p-[2px]">
+        <div className="concept-card concept-card-placeholder relative mx-auto flex min-h-0 w-full flex-1 flex-col p-[2px]">
           <div className="concept-card-placeholder-surface h-full w-full rounded-[26px]" />
         </div>
       </div>
@@ -65,9 +72,17 @@ interface DeckOrder {
   readonly cards: readonly ConceptCardData[];
 }
 
+interface DeckMotion {
+  readonly direction: NavigationDirection;
+  readonly sequence: number;
+}
+
 export function ConceptDeck({ cards, random = Math.random }: ConceptDeckProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [deckOrder, setDeckOrder] = useState<DeckOrder | null>(null);
+  const [motion, setMotion] = useState<DeckMotion | null>(null);
+  const activeCardRef = useRef<HTMLDivElement>(null);
+  const restoreActiveFocus = useRef(false);
 
   useEffect(() => {
     if (cards.length === 0) return;
@@ -78,7 +93,15 @@ export function ConceptDeck({ cards, random = Math.random }: ConceptDeckProps) {
       cards: shuffleCards(cards, random),
     });
     setActiveIndex(0);
+    setMotion(null);
   }, [cards, random]);
+
+  useEffect(() => {
+    if (!restoreActiveFocus.current) return;
+
+    activeCardRef.current?.focus();
+    restoreActiveFocus.current = false;
+  }, [activeIndex]);
 
   if (cards.length === 0) {
     return <p>No concept cards available.</p>;
@@ -93,27 +116,76 @@ export function ConceptDeck({ cards, random = Math.random }: ConceptDeckProps) {
   }
 
   const shuffledCards = deckOrder.cards;
-  const canGoPrevious = activeIndex > 0;
-  const canGoNext = activeIndex < shuffledCards.length - 1;
+  const hasMultipleCards = shuffledCards.length > 1;
   const card = shuffledCards[activeIndex];
+  const previousCard =
+    shuffledCards[wrapIndex(activeIndex - 1, shuffledCards.length)];
+  const nextCard =
+    shuffledCards[wrapIndex(activeIndex + 1, shuffledCards.length)];
+
+  const navigate = (
+    direction: NavigationDirection,
+    shouldRestoreCardFocus = false,
+  ) => {
+    if (!hasMultipleCards) return;
+
+    restoreActiveFocus.current = shouldRestoreCardFocus;
+    setMotion((current) => ({
+      direction,
+      sequence: (current?.sequence ?? 0) + 1,
+    }));
+    setActiveIndex((index) =>
+      wrapIndex(index + (direction === "next" ? 1 : -1), shuffledCards.length),
+    );
+  };
 
   return (
     <section
       aria-label="Concept card deck"
-      className="flex min-h-0 w-full max-w-[350px] flex-1 flex-col"
+      className="concept-deck flex min-h-0 w-full flex-1 flex-col"
+      onKeyDown={(event) => {
+        if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+        if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) {
+          return;
+        }
+
+        event.preventDefault();
+        const eventTarget = event.target as Node;
+        const cardHasFocus =
+          activeCardRef.current === eventTarget ||
+          Boolean(activeCardRef.current?.contains(eventTarget));
+        navigate(
+          event.key === "ArrowRight" ? "next" : "previous",
+          cardHasFocus,
+        );
+      }}
     >
       <DeckHeader position={activeIndex + 1} total={shuffledCards.length} />
 
-      <ConceptCard
-        card={card}
-        canGoPrevious={canGoPrevious}
-        canGoNext={canGoNext}
-        onPrevious={() => setActiveIndex((index) => Math.max(0, index - 1))}
-        onNext={() =>
-          setActiveIndex((index) =>
-            Math.min(shuffledCards.length - 1, index + 1),
-          )
-        }
+      <div className="deck-carousel relative flex min-h-0 w-full flex-1">
+        <div
+          key={motion?.sequence ?? 0}
+          data-testid="deck-track"
+          data-direction={motion?.direction}
+          className="deck-track relative flex min-h-0 w-full flex-1 items-stretch justify-center"
+        >
+          {hasMultipleCards ? (
+            <DeckPreview card={previousCard} position="previous" />
+          ) : null}
+          <div className="deck-active-card relative z-10 flex min-h-0">
+            <ConceptCard ref={activeCardRef} card={card} />
+          </div>
+          {hasMultipleCards ? (
+            <DeckPreview card={nextCard} position="next" />
+          ) : null}
+        </div>
+      </div>
+
+      <DeckControls
+        canGoPrevious={hasMultipleCards}
+        canGoNext={hasMultipleCards}
+        onPrevious={() => navigate("previous")}
+        onNext={() => navigate("next")}
       />
     </section>
   );

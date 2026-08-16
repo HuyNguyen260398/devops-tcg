@@ -52,23 +52,22 @@ body {
 
 .app-stage {
   height: 100%;
-  gap: clamp(0.5rem, 1.5vh, 1.25rem);
 }
 
 .concept-deck-header {
-  margin-bottom: clamp(0.75rem, 2.5vh, 1.5rem);
+  margin-bottom: clamp(0.625rem, 2vh, 1.25rem);
   padding-bottom: clamp(0.5rem, 1.5vh, 1rem);
 }
 
 .deck-controls {
-  position: absolute;
+  position: fixed;
   inset: 0;
-  z-index: 20;
+  z-index: 30;
   pointer-events: none;
 }
 
 .deck-arrow {
-  top: 50%;
+  top: 55%;
   transform: translateY(-50%);
   touch-action: manipulation;
 }
@@ -78,11 +77,11 @@ body {
 }
 
 .deck-arrow-previous {
-  left: -0.5rem;
+  left: max(0.5rem, env(safe-area-inset-left));
 }
 
 .deck-arrow-next {
-  right: -0.5rem;
+  right: max(0.5rem, env(safe-area-inset-right));
 }
 
 button,
@@ -115,6 +114,117 @@ button,
 .concept-card {
   max-height: 700px;
   perspective: 1200px;
+}
+
+.deck-carousel,
+.deck-track {
+  isolation: isolate;
+}
+
+.deck-active-card,
+.concept-card-placeholder {
+  width: min(calc(100vw - 4.5rem), 350px);
+  max-width: 350px;
+  margin-inline: auto;
+}
+
+.deck-track[data-direction="next"] {
+  animation: deck-slide-next 280ms cubic-bezier(0.22, 0.82, 0.28, 1) both;
+}
+
+.deck-track[data-direction="previous"] {
+  animation: deck-slide-previous 280ms cubic-bezier(0.22, 0.82, 0.28, 1) both;
+}
+
+.deck-preview {
+  position: absolute;
+  top: 0.5rem;
+  left: 50%;
+  z-index: 0;
+  width: min(calc(100vw - 4.5rem), 350px);
+  max-width: 350px;
+  height: calc(100% - 1rem);
+  max-height: 680px;
+  opacity: 0.24;
+  filter: saturate(0.62) brightness(0.7);
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
+.deck-preview-previous {
+  transform: translateX(calc(-50% - clamp(4.5rem, 28vw, 15rem))) scale(0.9)
+    rotate(-2.5deg);
+}
+
+.deck-preview-next {
+  transform: translateX(calc(-50% + clamp(4.5rem, 28vw, 15rem))) scale(0.9)
+    rotate(2.5deg);
+}
+
+.deck-preview-surface {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+  border: 2px solid rgb(103 232 249 / 0.28);
+  border-radius: 29px;
+  background: #08142b;
+  box-shadow: 0 18px 45px rgb(0 0 0 / 0.5);
+}
+
+.deck-preview-shade {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgb(4 8 20 / 0.12), rgb(5 10 24 / 0.88)),
+    linear-gradient(120deg, rgb(34 211 238 / 0.16), transparent 45%);
+}
+
+.deck-preview-copy {
+  position: absolute;
+  right: 1.25rem;
+  bottom: 1.25rem;
+  left: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  color: white;
+}
+
+.deck-preview-copy span {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  color: rgb(165 243 252 / 0.8);
+}
+
+.deck-preview-copy strong {
+  font-size: 1.75rem;
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+@keyframes deck-slide-next {
+  from {
+    opacity: 0.58;
+    transform: translateX(4rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes deck-slide-previous {
+  from {
+    opacity: 0.58;
+    transform: translateX(-4rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 .concept-card-placeholder {
@@ -205,6 +315,10 @@ button,
 @media (prefers-reduced-motion: reduce) {
   .concept-card-inner {
     transition-duration: 0s;
+  }
+
+  .deck-track[data-direction] {
+    animation: none;
   }
 
   *,
