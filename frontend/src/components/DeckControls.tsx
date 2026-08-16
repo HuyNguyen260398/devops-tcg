@@ -1,50 +1,65 @@
 interface DeckControlsProps {
   readonly canGoPrevious: boolean;
   readonly canGoNext: boolean;
-  readonly isFlipped: boolean;
   readonly onPrevious: () => void;
-  readonly onFlip: () => void;
   readonly onNext: () => void;
 }
 
 export function DeckControls({
   canGoPrevious,
   canGoNext,
-  isFlipped,
   onPrevious,
-  onFlip,
   onNext,
 }: DeckControlsProps) {
+  const buttonClassName =
+    "deck-arrow pointer-events-auto absolute flex h-[46px] w-[46px] items-center justify-center rounded-full border border-cyan-200/35 bg-[#071226]/95 text-cyan-50 shadow-[0_0_24px_rgba(34,211,238,0.18)] backdrop-blur-md transition-[border-color,background-color,transform,opacity] duration-200 hover:border-cyan-200/70 hover:bg-cyan-300/15 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#050714] disabled:cursor-not-allowed disabled:opacity-35 disabled:hover:border-cyan-200/35 disabled:hover:bg-[#071226]/95";
+
   return (
     <nav
       aria-label="Card controls"
-      className="deck-controls grid w-full shrink-0 grid-cols-3 gap-2 sm:gap-3"
+      className="deck-controls pointer-events-none absolute inset-0 z-20"
     >
       <button
         type="button"
         aria-label="Previous card"
         disabled={!canGoPrevious}
         onClick={onPrevious}
-        className="min-h-11 rounded-xl border border-white/10 bg-white/[0.055] px-2 text-xs font-semibold text-slate-200 transition-colors duration-200 hover:border-cyan-200/35 hover:bg-cyan-300/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#050714] disabled:cursor-not-allowed disabled:opacity-35 disabled:hover:border-white/10 disabled:hover:bg-white/[0.055]"
+        className={`${buttonClassName} deck-arrow-previous`}
       >
-        Previous
-      </button>
-      <button
-        type="button"
-        aria-label={isFlipped ? "Show card front" : "Show card back"}
-        onClick={onFlip}
-        className="min-h-11 rounded-xl border border-violet-200/30 bg-gradient-to-r from-cyan-300/20 to-violet-400/20 px-2 text-xs font-bold uppercase tracking-[0.12em] text-white shadow-[0_8px_28px_rgba(103,232,249,0.08)] transition-[border-color,background-color,transform] duration-200 hover:border-cyan-200/55 hover:from-cyan-300/30 hover:to-violet-400/30 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#050714]"
-      >
-        Flip
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.25"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="h-6 w-6"
+          aria-hidden="true"
+          focusable="false"
+        >
+          <path d="m15 18-6-6 6-6" />
+        </svg>
       </button>
       <button
         type="button"
         aria-label="Next card"
         disabled={!canGoNext}
         onClick={onNext}
-        className="min-h-11 rounded-xl border border-white/10 bg-white/[0.055] px-2 text-xs font-semibold text-slate-200 transition-colors duration-200 hover:border-cyan-200/35 hover:bg-cyan-300/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#050714] disabled:cursor-not-allowed disabled:opacity-35 disabled:hover:border-white/10 disabled:hover:bg-white/[0.055]"
+        className={`${buttonClassName} deck-arrow-next`}
       >
-        Next
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.25"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="h-6 w-6"
+          aria-hidden="true"
+          focusable="false"
+        >
+          <path d="m9 18 6-6-6-6" />
+        </svg>
       </button>
     </nav>
   );

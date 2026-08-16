@@ -61,7 +61,28 @@ body {
 }
 
 .deck-controls {
-  margin-top: clamp(0.75rem, 2vh, 1.25rem);
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  pointer-events: none;
+}
+
+.deck-arrow {
+  top: 50%;
+  transform: translateY(-50%);
+  touch-action: manipulation;
+}
+
+.deck-arrow:active {
+  transform: translateY(-50%) scale(0.95);
+}
+
+.deck-arrow-previous {
+  left: -0.5rem;
+}
+
+.deck-arrow-next {
+  right: -0.5rem;
 }
 
 button,

@@ -6,24 +6,29 @@ import { conceptCards } from "@/data/conceptCards";
 import { ConceptDeck } from "./ConceptDeck";
 
 describe("ConceptDeck", () => {
-  it("renders the first of nine cards with bounded initial navigation", () => {
+  it("renders the simplified header and bounded arrow controls", () => {
     render(<ConceptDeck cards={conceptCards} random={() => 0.999999} />);
 
     expect(
       screen.getByRole("heading", { name: "DevOps TCG" }),
     ).toBeInTheDocument();
+    expect(screen.queryByText("CONCEPT STUDY DECK")).not.toBeInTheDocument();
     expect(screen.getByText("01 / 09")).toBeInTheDocument();
     expect(screen.getByText(conceptCards[0].definition)).toBeInTheDocument();
     for (const keyword of conceptCards[0].keywords) {
       expect(screen.getByText(keyword)).toBeInTheDocument();
     }
-    expect(
-      screen.getByRole("button", { name: "Previous card" }),
-    ).toBeDisabled();
-    expect(screen.getByRole("button", { name: "Next card" })).toBeEnabled();
+    const previous = screen.getByRole("button", { name: "Previous card" });
+    const next = screen.getByRole("button", { name: "Next card" });
+
+    expect(previous).toBeDisabled();
+    expect(next).toBeEnabled();
+    expect(previous.querySelector('svg[aria-hidden="true"]')).not.toBeNull();
+    expect(next.querySelector('svg[aria-hidden="true"]')).not.toBeNull();
+    expect(screen.queryByRole("button", { name: /show card/i })).toBeNull();
   });
 
-  it("flips with the control, Enter, Space, and card click", async () => {
+  it("flips with card click, Enter, and Space without a Flip control", async () => {
     const user = userEvent.setup();
     render(<ConceptDeck cards={conceptCards} random={() => 0.999999} />);
 
@@ -33,7 +38,9 @@ describe("ConceptDeck", () => {
     const front = screen.getByTestId("card-front");
     const back = screen.getByTestId("card-back");
 
-    await user.click(screen.getByRole("button", { name: "Show card back" }));
+    expect(screen.queryByRole("button", { name: /show card/i })).toBeNull();
+
+    await user.click(card);
     expect(front).toHaveAttribute("aria-hidden", "true");
     expect(back).toHaveAttribute("aria-hidden", "false");
 
@@ -52,7 +59,9 @@ describe("ConceptDeck", () => {
     const user = userEvent.setup();
     render(<ConceptDeck cards={conceptCards} random={() => 0.999999} />);
 
-    await user.click(screen.getByRole("button", { name: "Show card back" }));
+    await user.click(
+      screen.getByRole("button", { name: "Proxy card, front shown" }),
+    );
     const back = screen.getByTestId("card-back");
 
     for (const item of conceptCards[0].components) {
@@ -81,7 +90,9 @@ describe("ConceptDeck", () => {
     const user = userEvent.setup();
     render(<ConceptDeck cards={conceptCards} random={() => 0.999999} />);
 
-    await user.click(screen.getByRole("button", { name: "Show card back" }));
+    await user.click(
+      screen.getByRole("button", { name: "Proxy card, front shown" }),
+    );
     await user.click(screen.getByRole("button", { name: "Next card" }));
     expect(
       screen.getByRole("button", { name: "CDN card, front shown" }),

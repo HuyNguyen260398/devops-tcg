@@ -29,7 +29,7 @@ export function ConceptCard({
     );
 
   return (
-    <div className="concept-card-layout flex min-h-0 w-full flex-1 flex-col">
+    <div className="concept-card-layout relative flex min-h-0 w-full flex-1 flex-col">
       <div
         role="button"
         tabIndex={0}
@@ -66,12 +66,10 @@ export function ConceptCard({
       <DeckControls
         canGoPrevious={canGoPrevious}
         canGoNext={canGoNext}
-        isFlipped={isFlipped}
         onPrevious={() => {
           setFlippedCardId(null);
           onPrevious();
         }}
-        onFlip={toggleCard}
         onNext={() => {
           setFlippedCardId(null);
           onNext();
