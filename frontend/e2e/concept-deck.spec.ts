@@ -282,6 +282,62 @@ test("flips against the page background with nothing bright behind the faces", a
   expect(rim).toContain("conic-gradient");
 });
 
+test("paints only one card face at a time through the flip", async ({
+  page,
+}) => {
+  await page.goto("/");
+  const active = card(page);
+  await expect(active).toBeVisible();
+
+  const painted = () =>
+    active.evaluate(
+      (node) =>
+        [...node.querySelectorAll(".card-face-front, .card-face-back")].filter(
+          (face) => getComputedStyle(face).visibility === "visible",
+        ).length,
+    );
+
+  expect(await painted()).toBe(1);
+
+  // Frozen at the half point, where the faces swap. WebKit does not
+  // backface-cull a composited scrolling layer, so culling alone left the
+  // turned-away face painting its mirrored text over the face in view.
+  await active.evaluate((node) => {
+    const inner = node.querySelector<HTMLElement>(".concept-card-inner")!;
+    inner.style.transition = "none";
+    inner.style.transform = "rotateY(90deg)";
+  });
+  expect(await painted()).toBe(1);
+
+  await active.evaluate((node) => {
+    node.querySelector<HTMLElement>(".concept-card-inner")!.style.transform =
+      "rotateY(180deg)";
+    node.setAttribute("data-face", "back");
+  });
+  await expect.poll(painted).toBe(1);
+  await expect(active.getByTestId("card-back")).toBeVisible();
+});
+
+test("scrolls the card faces without drawing a scrollbar over them", async ({
+  page,
+}) => {
+  await page.goto("/");
+  const face = front(page);
+  await expect(face).toBeVisible();
+
+  await face.evaluate((node) => {
+    node.style.height = "120px";
+  });
+
+  const gutter = await face.evaluate(
+    (node: HTMLElement) => node.offsetWidth - node.clientWidth,
+  );
+
+  // Forced to overflow, the face still gives up nothing but its own 2px rim on
+  // each side — no gutter for a bar, so none is drawn down either edge.
+  expect(gutter).toBeLessThanOrEqual(4);
+});
+
 test("never parks a neighbouring card behind the centred card", async ({
   page,
 }) => {
@@ -330,7 +386,7 @@ test("travels the neighbouring card into the centre without remounting it", asyn
     duration: getComputedStyle(node).transitionDuration,
   }));
   expect(motion.property).toContain("transform");
-  expect(motion.duration).toContain("0.42s");
+  expect(motion.duration).toContain("0.32s");
 
   const incoming = await slot(page, 1).elementHandle();
   const outgoing = await slot(page, 0).elementHandle();
@@ -595,10 +651,9 @@ test("keeps a vertical drag from dragging the deck sideways", async ({
   await track.dispatchEvent("pointermove", touch(startX - 30, startY - 120));
 
   expect(
-    await track.evaluate((node: HTMLElement) =>
-      node.style.getPropertyValue("--deck-drag"),
-    ),
-  ).toBe("0px");
+    await track.evaluate((node: HTMLElement) => node.style.transform),
+  ).toBe("translate3d(0px, 0px, 0px)");
+  await expect(track).not.toHaveAttribute("data-dragging", "true");
   await expect(page.getByText("01 / 09")).toBeVisible();
 });
 
@@ -726,20 +781,27 @@ test("removes transition for reduced motion", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/");
 
+  // The slot animates two properties, so its duration list has two entries.
+  const durations = (node: Element) =>
+    getComputedStyle(node)
+      .transitionDuration.split(",")
+      .map((duration) => duration.trim());
+
   await expect
-    .poll(() =>
-      card(page)
-        .locator(".concept-card-inner")
-        .evaluate((node) => getComputedStyle(node).transitionDuration),
-    )
-    .toBe("0s");
+    .poll(() => card(page).locator(".concept-card-inner").evaluate(durations))
+    .toEqual(["0s"]);
 
   await page.getByRole("button", { name: "Next card" }).click();
   await expect
+    .poll(() => slot(page, 0).evaluate(durations))
+    .toEqual(["0s", "0s"]);
+
+  // The faces swap at the flip's half point, which must not survive either.
+  await expect
     .poll(() =>
-      slot(page, 0).evaluate(
-        (node) => getComputedStyle(node).transitionDuration,
-      ),
+      card(page)
+        .locator(".card-face-front")
+        .evaluate((node) => getComputedStyle(node).transitionDelay.trim()),
     )
     .toBe("0s");
 });

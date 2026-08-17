@@ -87,7 +87,16 @@ Two non-obvious mechanisms worth knowing before editing `ConceptDeck.tsx`:
   `useId()` and test queries for card content must be scoped to one slot.
   `globals.css` also owns the 3D flip (`.concept-card-inner`, driven by
   `data-face`) and the `prefers-reduced-motion: reduce` block that zeroes both
-  the flip and the slot transitions.
+  the flip and the slot transitions (through the `--travel`/`--flip` tokens).
+- **The faces are swapped by `visibility`, not by backface culling.** WebKit
+  does not backface-cull a composited scrolling layer, and both faces scroll,
+  so on iOS the turned-away face painted its mirrored text straight through the
+  face in view. `backface-visibility: hidden` stays for the browsers that
+  honour it, but correctness comes from `.card-face-*` being `visibility:
+  hidden` by default and switched on by `data-face` with a `--flip-half` delay,
+  so the swap lands exactly where both faces are edge-on. `--flip-half` must
+  stay half of `--flip`, and a card leaving the centre resets its flip with no
+  transition because its back face unmounts in the same render.
 
 Behavioral contracts the tests enforce (don't regress them silently):
 card click / Enter / Space all flip; arrow buttons are named `Previous card`

@@ -12,7 +12,7 @@ export function DeckControls({
   onNext,
 }: DeckControlsProps) {
   const buttonClassName =
-    "deck-arrow pointer-events-auto absolute flex h-[46px] w-[46px] items-center justify-center rounded-full border border-cyan-200/35 bg-[#071226]/95 text-cyan-50 shadow-[0_0_24px_rgba(34,211,238,0.18)] backdrop-blur-md transition-[border-color,background-color,transform,opacity] duration-200 hover:border-cyan-200/70 hover:bg-cyan-300/15 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#050714] disabled:cursor-not-allowed disabled:opacity-35 disabled:hover:border-cyan-200/35 disabled:hover:bg-[#071226]/95";
+    "deck-arrow pointer-events-auto absolute flex h-[46px] w-[46px] items-center justify-center rounded-full border border-cyan-200/35 bg-[#071226] text-cyan-50 shadow-[0_0_24px_rgba(34,211,238,0.18)] transition-[border-color,background-color,transform,opacity] duration-200 hover:border-cyan-200/70 hover:bg-cyan-300/15 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#050714] disabled:cursor-not-allowed disabled:opacity-35 disabled:hover:border-cyan-200/35 disabled:hover:bg-[#071226]/95";
 
   return (
     <nav

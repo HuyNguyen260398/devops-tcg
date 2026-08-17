@@ -17,10 +17,10 @@ export function CardFront({ card }: CardFrontProps) {
   return (
     <article className="relative flex h-full flex-col">
       <header className="absolute inset-x-0 top-0 z-10 flex items-center justify-between p-4 text-[0.65rem] font-bold tracking-[0.18em] text-white">
-        <span className="rounded-full border border-white/20 bg-slate-950/65 px-3 py-1.5 shadow-lg backdrop-blur-md">
+        <span className="rounded-full border border-white/20 bg-slate-950/85 px-3 py-1.5 shadow-lg">
           {card.cardNumber}
         </span>
-        <span className="rounded-full border border-cyan-200/30 bg-cyan-950/70 px-3 py-1.5 text-cyan-100 shadow-lg backdrop-blur-md">
+        <span className="rounded-full border border-cyan-200/30 bg-cyan-950/85 px-3 py-1.5 text-cyan-100 shadow-lg">
           {card.type}
         </span>
       </header>
@@ -70,7 +70,7 @@ export function CardFront({ card }: CardFrontProps) {
 
         <section
           aria-labelledby={definitionHeadingId}
-          className="mb-4 rounded-2xl border border-white/10 bg-white/[0.055] p-4 shadow-inner backdrop-blur-sm"
+          className="mb-4 rounded-2xl border border-white/10 bg-white/[0.07] p-4 shadow-inner"
         >
           <h3
             id={definitionHeadingId}

@@ -22,18 +22,26 @@ const wrapIndex = (index: number, length: number) =>
 // than appear at its neighbouring position.
 const SLOT_RADIUS = 2;
 
-// A touch drag must clear this horizontally, and be more horizontal than
-// vertical, before it counts as a swipe rather than a scroll of the card face.
-const SWIPE_THRESHOLD = 45;
+// How far a slow, deliberate drag must travel before releasing it turns the
+// card. A flick commits well short of this — see the FLICK_ constants.
+const SWIPE_THRESHOLD = 32;
 
 // How far the deck may trail the finger. Slightly past the 350px card cap, so a
 // long drag still reads as holding the card rather than throwing it off stage.
 const MAX_DRAG = 360;
 
-// Vertical travel that latches a gesture as a scroll of the card face. Once
-// latched it stays a scroll, so a finger drifting sideways mid-scroll cannot
-// start dragging the deck out from under it.
-const SCROLL_LATCH = 12;
+// Travel on either axis that decides which one owns the gesture. The first axis
+// to clear it keeps the gesture to the end, so a finger that arcs on its way
+// out cannot be re-judged as a scroll halfway through a swipe.
+const AXIS_LATCH = 8;
+
+// A flick is judged on speed rather than distance, so a short fast throw turns
+// the card instead of requiring the finger to drag it most of the way across.
+const FLICK_VELOCITY = 0.35; // px per ms
+const FLICK_DISTANCE = 24;
+// A finger that came to rest before lifting is a drag, however fast it moved
+// earlier, so stale velocity may not commit the card.
+const FLICK_IDLE = 120;
 
 // The shortest signed distance from the active card, so the deck can loop
 // without a card ever jumping the long way around the order.
@@ -47,6 +55,18 @@ const slotOffset = (index: number, activeIndex: number, length: number) => {
 };
 
 type NavigationDirection = "previous" | "next";
+
+// One gesture's whole life. `axis` is decided once and then never revisited,
+// and `velocity` is the speed of the last sample so a release can tell a flick
+// from a drag that merely ended in the same place.
+interface SwipeGesture {
+  x: number;
+  y: number;
+  lastX: number;
+  lastTime: number;
+  velocity: number;
+  axis: "undecided" | "horizontal" | "vertical";
+}
 
 interface DeckHeaderProps {
   readonly position: number | null;
@@ -108,8 +128,7 @@ export function ConceptDeck({ cards, random = Math.random }: ConceptDeckProps) {
   const activeCardRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const restoreActiveFocus = useRef(false);
-  const swipeStart = useRef<{ x: number; y: number } | null>(null);
-  const isScrollGesture = useRef(false);
+  const gesture = useRef<SwipeGesture | null>(null);
   const suppressFlip = useRef(false);
   const deckLength = deckOrder?.cards.length ?? 0;
 
@@ -205,10 +224,12 @@ export function ConceptDeck({ cards, random = Math.random }: ConceptDeckProps) {
     setIsFlipped((flipped) => !flipped);
   };
 
-  // The drag is written straight to the track rather than held in state: a
-  // gesture updates every frame, and re-rendering five mounted cards that often
-  // would cost far more than it buys. The slot transforms stay untouched — the
-  // whole track carries the offset, so the cards travel together.
+  // The drag is written straight to the track's own transform rather than held
+  // in state or in a custom property. State would re-render five mounted cards
+  // on every frame of the gesture, and a custom property set on the track is
+  // inherited, so changing it invalidates style for the entire card subtree —
+  // for a value nothing below the track ever reads. The slot transforms stay
+  // untouched: the whole track carries the offset, so the cards travel together.
   const setDrag = (offset: number | null) => {
     const track = trackRef.current;
 
@@ -216,55 +237,89 @@ export function ConceptDeck({ cards, random = Math.random }: ConceptDeckProps) {
 
     if (offset === null) {
       delete track.dataset.dragging;
-      track.style.setProperty("--deck-drag", "0px");
+      track.style.transform = "translate3d(0px, 0px, 0px)";
       return;
     }
 
     track.dataset.dragging = "true";
-    track.style.setProperty("--deck-drag", `${offset}px`);
+    track.style.transform = `translate3d(${offset}px, 0px, 0px)`;
+  };
+
+  // Capturing keeps the rest of the gesture coming to the carousel even when
+  // the finger crosses the fixed side arrows, which otherwise swallow the
+  // remaining moves and the release, leaving the card sitting still.
+  const capturePointer = (event: React.PointerEvent) => {
+    const surface = event.currentTarget;
+
+    if (typeof surface.setPointerCapture !== "function") return;
+
+    try {
+      surface.setPointerCapture(event.pointerId);
+    } catch {
+      // Some pointers cannot be captured; the gesture still works without it.
+    }
   };
 
   const trackDrag = (event: React.PointerEvent) => {
-    const start = swipeStart.current;
+    const swipe = gesture.current;
 
-    if (start === null) return;
+    if (swipe === null) return;
 
-    const deltaX = event.clientX - start.x;
-    const deltaY = event.clientY - start.y;
+    const deltaX = event.clientX - swipe.x;
+    const deltaY = event.clientY - swipe.y;
 
-    if (
-      isScrollGesture.current ||
-      (Math.abs(deltaY) > SCROLL_LATCH && Math.abs(deltaY) > Math.abs(deltaX))
-    ) {
-      isScrollGesture.current = true;
+    if (swipe.axis === "undecided") {
+      if (Math.abs(deltaX) < AXIS_LATCH && Math.abs(deltaY) < AXIS_LATCH) {
+        return;
+      }
+
+      swipe.axis =
+        Math.abs(deltaX) > Math.abs(deltaY) ? "horizontal" : "vertical";
+
+      if (swipe.axis === "horizontal") capturePointer(event);
+    }
+
+    if (swipe.axis === "vertical") {
       setDrag(null);
       return;
     }
 
+    const now = performance.now();
+    // Samples can arrive in the same millisecond, so the elapsed time is
+    // floored rather than letting a zero divisor invent an enormous flick.
+    const elapsed = Math.max(now - swipe.lastTime, 8);
+
+    swipe.velocity = (event.clientX - swipe.lastX) / elapsed;
+    swipe.lastX = event.clientX;
+    swipe.lastTime = now;
+
     setDrag(Math.max(Math.min(deltaX, MAX_DRAG), -MAX_DRAG));
   };
 
-  const endSwipe = (event: React.PointerEvent) => {
-    const start = swipeStart.current;
-    swipeStart.current = null;
-
-    if (start === null) return;
-
-    // Releasing hands the deck back to the slot transitions: the track eases
-    // home while the slots travel one gap, which compose into a single settle.
-    const wasScroll = isScrollGesture.current;
-    isScrollGesture.current = false;
+  // Releasing hands the deck back to the slot transitions: the track eases
+  // home while the slots travel one gap, which compose into a single settle.
+  const commitSwipe = (clientX: number, clientY: number) => {
+    const swipe = gesture.current;
+    gesture.current = null;
     setDrag(null);
 
-    if (wasScroll) return;
+    if (swipe === null || swipe.axis === "vertical") return;
 
-    const deltaX = event.clientX - start.x;
-    const deltaY = event.clientY - start.y;
-    const isSwipe =
-      Math.abs(deltaX) >= SWIPE_THRESHOLD &&
-      Math.abs(deltaX) > Math.abs(deltaY);
+    const deltaX = clientX - swipe.x;
+    const deltaY = clientY - swipe.y;
 
-    if (!isSwipe) return;
+    // A gesture that never cleared the latch has no axis of its own, so the
+    // release itself has to say which way the finger went.
+    if (swipe.axis === "undecided" && Math.abs(deltaX) <= Math.abs(deltaY)) {
+      return;
+    }
+
+    const isFlick =
+      performance.now() - swipe.lastTime <= FLICK_IDLE &&
+      Math.abs(swipe.velocity) >= FLICK_VELOCITY &&
+      Math.abs(deltaX) >= FLICK_DISTANCE;
+
+    if (!isFlick && Math.abs(deltaX) < SWIPE_THRESHOLD) return;
 
     suppressFlip.current = true;
     navigate(deltaX < 0 ? "next" : "previous");
@@ -282,15 +337,33 @@ export function ConceptDeck({ cards, random = Math.random }: ConceptDeckProps) {
         onPointerDown={(event) => {
           // Mouse drags stay available for selecting card text.
           if (event.pointerType === "mouse") return;
-          swipeStart.current = { x: event.clientX, y: event.clientY };
-          isScrollGesture.current = false;
+
+          // A swipe that produced no click leaves the guard armed, which would
+          // otherwise eat the next tap instead of flipping the card.
+          suppressFlip.current = false;
+          gesture.current = {
+            x: event.clientX,
+            y: event.clientY,
+            lastX: event.clientX,
+            lastTime: performance.now(),
+            velocity: 0,
+            axis: "undecided",
+          };
         }}
         onPointerMove={trackDrag}
-        onPointerUp={endSwipe}
+        onPointerUp={(event) => commitSwipe(event.clientX, event.clientY)}
         onPointerCancel={() => {
-          // The browser took the gesture over to scroll a card face.
-          swipeStart.current = null;
-          isScrollGesture.current = false;
+          const swipe = gesture.current;
+
+          // The browser took the gesture over. A gesture already latched as a
+          // swipe has still travelled, and throwing that away is what left a
+          // card sitting still after a swipe the finger clearly finished.
+          if (swipe?.axis === "horizontal") {
+            commitSwipe(swipe.lastX, swipe.y);
+            return;
+          }
+
+          gesture.current = null;
           setDrag(null);
         }}
       >

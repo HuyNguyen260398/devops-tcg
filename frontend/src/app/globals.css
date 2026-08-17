@@ -8,6 +8,12 @@
   --surface: #0a1730;
   --cyan: #67e8f9;
   --violet: #a78bfa;
+  /* One source for every deck timing. The flip's half point is where the two
+     faces swap, so it must stay exactly half of the flip. */
+  --travel: 320ms;
+  --flip: 440ms;
+  --flip-half: 220ms;
+  --travel-ease: cubic-bezier(0.22, 0.61, 0.24, 1);
 }
 
 * {
@@ -40,7 +46,6 @@ body {
     BlinkMacSystemFont,
     "Segoe UI",
     sans-serif;
-  text-rendering: optimizeLegibility;
 }
 
 .app-shell {
@@ -89,26 +94,27 @@ button,
   -webkit-tap-highlight-color: transparent;
 }
 
+/* Painted as radial gradients rather than blurred discs: a blur filter forces
+   the layer to be rasterised through the filter pipeline, which is expensive on
+   a phone GPU that is already compositing five card layers. */
 .stage-orb {
   position: absolute;
-  width: 22rem;
-  height: 22rem;
-  border-radius: 9999px;
-  filter: blur(90px);
+  width: 30rem;
+  height: 30rem;
   opacity: 0.12;
   pointer-events: none;
 }
 
 .stage-orb-cyan {
-  top: 4rem;
-  left: max(-12rem, calc(50% - 34rem));
-  background: #22d3ee;
+  top: 1rem;
+  left: max(-16rem, calc(50% - 38rem));
+  background: radial-gradient(circle at 50% 50%, #22d3ee, transparent 62%);
 }
 
 .stage-orb-violet {
-  right: max(-13rem, calc(50% - 35rem));
-  bottom: 2rem;
-  background: #8b5cf6;
+  right: max(-17rem, calc(50% - 39rem));
+  bottom: -1rem;
+  background: radial-gradient(circle at 50% 50%, #8b5cf6, transparent 62%);
 }
 
 .concept-card {
@@ -158,11 +164,11 @@ button,
      the clearance is a fixed length rather than a share of the card width,
      which would shrink on the phone widths that need it most. */
   --deck-gap: calc(var(--deck-card-width) + 1.5rem);
-  /* The live drag offset, written by the pointer handlers. The whole track
-     carries it so every mounted card trails the finger together, leaving the
-     per-slot transforms to describe position in the deck and nothing else. */
-  transform: translate3d(var(--deck-drag, 0px), 0, 0);
-  transition: transform 420ms cubic-bezier(0.22, 0.61, 0.24, 1);
+  /* The resting transform. The pointer handlers overwrite it directly during a
+     drag so every mounted card trails the finger together, leaving the per-slot
+     transforms to describe position in the deck and nothing else. */
+  transform: translate3d(0px, 0, 0);
+  transition: transform var(--travel) var(--travel-ease);
 }
 
 /* While the finger is down the track must not lag behind it. */
@@ -181,15 +187,23 @@ button,
   width: var(--deck-card-width);
   max-width: 350px;
   transition:
-    transform 420ms cubic-bezier(0.22, 0.61, 0.24, 1),
-    opacity 420ms cubic-bezier(0.22, 0.61, 0.24, 1),
-    filter 420ms linear;
+    transform var(--travel) var(--travel-ease),
+    opacity var(--travel) var(--travel-ease);
   will-change: transform, opacity;
 }
 
+/* Neighbours used to be dimmed with a saturate/brightness filter transitioned
+   alongside the travel, which re-rasterises four full card layers on every
+   frame of every move. Their own veil and opacity already read as "set back",
+   so the filter buys nothing it costs. */
 .deck-slot:not([data-slot="0"]) {
-  filter: saturate(0.62) brightness(0.7);
   pointer-events: none;
+}
+
+/* Only the card in hand carries the full glow; a neighbour's shadow is drawn
+   at a fraction of the blur radius nobody can see through it anyway. */
+.deck-slot:not([data-slot="0"]) .card-face-front {
+  box-shadow: 0 18px 40px rgb(0 0 0 / 0.45);
 }
 
 .deck-slot[data-slot="0"] {
@@ -270,11 +284,18 @@ button,
   height: 100%;
   min-height: 0;
   transform-style: preserve-3d;
-  transition: transform 600ms cubic-bezier(0.2, 0.75, 0.25, 1);
+  transition: transform var(--flip) cubic-bezier(0.2, 0.75, 0.25, 1);
 }
 
 .concept-card[data-face="back"] .concept-card-inner {
   transform: rotateY(180deg);
+}
+
+/* A card that leaves the centre while flipped loses its back face with the
+   same render, so it returns to its front at once instead of animating a flip
+   there is nothing left to show. */
+.concept-card:not([data-face]) .concept-card-inner {
+  transition: none;
 }
 
 .card-face-front,
@@ -283,6 +304,10 @@ button,
   overflow-x: hidden;
   overflow-y: auto;
   overscroll-behavior: contain;
+  /* The card is scrolled by dragging it, and a bar drawn down a face that is
+     also being rotated in 3D lands wherever the rotation puts it — on the back
+     face's own right edge, which the flip mirrors round to the left. */
+  scrollbar-width: none;
   /* The foil edge is a transparent border filled by the conic layer beneath
      the card's own surface, so each face carries its own rim and nothing
      bright is left behind when the faces turn edge-on. */
@@ -299,8 +324,33 @@ button,
     inset 0 -1px 0 rgb(103 232 249 / 0.08),
     0 28px 70px rgb(0 0 0 / 0.52),
     0 0 55px rgb(34 211 238 / 0.11);
+  /* Kept for the browsers that honour it, but not relied upon: WebKit does not
+     backface-cull a composited scrolling layer, and both faces scroll. On iOS
+     that let the turned-away face keep painting straight through the face in
+     view, so the front's mirrored text sat on top of the back's content. What
+     actually guarantees a single visible face is the visibility swap below. */
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
+  visibility: hidden;
+}
+
+.card-face-front::-webkit-scrollbar,
+.card-face-back::-webkit-scrollbar {
+  display: none;
+}
+
+/* Swapped at the exact half point of the flip, where both faces are edge-on:
+   before it only the outgoing face is painted, after it only the incoming one,
+   and at no moment are both. */
+.concept-card[data-face] .card-face-front,
+.concept-card[data-face] .card-face-back {
+  transition: visibility 0s linear var(--flip-half);
+}
+
+.concept-card[data-face="front"] .card-face-front,
+.concept-card[data-face="back"] .card-face-back,
+.concept-card:not([data-face]) .card-face-front {
+  visibility: visible;
 }
 
 .card-face-back {
@@ -336,13 +386,10 @@ button,
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .concept-card-inner {
-    transition-duration: 0s;
-  }
-
-  .deck-slot,
-  .deck-track {
-    transition-duration: 0s;
+  :root {
+    --travel: 0s;
+    --flip: 0s;
+    --flip-half: 0s;
   }
 
   *,

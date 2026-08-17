@@ -134,7 +134,9 @@ describe("ConceptDeck", () => {
   };
 
   const track = () => screen.getByTestId("deck-track");
-  const dragOffset = () => track().style.getPropertyValue("--deck-drag");
+  // The drag is written to the track's own transform rather than to an
+  // inherited custom property, so nothing below the track restyles per frame.
+  const dragOffset = () => track().style.transform;
 
   const drag = (deltaX: number, deltaY = 0, pointerType = "touch") => {
     const surface = track();
@@ -152,7 +154,7 @@ describe("ConceptDeck", () => {
     drag(-60);
 
     expect(track()).toHaveAttribute("data-dragging", "true");
-    expect(dragOffset()).toBe("-60px");
+    expect(dragOffset()).toBe("translate3d(-60px, 0px, 0px)");
     // The deck only commits on release, so the counter has not moved yet.
     expect(screen.getByText("01 / 09")).toBeInTheDocument();
   });
@@ -164,7 +166,7 @@ describe("ConceptDeck", () => {
     fireEvent(track(), pointer("pointerup", 180, 300, "touch"));
 
     expect(track()).not.toHaveAttribute("data-dragging");
-    expect(dragOffset()).toBe("0px");
+    expect(dragOffset()).toBe("translate3d(0px, 0px, 0px)");
     expect(screen.getByText("01 / 09")).toBeInTheDocument();
   });
 
@@ -175,7 +177,7 @@ describe("ConceptDeck", () => {
     fireEvent(track(), pointer("pointerup", 120, 300, "touch"));
 
     expect(track()).not.toHaveAttribute("data-dragging");
-    expect(dragOffset()).toBe("0px");
+    expect(dragOffset()).toBe("translate3d(0px, 0px, 0px)");
     expect(screen.getByText("02 / 09")).toBeInTheDocument();
   });
 
@@ -184,7 +186,7 @@ describe("ConceptDeck", () => {
 
     drag(-60, 140);
 
-    expect(dragOffset()).toBe("0px");
+    expect(dragOffset()).toBe("translate3d(0px, 0px, 0px)");
     expect(screen.getByText("01 / 09")).toBeInTheDocument();
   });
 
@@ -196,7 +198,7 @@ describe("ConceptDeck", () => {
     fireEvent(surface, pointer("pointermove", 190, 440, "touch"));
     fireEvent(surface, pointer("pointermove", 90, 450, "touch"));
 
-    expect(dragOffset()).toBe("0px");
+    expect(dragOffset()).toBe("translate3d(0px, 0px, 0px)");
   });
 
   it("caps the travel so a long drag cannot fling the deck off stage", () => {
@@ -204,7 +206,7 @@ describe("ConceptDeck", () => {
 
     drag(-5000);
 
-    expect(dragOffset()).toBe("-360px");
+    expect(dragOffset()).toBe("translate3d(-360px, 0px, 0px)");
   });
 
   it("does not follow a mouse drag", () => {
@@ -216,15 +218,66 @@ describe("ConceptDeck", () => {
     expect(track()).not.toHaveAttribute("data-dragging");
   });
 
-  it("lets go of the drag when the browser cancels the gesture", () => {
+  it("lets go of the drag when the browser cancels a scroll", () => {
+    render(<ConceptDeck cards={conceptCards} random={() => 0.999999} />);
+
+    drag(-30, 140);
+    fireEvent(track(), pointer("pointercancel", 170, 440, "touch"));
+
+    expect(track()).not.toHaveAttribute("data-dragging");
+    expect(dragOffset()).toBe("translate3d(0px, 0px, 0px)");
+    expect(screen.getByText("01 / 09")).toBeInTheDocument();
+  });
+
+  it("still turns the card when the browser cancels a latched swipe", () => {
     render(<ConceptDeck cards={conceptCards} random={() => 0.999999} />);
 
     drag(-80);
     fireEvent(track(), pointer("pointercancel", 120, 300, "touch"));
 
     expect(track()).not.toHaveAttribute("data-dragging");
-    expect(dragOffset()).toBe("0px");
-    expect(screen.getByText("01 / 09")).toBeInTheDocument();
+    expect(dragOffset()).toBe("translate3d(0px, 0px, 0px)");
+    expect(screen.getByText("02 / 09")).toBeInTheDocument();
+  });
+
+  it("turns the card on a flick too short to clear the drag threshold", () => {
+    render(<ConceptDeck cards={conceptCards} random={() => 0.999999} />);
+
+    drag(-26);
+    fireEvent(track(), pointer("pointerup", 174, 300, "touch"));
+
+    expect(screen.getByText("02 / 09")).toBeInTheDocument();
+  });
+
+  it("keeps a swipe alive when the finger drifts vertically on the way out", () => {
+    render(<ConceptDeck cards={conceptCards} random={() => 0.999999} />);
+
+    const surface = track();
+    fireEvent(surface, pointer("pointerdown", 200, 300, "touch"));
+    // Horizontal first, so the gesture is a swipe; the arc that follows used to
+    // re-judge it as a scroll and leave the card sitting still.
+    fireEvent(surface, pointer("pointermove", 180, 302, "touch"));
+    fireEvent(surface, pointer("pointermove", 120, 380, "touch"));
+    fireEvent(surface, pointer("pointerup", 110, 400, "touch"));
+
+    expect(screen.getByText("02 / 09")).toBeInTheDocument();
+  });
+
+  it("arms the flip guard for one gesture only", () => {
+    render(<ConceptDeck cards={conceptCards} random={() => 0.999999} />);
+
+    // A touch swipe need not produce a click, and the guard left armed used to
+    // swallow the following tap instead of flipping the card.
+    swipe(-80);
+    const card = screen.getByRole("button", {
+      name: "CDN card, front shown",
+    });
+
+    fireEvent(track(), pointer("pointerdown", 200, 300, "touch"));
+    fireEvent(track(), pointer("pointerup", 200, 300, "touch"));
+    fireEvent.click(card);
+
+    expect(card).toHaveAttribute("data-face", "back");
   });
 
   it("advances the deck on a leftward swipe", () => {
