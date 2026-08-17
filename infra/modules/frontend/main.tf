@@ -84,8 +84,12 @@ resource "aws_cloudfront_response_headers_policy" "site" {
   comment = "Browser security headers for ${var.name_prefix}"
 
   security_headers_config {
+    # script-src needs 'unsafe-inline': the Next.js static export ships its RSC
+    # payload in inline <script> blocks, and a static site has no server to mint
+    # a nonce. Blocking them leaves the deck stuck on its placeholder. Keep this
+    # string in sync with frontend/serve.json, which the e2e suite asserts.
     content_security_policy {
-      content_security_policy = "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'; upgrade-insecure-requests"
+      content_security_policy = "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'; upgrade-insecure-requests"
       override                = true
     }
 

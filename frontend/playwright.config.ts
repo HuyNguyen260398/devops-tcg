@@ -12,7 +12,10 @@ export default defineConfig({
     { name: "mobile", use: { viewport: { width: 320, height: 700 } } },
   ],
   webServer: {
-    command: "node ./node_modules/serve/build/main.js out --listen 4173",
+    // serve.json mirrors the CloudFront response headers, so the suite runs
+    // against the same CSP as production.
+    command:
+      "node ./node_modules/serve/build/main.js out --config ../serve.json --listen 4173",
     url: "http://127.0.0.1:4173",
     reuseExistingServer: !process.env.CI,
   },
