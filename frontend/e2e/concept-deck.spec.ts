@@ -501,6 +501,78 @@ test("trails the finger while a swipe is in progress", async ({
   await expect.poll(translateX).toBe(0);
 });
 
+// A real finger, unlike a synthesised pointer event, is routed by hit testing
+// and touch-action: a gesture's touch-action is resolved from the touched
+// element only as far as the first scrolling ancestor, so a rule further up the
+// tree never reaches a touch that starts on a card face. Playwright has no
+// swipe of its own, so the raw Chromium input pipeline drives this one.
+const drag = async (
+  page: import("@playwright/test").Page,
+  from: { x: number; y: number },
+  travel: { dx?: number; dy?: number },
+) => {
+  const { dx = 0, dy = 0 } = travel;
+  const cdp = await page.context().newCDPSession(page);
+  const send = (
+    type: "touchStart" | "touchMove" | "touchEnd",
+    progress: number,
+  ) =>
+    cdp.send("Input.dispatchTouchEvent", {
+      type,
+      touchPoints:
+        type === "touchEnd"
+          ? []
+          : [{ x: from.x + dx * progress, y: from.y + dy * progress }],
+    });
+
+  await send("touchStart", 0);
+  for (let step = 1; step <= 6; step += 1) {
+    await send("touchMove", step / 6);
+  }
+  await send("touchEnd", 1);
+  await cdp.detach();
+};
+
+const cardCentre = async (page: import("@playwright/test").Page) => {
+  // Well inside the scrolling face rather than the margin beside it, which is
+  // the part of the deck a thumb actually lands on.
+  const box = await card(page).boundingBox();
+  return { x: box!.x + box!.width / 2, y: box!.y + box!.height / 2 };
+};
+
+test("swipes with a finger on the card itself", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "mobile");
+  await page.goto("/");
+  await expect(page.getByText("01 / 09")).toBeVisible();
+
+  const from = await cardCentre(page);
+
+  await drag(page, from, { dx: -120 });
+  await expect(page.getByText("02 / 09")).toBeVisible();
+
+  await drag(page, from, { dx: 120 });
+  await expect(page.getByText("01 / 09")).toBeVisible();
+});
+
+test("still scrolls the card face under a vertical finger", async ({
+  page,
+}, testInfo) => {
+  test.skip(testInfo.project.name !== "mobile");
+  await page.goto("/");
+  await expect(card(page)).toBeVisible();
+
+  const face = front(page);
+  const from = await cardCentre(page);
+
+  await drag(page, from, { dy: -160 });
+
+  await expect
+    .poll(() => face.evaluate((node) => node.scrollTop))
+    .toBeGreaterThan(0);
+  // Scrolling the face is not a swipe, so the deck stays where it was.
+  await expect(page.getByText("01 / 09")).toBeVisible();
+});
+
 test("keeps a vertical drag from dragging the deck sideways", async ({
   page,
 }, testInfo) => {

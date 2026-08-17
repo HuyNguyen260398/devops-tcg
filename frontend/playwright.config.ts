@@ -9,7 +9,14 @@ export default defineConfig({
   use: { baseURL: "http://127.0.0.1:4173", trace: "on-first-retry" },
   projects: [
     { name: "chromium", use: { ...devices["Desktop Chrome"] } },
-    { name: "mobile", use: { viewport: { width: 320, height: 700 } } },
+    {
+      name: "mobile",
+      // hasTouch lets the suite drive genuine touch input, which is routed by
+      // hit testing and touch-action the way a phone routes it. Synthesised
+      // pointer events skip both, so only real touches can tell whether a
+      // gesture ever reaches the deck's handlers.
+      use: { viewport: { width: 320, height: 700 }, hasTouch: true },
+    },
   ],
   webServer: {
     // serve.json mirrors the CloudFront response headers, so the suite runs

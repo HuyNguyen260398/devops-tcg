@@ -129,11 +129,20 @@ button,
   isolation: isolate;
 }
 
-.deck-carousel {
-  /* Horizontal gestures belong to the deck; vertical ones stay with the browser
-     so a long card face still scrolls. Without this the browser can claim the
-     pan before the pointer handlers ever see it. */
-  touch-action: pan-y;
+/* Horizontal gestures belong to the deck; vertical ones stay with the browser
+   so a long card face still scrolls, and pinch stays with it so a card of text
+   can still be zoomed. Without this the browser can claim the pan before the
+   pointer handlers ever see it.
+
+   The rule covers the whole subtree rather than the carousel alone because a
+   gesture's touch-action is resolved from the touched element only as far as
+   the first scrolling ancestor. Both card faces scroll, so a touch that lands
+   on a card never reaches the carousel's rule: the browser keeps the horizontal
+   pan and cancels the gesture a few pixels in, which left the deck swipeable
+   only in the margin beside the card. */
+.deck-carousel,
+.deck-carousel * {
+  touch-action: pan-y pinch-zoom;
 }
 
 .deck-track {
