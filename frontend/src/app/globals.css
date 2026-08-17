@@ -129,6 +129,13 @@ button,
   isolation: isolate;
 }
 
+.deck-carousel {
+  /* Horizontal gestures belong to the deck; vertical ones stay with the browser
+     so a long card face still scrolls. Without this the browser can claim the
+     pan before the pointer handlers ever see it. */
+  touch-action: pan-y;
+}
+
 .deck-track {
   /* The side arrows sit in the margin beside the card: 46px wide at a 0.5rem
      inset needs 3.5rem each side, so the card yields 7rem on narrow screens
@@ -142,6 +149,16 @@ button,
      the clearance is a fixed length rather than a share of the card width,
      which would shrink on the phone widths that need it most. */
   --deck-gap: calc(var(--deck-card-width) + 1.5rem);
+  /* The live drag offset, written by the pointer handlers. The whole track
+     carries it so every mounted card trails the finger together, leaving the
+     per-slot transforms to describe position in the deck and nothing else. */
+  transform: translate3d(var(--deck-drag, 0px), 0, 0);
+  transition: transform 420ms cubic-bezier(0.22, 0.61, 0.24, 1);
+}
+
+/* While the finger is down the track must not lag behind it. */
+.deck-track[data-dragging] {
+  transition-duration: 0s;
 }
 
 /* Every mounted card keeps its own element and simply transitions between
@@ -314,7 +331,8 @@ button,
     transition-duration: 0s;
   }
 
-  .deck-slot {
+  .deck-slot,
+  .deck-track {
     transition-duration: 0s;
   }
 

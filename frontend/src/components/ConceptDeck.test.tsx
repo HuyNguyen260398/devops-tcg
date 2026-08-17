@@ -133,6 +133,100 @@ describe("ConceptDeck", () => {
     );
   };
 
+  const track = () => screen.getByTestId("deck-track");
+  const dragOffset = () => track().style.getPropertyValue("--deck-drag");
+
+  const drag = (deltaX: number, deltaY = 0, pointerType = "touch") => {
+    const surface = track();
+
+    fireEvent(surface, pointer("pointerdown", 200, 300, pointerType));
+    fireEvent(
+      surface,
+      pointer("pointermove", 200 + deltaX, 300 + deltaY, pointerType),
+    );
+  };
+
+  it("follows the finger while the drag is in progress", () => {
+    render(<ConceptDeck cards={conceptCards} random={() => 0.999999} />);
+
+    drag(-60);
+
+    expect(track()).toHaveAttribute("data-dragging", "true");
+    expect(dragOffset()).toBe("-60px");
+    // The deck only commits on release, so the counter has not moved yet.
+    expect(screen.getByText("01 / 09")).toBeInTheDocument();
+  });
+
+  it("springs back when the drag stops short of the threshold", () => {
+    render(<ConceptDeck cards={conceptCards} random={() => 0.999999} />);
+
+    drag(-20);
+    fireEvent(track(), pointer("pointerup", 180, 300, "touch"));
+
+    expect(track()).not.toHaveAttribute("data-dragging");
+    expect(dragOffset()).toBe("0px");
+    expect(screen.getByText("01 / 09")).toBeInTheDocument();
+  });
+
+  it("settles onto the next card when the drag clears the threshold", () => {
+    render(<ConceptDeck cards={conceptCards} random={() => 0.999999} />);
+
+    drag(-80);
+    fireEvent(track(), pointer("pointerup", 120, 300, "touch"));
+
+    expect(track()).not.toHaveAttribute("data-dragging");
+    expect(dragOffset()).toBe("0px");
+    expect(screen.getByText("02 / 09")).toBeInTheDocument();
+  });
+
+  it("holds the deck still once a drag turns out to be a scroll", () => {
+    render(<ConceptDeck cards={conceptCards} random={() => 0.999999} />);
+
+    drag(-60, 140);
+
+    expect(dragOffset()).toBe("0px");
+    expect(screen.getByText("01 / 09")).toBeInTheDocument();
+  });
+
+  it("keeps latching a scroll even if the finger drifts sideways", () => {
+    render(<ConceptDeck cards={conceptCards} random={() => 0.999999} />);
+
+    const surface = track();
+    fireEvent(surface, pointer("pointerdown", 200, 300, "touch"));
+    fireEvent(surface, pointer("pointermove", 190, 440, "touch"));
+    fireEvent(surface, pointer("pointermove", 90, 450, "touch"));
+
+    expect(dragOffset()).toBe("0px");
+  });
+
+  it("caps the travel so a long drag cannot fling the deck off stage", () => {
+    render(<ConceptDeck cards={conceptCards} random={() => 0.999999} />);
+
+    drag(-5000);
+
+    expect(dragOffset()).toBe("-360px");
+  });
+
+  it("does not follow a mouse drag", () => {
+    render(<ConceptDeck cards={conceptCards} random={() => 0.999999} />);
+
+    drag(-80, 0, "mouse");
+
+    expect(dragOffset()).toBe("");
+    expect(track()).not.toHaveAttribute("data-dragging");
+  });
+
+  it("lets go of the drag when the browser cancels the gesture", () => {
+    render(<ConceptDeck cards={conceptCards} random={() => 0.999999} />);
+
+    drag(-80);
+    fireEvent(track(), pointer("pointercancel", 120, 300, "touch"));
+
+    expect(track()).not.toHaveAttribute("data-dragging");
+    expect(dragOffset()).toBe("0px");
+    expect(screen.getByText("01 / 09")).toBeInTheDocument();
+  });
+
   it("advances the deck on a leftward swipe", () => {
     render(<ConceptDeck cards={conceptCards} random={() => 0.999999} />);
 

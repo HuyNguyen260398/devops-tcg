@@ -461,6 +461,75 @@ test("navigates the deck with a touch swipe", async ({ page }, testInfo) => {
   await expect(page.getByText("01 / 09")).toBeVisible();
 });
 
+test("trails the finger while a swipe is in progress", async ({
+  page,
+}, testInfo) => {
+  test.skip(testInfo.project.name !== "mobile");
+  await page.goto("/");
+  await expect(page.getByText("01 / 09")).toBeVisible();
+
+  const track = page.getByTestId("deck-track");
+  const box = await track.boundingBox();
+  const midY = box!.y + box!.height / 2;
+  const startX = box!.x + box!.width - 40;
+  const touch = (clientX: number, clientY: number) => ({
+    clientX,
+    clientY,
+    pointerType: "touch",
+    isPrimary: true,
+    bubbles: true,
+  });
+
+  const translateX = () =>
+    track.evaluate((node: HTMLElement) => {
+      const { transform } = getComputedStyle(node);
+      return transform === "none" ? 0 : new DOMMatrix(transform).m41;
+    });
+
+  await track.dispatchEvent("pointerdown", touch(startX, midY));
+  await track.dispatchEvent("pointermove", touch(startX - 90, midY));
+
+  await expect(track).toHaveAttribute("data-dragging", "true");
+  expect(await translateX()).toBeLessThanOrEqual(-80);
+  // The card only commits on release, so the deck has not moved on yet.
+  await expect(page.getByText("01 / 09")).toBeVisible();
+
+  await track.dispatchEvent("pointerup", touch(startX - 90, midY));
+
+  await expect(track).not.toHaveAttribute("data-dragging", "true");
+  await expect(page.getByText("02 / 09")).toBeVisible();
+  await expect.poll(translateX).toBe(0);
+});
+
+test("keeps a vertical drag from dragging the deck sideways", async ({
+  page,
+}, testInfo) => {
+  test.skip(testInfo.project.name !== "mobile");
+  await page.goto("/");
+
+  const track = page.getByTestId("deck-track");
+  const box = await track.boundingBox();
+  const startX = box!.x + box!.width / 2;
+  const startY = box!.y + box!.height / 2;
+  const touch = (clientX: number, clientY: number) => ({
+    clientX,
+    clientY,
+    pointerType: "touch",
+    isPrimary: true,
+    bubbles: true,
+  });
+
+  await track.dispatchEvent("pointerdown", touch(startX, startY));
+  await track.dispatchEvent("pointermove", touch(startX - 30, startY - 120));
+
+  expect(
+    await track.evaluate((node: HTMLElement) =>
+      node.style.getPropertyValue("--deck-drag"),
+    ),
+  ).toBe("0px");
+  await expect(page.getByText("01 / 09")).toBeVisible();
+});
+
 test("does not overflow at 320 pixels", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== "mobile");
   await page.goto("/");

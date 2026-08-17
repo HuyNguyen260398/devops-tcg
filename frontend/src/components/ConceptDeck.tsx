@@ -26,6 +26,15 @@ const SLOT_RADIUS = 2;
 // vertical, before it counts as a swipe rather than a scroll of the card face.
 const SWIPE_THRESHOLD = 45;
 
+// How far the deck may trail the finger. Slightly past the 350px card cap, so a
+// long drag still reads as holding the card rather than throwing it off stage.
+const MAX_DRAG = 360;
+
+// Vertical travel that latches a gesture as a scroll of the card face. Once
+// latched it stays a scroll, so a finger drifting sideways mid-scroll cannot
+// start dragging the deck out from under it.
+const SCROLL_LATCH = 12;
+
 // The shortest signed distance from the active card, so the deck can loop
 // without a card ever jumping the long way around the order.
 const slotOffset = (index: number, activeIndex: number, length: number) => {
@@ -97,8 +106,10 @@ export function ConceptDeck({ cards, random = Math.random }: ConceptDeckProps) {
   const [direction, setDirection] = useState<NavigationDirection | null>(null);
   const [isFlipped, setIsFlipped] = useState(false);
   const activeCardRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
   const restoreActiveFocus = useRef(false);
   const swipeStart = useRef<{ x: number; y: number } | null>(null);
+  const isScrollGesture = useRef(false);
   const suppressFlip = useRef(false);
   const deckLength = deckOrder?.cards.length ?? 0;
 
@@ -194,11 +205,58 @@ export function ConceptDeck({ cards, random = Math.random }: ConceptDeckProps) {
     setIsFlipped((flipped) => !flipped);
   };
 
+  // The drag is written straight to the track rather than held in state: a
+  // gesture updates every frame, and re-rendering five mounted cards that often
+  // would cost far more than it buys. The slot transforms stay untouched — the
+  // whole track carries the offset, so the cards travel together.
+  const setDrag = (offset: number | null) => {
+    const track = trackRef.current;
+
+    if (track === null) return;
+
+    if (offset === null) {
+      delete track.dataset.dragging;
+      track.style.setProperty("--deck-drag", "0px");
+      return;
+    }
+
+    track.dataset.dragging = "true";
+    track.style.setProperty("--deck-drag", `${offset}px`);
+  };
+
+  const trackDrag = (event: React.PointerEvent) => {
+    const start = swipeStart.current;
+
+    if (start === null) return;
+
+    const deltaX = event.clientX - start.x;
+    const deltaY = event.clientY - start.y;
+
+    if (
+      isScrollGesture.current ||
+      (Math.abs(deltaY) > SCROLL_LATCH && Math.abs(deltaY) > Math.abs(deltaX))
+    ) {
+      isScrollGesture.current = true;
+      setDrag(null);
+      return;
+    }
+
+    setDrag(Math.max(Math.min(deltaX, MAX_DRAG), -MAX_DRAG));
+  };
+
   const endSwipe = (event: React.PointerEvent) => {
     const start = swipeStart.current;
     swipeStart.current = null;
 
     if (start === null) return;
+
+    // Releasing hands the deck back to the slot transitions: the track eases
+    // home while the slots travel one gap, which compose into a single settle.
+    const wasScroll = isScrollGesture.current;
+    isScrollGesture.current = false;
+    setDrag(null);
+
+    if (wasScroll) return;
 
     const deltaX = event.clientX - start.x;
     const deltaY = event.clientY - start.y;
@@ -225,14 +283,19 @@ export function ConceptDeck({ cards, random = Math.random }: ConceptDeckProps) {
           // Mouse drags stay available for selecting card text.
           if (event.pointerType === "mouse") return;
           swipeStart.current = { x: event.clientX, y: event.clientY };
+          isScrollGesture.current = false;
         }}
+        onPointerMove={trackDrag}
         onPointerUp={endSwipe}
         onPointerCancel={() => {
           // The browser took the gesture over to scroll a card face.
           swipeStart.current = null;
+          isScrollGesture.current = false;
+          setDrag(null);
         }}
       >
         <div
+          ref={trackRef}
           data-testid="deck-track"
           data-direction={direction ?? undefined}
           className="deck-track relative min-h-0 w-full flex-1"
