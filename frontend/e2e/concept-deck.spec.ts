@@ -388,6 +388,24 @@ test("loads a unique local image for every card", async ({ page }) => {
   expect(externalImages).toEqual([]);
 });
 
+test("serves a card-themed tab icon", async ({ page }) => {
+  await page.goto("/");
+
+  const href = await page
+    .locator('link[rel~="icon"]')
+    .first()
+    .getAttribute("href");
+
+  expect(href).not.toBeNull();
+
+  const response = await page.request.get(
+    new URL(href!, page.url()).toString(),
+  );
+
+  expect(response.status()).toBe(200);
+  expect(response.headers()["content-type"]).toContain("image/svg+xml");
+});
+
 test("keeps the arrows clear of the card at phone widths", async ({
   page,
 }, testInfo) => {
