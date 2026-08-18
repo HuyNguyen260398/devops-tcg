@@ -50,7 +50,7 @@ const front = (page: import("@playwright/test").Page) =>
 const scroller = (
   page: import("@playwright/test").Page,
   face: "card-front" | "card-back" = "card-front",
-) => card(page).getByTestId(face).locator(".card-face-scroll");
+) => card(page).getByTestId(face);
 
 const slot = (page: import("@playwright/test").Page, offset: number) =>
   page.locator(`.deck-slot[data-slot="${offset}"]`);
@@ -339,9 +339,9 @@ test("scrolls the card faces without drawing a scrollbar over them", async ({
     (node: HTMLElement) => node.offsetWidth - node.clientWidth,
   );
 
-  // Forced to overflow, the scroller still gives up no width at all — no
-  // gutter for a bar, so none is drawn down either edge.
-  expect(gutter).toBe(0);
+  // Forced to overflow, the face still gives up nothing but its own 2px rim on
+  // each side — no gutter for a bar, so none is drawn down either edge.
+  expect(gutter).toBeLessThanOrEqual(4);
 });
 
 test("keeps the card's own surface still while its content scrolls", async ({
@@ -352,24 +352,27 @@ test("keeps the card's own surface still while its content scrolls", async ({
   await expect(active).toBeVisible();
 
   const face = active.getByTestId("card-front");
-  const box = scroller(page);
 
   // Forced to overflow whatever the viewport is, then scrolled to the end.
-  await box.evaluate((node) => {
+  await face.evaluate((node) => {
     node.style.height = "160px";
     node.scrollTop = node.scrollHeight;
   });
-  expect(await box.evaluate((node) => node.scrollTop)).toBeGreaterThan(0);
+  expect(await face.evaluate((node) => node.scrollTop)).toBeGreaterThan(0);
 
-  // The face carries the rim, the surface gradient and the sheen. It is not a
-  // scroll container, so none of them can travel with the text — which is what
-  // used to drag the sheen's rounded bottom edge into the middle of the card.
   const surface = await face.evaluate((node) => ({
-    scrollTop: node.scrollTop,
-    overflow: getComputedStyle(node).overflow,
+    layers: getComputedStyle(node).backgroundImage,
+    overlay: getComputedStyle(node, "::after").content,
   }));
-  expect(surface.scrollTop).toBe(0);
-  expect(surface.overflow).toBe("hidden");
+
+  // Every decoration the card carries — sheen, surface, foil rim — is painted
+  // by the face's own background, which stays fixed to the padding box however
+  // far the content has been dragged. As an ::after overlay the sheen scrolled
+  // with the text and cut its rounded bottom edge across the middle of the
+  // card, which is the surface changing colour partway down a long one.
+  expect(surface.layers).toContain("linear-gradient(125deg");
+  expect(surface.layers).toContain("conic-gradient");
+  expect(surface.overlay).toBe("none");
 });
 
 test("never parks a neighbouring card behind the centred card", async ({
@@ -758,10 +761,6 @@ test("keeps the complete deck navigation inside the viewport", async ({
   }));
   expect(frontLayout.height).toBeGreaterThan(44);
   expect(frontLayout.overflowY).toBe("auto");
-  // The face around it stays put, so nothing painted on the card can scroll.
-  expect(
-    await front(page).evaluate((node) => getComputedStyle(node).overflow),
-  ).toBe("hidden");
 });
 
 test("keeps the Reverse Proxy card readable at 200 percent text zoom", async ({

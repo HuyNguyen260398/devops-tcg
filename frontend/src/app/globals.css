@@ -309,25 +309,37 @@ button,
 .card-face-front,
 .card-face-back {
   height: 100%;
-  /* The face never scrolls; the box inside it does. Everything that decorates
-     the card — the rim, the surface gradient, the sheen — has to stay put, and
-     an absolutely positioned child of a scroll container travels with the
-     content: the sheen's rounded bottom edge used to slide up and cut a lit
-     band across the middle of a long card. Keeping the scroller off the face
-     also leaves the flip rotating a plain box rather than a composited
-     scroller. */
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  /* The card is scrolled by dragging it, and a bar drawn down a face that is
+     also being rotated in 3D lands wherever the rotation puts it — on the back
+     face's own right edge, which the flip mirrors round to the left. */
+  scrollbar-width: none;
   /* The foil edge is a transparent border filled by the conic layer beneath
      the card's own surface, so each face carries its own rim and nothing
      bright is left behind when the faces turn edge-on. */
   border: 2px solid transparent;
   border-radius: 28px;
   background-color: var(--surface);
+  /* The glass sheen is a background layer rather than an ::after overlay. An
+     absolutely positioned child of a scroll container travels with the
+     content, so the sheen used to scroll: its rounded bottom edge slid up and
+     cut a lit band across the middle of any card long enough to scroll. A
+     background does not scroll — it stays fixed to the padding box — so the
+     card's surface is now the same wherever the text has been dragged to. */
   background-image:
+    linear-gradient(
+      125deg,
+      rgb(255 255 255 / 0.14),
+      transparent 22%,
+      transparent 72%,
+      rgb(167 139 250 / 0.1)
+    ),
     linear-gradient(145deg, rgb(15 35 65 / 0.98), rgb(5 11 28 / 0.99)),
     conic-gradient(from 210deg, #67e8f9, #8b5cf6, #f6c453, #22d3ee, #67e8f9);
-  background-origin: padding-box, border-box;
-  background-clip: padding-box, border-box;
+  background-origin: padding-box, padding-box, border-box;
+  background-clip: padding-box, padding-box, border-box;
   box-shadow:
     inset 0 1px 0 rgb(255 255 255 / 0.12),
     inset 0 -1px 0 rgb(103 232 249 / 0.08),
@@ -343,18 +355,8 @@ button,
   visibility: hidden;
 }
 
-/* The card is scrolled by dragging it, and a bar drawn down a face that is
-   also being rotated in 3D lands wherever the rotation puts it — on the back
-   face's own right edge, which the flip mirrors round to the left. */
-.card-face-scroll {
-  height: 100%;
-  overflow-x: hidden;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  scrollbar-width: none;
-}
-
-.card-face-scroll::-webkit-scrollbar {
+.card-face-front::-webkit-scrollbar,
+.card-face-back::-webkit-scrollbar {
   display: none;
 }
 
@@ -380,22 +382,6 @@ button,
 
 .card-face-front {
   position: relative;
-}
-
-.card-face-front::after,
-.card-face-back::after {
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: linear-gradient(
-    125deg,
-    rgb(255 255 255 / 0.14),
-    transparent 22%,
-    transparent 72%,
-    rgb(167 139 250 / 0.1)
-  );
-  content: "";
-  pointer-events: none;
 }
 
 @media (min-width: 640px) {

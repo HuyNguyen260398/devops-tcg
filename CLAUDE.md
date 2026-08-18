@@ -88,12 +88,19 @@ Two non-obvious mechanisms worth knowing before editing `ConceptDeck.tsx`:
   `globals.css` also owns the 3D flip (`.concept-card-inner`, driven by
   `data-face`) and the `prefers-reduced-motion: reduce` block that zeroes both
   the flip and the slot transitions (through the `--travel`/`--flip` tokens).
-- **The face is the card; `.card-face-scroll` inside it is what scrolls.** The
-  face owns the rim, the surface gradient and the `::after` sheen, and it must
-  never be a scroll container: an absolutely positioned child of one travels
-  with the content, which dragged the sheen's rounded bottom edge into the
-  middle of any card long enough to scroll. It also keeps the rotating element
-  free of a composited scroller, which is what the flip has to animate.
+- **Everything that decorates a face is a background layer on it.** The face
+  is itself the scroll container, so an absolutely positioned overlay inside it
+  travels with the content — that is what used to drag the glass sheen's
+  rounded bottom edge into the middle of any card long enough to scroll. The
+  sheen is therefore the first `background-image` layer, above the surface
+  gradient and the conic foil rim; backgrounds stay fixed to the padding box.
+  Do not reintroduce a decorative `::after`, and do not move the scrolling into
+  a child: Chromium refuses to deliver a touch scroll to a scroller that sits
+  inside a 3D rendering context behind a rounded clip — an `overflow: hidden`
+  ancestor with a radius, one pixel of `border-radius` on the scroller itself,
+  or even a rounded clip on a descendant such as the artwork block. The face
+  being the scroller is what keeps a finger able to scroll a long card, and it
+  fails only on Linux Chromium, so `pnpm test:e2e` on macOS will not catch it.
 - **The faces are swapped by `visibility`, not by backface culling.** WebKit
   does not backface-cull a composited scrolling layer, and both faces scroll,
   so on iOS the turned-away face painted its mirrored text straight through the
