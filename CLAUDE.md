@@ -88,6 +88,12 @@ Two non-obvious mechanisms worth knowing before editing `ConceptDeck.tsx`:
   `globals.css` also owns the 3D flip (`.concept-card-inner`, driven by
   `data-face`) and the `prefers-reduced-motion: reduce` block that zeroes both
   the flip and the slot transitions (through the `--travel`/`--flip` tokens).
+- **The face is the card; `.card-face-scroll` inside it is what scrolls.** The
+  face owns the rim, the surface gradient and the `::after` sheen, and it must
+  never be a scroll container: an absolutely positioned child of one travels
+  with the content, which dragged the sheen's rounded bottom edge into the
+  middle of any card long enough to scroll. It also keeps the rotating element
+  free of a composited scroller, which is what the flip has to animate.
 - **The faces are swapped by `visibility`, not by backface culling.** WebKit
   does not backface-cull a composited scrolling layer, and both faces scroll,
   so on iOS the turned-away face painted its mirrored text straight through the

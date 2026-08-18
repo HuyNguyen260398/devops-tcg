@@ -46,6 +46,12 @@ const card = (page: import("@playwright/test").Page) =>
 const front = (page: import("@playwright/test").Page) =>
   card(page).getByTestId("card-front");
 
+// The face is the fixed card; the box inside it is what scrolls.
+const scroller = (
+  page: import("@playwright/test").Page,
+  face: "card-front" | "card-back" = "card-front",
+) => card(page).getByTestId(face).locator(".card-face-scroll");
+
 const slot = (page: import("@playwright/test").Page, offset: number) =>
   page.locator(`.deck-slot[data-slot="${offset}"]`);
 
@@ -322,7 +328,7 @@ test("scrolls the card faces without drawing a scrollbar over them", async ({
   page,
 }) => {
   await page.goto("/");
-  const face = front(page);
+  const face = scroller(page);
   await expect(face).toBeVisible();
 
   await face.evaluate((node) => {
@@ -333,9 +339,37 @@ test("scrolls the card faces without drawing a scrollbar over them", async ({
     (node: HTMLElement) => node.offsetWidth - node.clientWidth,
   );
 
-  // Forced to overflow, the face still gives up nothing but its own 2px rim on
-  // each side — no gutter for a bar, so none is drawn down either edge.
-  expect(gutter).toBeLessThanOrEqual(4);
+  // Forced to overflow, the scroller still gives up no width at all — no
+  // gutter for a bar, so none is drawn down either edge.
+  expect(gutter).toBe(0);
+});
+
+test("keeps the card's own surface still while its content scrolls", async ({
+  page,
+}) => {
+  await page.goto("/");
+  const active = card(page);
+  await expect(active).toBeVisible();
+
+  const face = active.getByTestId("card-front");
+  const box = scroller(page);
+
+  // Forced to overflow whatever the viewport is, then scrolled to the end.
+  await box.evaluate((node) => {
+    node.style.height = "160px";
+    node.scrollTop = node.scrollHeight;
+  });
+  expect(await box.evaluate((node) => node.scrollTop)).toBeGreaterThan(0);
+
+  // The face carries the rim, the surface gradient and the sheen. It is not a
+  // scroll container, so none of them can travel with the text — which is what
+  // used to drag the sheen's rounded bottom edge into the middle of the card.
+  const surface = await face.evaluate((node) => ({
+    scrollTop: node.scrollTop,
+    overflow: getComputedStyle(node).overflow,
+  }));
+  expect(surface.scrollTop).toBe(0);
+  expect(surface.overflow).toBe("hidden");
 });
 
 test("never parks a neighbouring card behind the centred card", async ({
@@ -617,7 +651,7 @@ test("still scrolls the card face under a vertical finger", async ({
   await page.goto("/");
   await expect(card(page)).toBeVisible();
 
-  const face = front(page);
+  const face = scroller(page);
   const from = await cardCentre(page);
 
   await drag(page, from, { dy: -160 });
@@ -718,12 +752,16 @@ test("keeps the complete deck navigation inside the viewport", async ({
   ).toHaveCount(0);
   await expect(page.getByText("Flip for anatomy and flow")).toHaveCount(0);
 
-  const frontLayout = await front(page).evaluate((node) => ({
+  const frontLayout = await scroller(page).evaluate((node) => ({
     height: node.clientHeight,
     overflowY: getComputedStyle(node).overflowY,
   }));
   expect(frontLayout.height).toBeGreaterThan(44);
   expect(frontLayout.overflowY).toBe("auto");
+  // The face around it stays put, so nothing painted on the card can scroll.
+  expect(
+    await front(page).evaluate((node) => getComputedStyle(node).overflow),
+  ).toBe("hidden");
 });
 
 test("keeps the Reverse Proxy card readable at 200 percent text zoom", async ({
@@ -741,7 +779,7 @@ test("keeps the Reverse Proxy card readable at 200 percent text zoom", async ({
     page.getByRole("heading", { name: "Reverse Proxy" }),
   ).toBeVisible();
 
-  const activeFront = front(page);
+  const activeFront = scroller(page);
   const frontScroll = await activeFront.evaluate((node) => ({
     overflowY: getComputedStyle(node).overflowY,
     scrollHeight: node.scrollHeight,
@@ -755,7 +793,7 @@ test("keeps the Reverse Proxy card readable at 200 percent text zoom", async ({
   await expect(activeFront.getByText("gateway", { exact: true })).toBeVisible();
 
   await card(page).click();
-  const back = page.getByTestId("card-back");
+  const back = scroller(page, "card-back");
   const backScroll = await back.evaluate((node) => ({
     overflowY: getComputedStyle(node).overflowY,
     scrollHeight: node.scrollHeight,

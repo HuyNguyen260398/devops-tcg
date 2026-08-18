@@ -31,7 +31,9 @@ export const ConceptCard = forwardRef<HTMLDivElement, ConceptCardProps>(
           <div className="deck-slot-veil" />
           <div className="concept-card-inner">
             <section className="card-face-front">
-              <CardFront card={card} />
+              <div className="card-face-scroll">
+                <CardFront card={card} />
+              </div>
             </section>
           </div>
         </div>
@@ -55,14 +57,18 @@ export const ConceptCard = forwardRef<HTMLDivElement, ConceptCardProps>(
             data-testid="card-front"
             aria-hidden={showBack}
           >
-            <CardFront card={card} />
+            <div className="card-face-scroll">
+              <CardFront card={card} />
+            </div>
           </section>
           <section
             className="card-face-back"
             data-testid="card-back"
             aria-hidden={!showBack}
           >
-            <CardBack card={card} />
+            <div className="card-face-scroll">
+              <CardBack card={card} />
+            </div>
           </section>
         </div>
       </div>

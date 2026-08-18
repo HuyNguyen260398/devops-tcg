@@ -291,6 +291,14 @@ button,
   transform: rotateY(180deg);
 }
 
+/* The flip's layers are built while the card sits still rather than on the
+   rotation's first frame, which is where the hitch came from: the browser had
+   to promote two card-sized surfaces with the animation already under way.
+   Only the centred card carries the hint, so it costs one card, not five. */
+.concept-card[data-face] .concept-card-inner {
+  will-change: transform;
+}
+
 /* A card that leaves the centre while flipped loses its back face with the
    same render, so it returns to its front at once instead of animating a flip
    there is nothing left to show. */
@@ -301,13 +309,14 @@ button,
 .card-face-front,
 .card-face-back {
   height: 100%;
-  overflow-x: hidden;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  /* The card is scrolled by dragging it, and a bar drawn down a face that is
-     also being rotated in 3D lands wherever the rotation puts it — on the back
-     face's own right edge, which the flip mirrors round to the left. */
-  scrollbar-width: none;
+  /* The face never scrolls; the box inside it does. Everything that decorates
+     the card — the rim, the surface gradient, the sheen — has to stay put, and
+     an absolutely positioned child of a scroll container travels with the
+     content: the sheen's rounded bottom edge used to slide up and cut a lit
+     band across the middle of a long card. Keeping the scroller off the face
+     also leaves the flip rotating a plain box rather than a composited
+     scroller. */
+  overflow: hidden;
   /* The foil edge is a transparent border filled by the conic layer beneath
      the card's own surface, so each face carries its own rim and nothing
      bright is left behind when the faces turn edge-on. */
@@ -325,17 +334,27 @@ button,
     0 28px 70px rgb(0 0 0 / 0.52),
     0 0 55px rgb(34 211 238 / 0.11);
   /* Kept for the browsers that honour it, but not relied upon: WebKit does not
-     backface-cull a composited scrolling layer, and both faces scroll. On iOS
-     that let the turned-away face keep painting straight through the face in
-     view, so the front's mirrored text sat on top of the back's content. What
-     actually guarantees a single visible face is the visibility swap below. */
+     backface-cull a composited scrolling layer, and every face carries one. On
+     iOS that let the turned-away face keep painting straight through the face
+     in view, so the front's mirrored text sat on top of the back's content.
+     What guarantees a single visible face is the visibility swap below. */
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
   visibility: hidden;
 }
 
-.card-face-front::-webkit-scrollbar,
-.card-face-back::-webkit-scrollbar {
+/* The card is scrolled by dragging it, and a bar drawn down a face that is
+   also being rotated in 3D lands wherever the rotation puts it — on the back
+   face's own right edge, which the flip mirrors round to the left. */
+.card-face-scroll {
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+}
+
+.card-face-scroll::-webkit-scrollbar {
   display: none;
 }
 
