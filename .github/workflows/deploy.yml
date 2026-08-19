@@ -17,6 +17,9 @@ jobs:
   deploy:
     name: Deploy production
     runs-on: ubuntu-latest
+    # A hung network call should fail the deploy, not sit on the runner until
+    # GitHub's six-hour job limit kills it.
+    timeout-minutes: 60
     environment:
       name: production
       url: ${{ steps.tf.outputs.site_url }}
@@ -99,9 +102,16 @@ jobs:
         working-directory: frontend
         run: pnpm build
 
+      # No --with-deps: every shared library Chromium needs is already in the
+      # ubuntu-latest image, so the flag only added an apt-get install of
+      # CJK/Cyrillic fonts this English-only deck never renders, and it made
+      # the run depend on Ubuntu's apt mirrors, which stalled one job for six
+      # hours when azure.archive.ubuntu.com went dark. The timeout bounds the
+      # remaining network call, the browser download from cdn.playwright.dev.
       - name: Install Playwright Chromium
         working-directory: frontend
-        run: pnpm exec playwright install --with-deps chromium
+        timeout-minutes: 5
+        run: pnpm exec playwright install chromium
 
       - name: Run browser acceptance tests
         working-directory: frontend
