@@ -2,6 +2,17 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Self-hosted so no runtime request leaves this origin. `swap` keeps card text
+   visible while the face loads; only the sketch theme's --font-display
+   references it, so the neon theme never triggers the download. */
+@font-face {
+  font-family: "Architects Daughter";
+  src: url("/fonts/architects-daughter-latin.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   color-scheme: dark;
 
