@@ -35,17 +35,31 @@ export function CardFront({ card }: CardFrontProps) {
             {card.title} {card.type.toLowerCase()} concept
           </div>
         ) : (
-          // The static export must preserve this exact local path; next/image
-          // rewrites it to an absolute URL even when optimization is disabled.
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={card.image.src}
-            alt={card.image.alt}
-            loading="eager"
-            decoding="async"
-            className="card-thumbnail h-full w-full object-cover object-center"
-            onError={() => setImageFailed(true)}
-          />
+          // Both artworks are mounted and CSS shows the one the current theme
+          // calls for. `display: none` also drops the other from the
+          // accessibility tree, so exactly one description is announced.
+          // The static export must preserve these exact local paths; next/image
+          // rewrites them to absolute URLs even when optimization is disabled.
+          <>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={card.image.src}
+              alt={card.image.alt}
+              loading="eager"
+              decoding="async"
+              className="card-thumbnail card-thumbnail-neon h-full w-full object-cover object-center"
+              onError={() => setImageFailed(true)}
+            />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={card.image.sketch.src}
+              alt={card.image.sketch.alt}
+              loading="eager"
+              decoding="async"
+              className="card-thumbnail card-thumbnail-sketch h-full w-full object-cover object-center"
+              onError={() => setImageFailed(true)}
+            />
+          </>
         )}
         <div
           className="card-thumbnail-veil absolute inset-0"

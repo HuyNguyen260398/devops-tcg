@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 278 220">
+  <g fill="#fff2c4">
+    <path d="M12 28 L48 27 L49 58 L13 59 Z" />
+    <path d="M12 72 L48 71 L49 102 L13 103 Z" />
+    <path d="M12 116 L48 115 L49 146 L13 147 Z" />
+    <path d="M12 160 L48 159 L49 190 L13 191 Z" />
+  </g>
+  <path d="M126 74 L162 72 L166 200 L130 202 Z" fill="#dbe7ff" opacity="0.55" />
+  <path d="M206 26 L258 24 L260 68 L208 70 Z" fill="#dbe7ff" />
+  <g fill="none" stroke="#1d1d1b" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M15 31 L51 30 L52 61 L16 62 Z" />
+    <path d="M15 75 L51 74 L52 105 L16 106 Z" />
+    <path d="M15 119 L51 118 L52 149 L16 150 Z" />
+    <path d="M15 163 L51 162 L52 193 L16 194 Z" />
+    <path d="M126 74 L162 72 L166 200 L130 202 Z" />
+    <path d="M128 76 L160 75" />
+    <path d="M150 76 L151 98" />
+    <path d="M128 98 L160 97" />
+    <path d="M136 98 L137 120" />
+    <path d="M128 120 L160 119" />
+    <path d="M150 120 L151 142" />
+    <path d="M128 142 L160 141" />
+    <path d="M136 142 L137 164" />
+    <path d="M128 164 L160 163" />
+    <path d="M150 164 L151 186" />
+    <path d="M128 186 L160 185" />
+    <path d="M136 186 L137 208" />
+    <path d="M62 44 L200 40 M192 34 L202 40 L192 46" />
+    <path d="M209 30 L261 28 L263 72 L211 74 Z" />
+    <path d="M218 44 L250 42 M218 56 L240 54" />
+    <path d="M62 118 L114 116 M106 110 L116 116 L106 122" />
+    <path d="M62 162 L114 160 M106 154 L116 160 L106 166" />
+    <path d="M176 120 L226 164 M226 120 L176 164" stroke-width="3.5" />
+  </g>
+</svg>

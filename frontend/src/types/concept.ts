@@ -18,6 +18,12 @@ export interface ConceptCardData {
   readonly image: {
     readonly src: string;
     readonly alt: string;
+    // The sketch theme draws its own artwork rather than filtering the
+    // photograph, so it carries its own description too.
+    readonly sketch: {
+      readonly src: string;
+      readonly alt: string;
+    };
   };
   readonly definition: string;
   readonly keywords: readonly string[];

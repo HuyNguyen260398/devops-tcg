@@ -102,6 +102,20 @@ describe("conceptCards", () => {
     }
   });
 
+  it("gives every card sketch artwork of its own", () => {
+    expect(
+      new Set(conceptCards.map(({ image }) => image.sketch.src)).size,
+    ).toBe(expectedCards.length);
+
+    for (const card of conceptCards) {
+      expect(card.image.sketch.src).toBe(`/images/${card.id}-sketch.svg`);
+      expect(card.image.sketch.alt).toBeTruthy();
+      // The drawing depicts something different from the photograph, so reusing
+      // one description would misdescribe whichever artwork is on screen.
+      expect(card.image.sketch.alt).not.toBe(card.image.alt);
+    }
+  });
+
   it("distinguishes deprecated SSL from modern TLS", () => {
     const ssl = conceptCards.find(({ id }) => id === "ssl");
     const tls = conceptCards.find(({ id }) => id === "tls");

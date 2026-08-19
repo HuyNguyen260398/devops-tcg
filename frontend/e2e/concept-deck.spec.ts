@@ -472,7 +472,7 @@ test("loads a unique local image for every card", async ({ page }) => {
   const loadedSources = new Set<string>();
 
   for (let position = 1; position <= images.length; position += 1) {
-    const image = card(page).locator(".card-face-front img");
+    const image = card(page).locator(".card-face-front .card-thumbnail-neon");
     const source = await image.getAttribute("src");
 
     expect(source).not.toBeNull();
@@ -488,6 +488,51 @@ test("loads a unique local image for every card", async ({ page }) => {
 
   expect([...loadedSources].sort()).toEqual(
     images.map(([, source]) => source).sort(),
+  );
+  expect(externalImages).toEqual([]);
+});
+
+test("loads a unique local sketch drawing for every card", async ({ page }) => {
+  const externalImages: string[] = [];
+  page.on("request", (request) => {
+    if (
+      request.resourceType() === "image" &&
+      new URL(request.url()).hostname !== "127.0.0.1"
+    ) {
+      externalImages.push(request.url());
+    }
+  });
+
+  await page.goto("/");
+  await page
+    .getByRole("button", { name: "Switch to the sketch theme" })
+    .click();
+  const loadedSources = new Set<string>();
+
+  for (let position = 1; position <= images.length; position += 1) {
+    const drawing = card(page).locator(
+      ".card-face-front .card-thumbnail-sketch",
+    );
+    const source = await drawing.getAttribute("src");
+
+    expect(source).not.toBeNull();
+    loadedSources.add(source!);
+    await expect(drawing).toBeVisible();
+    await expect
+      .poll(() =>
+        drawing.evaluate((node: HTMLImageElement) => node.naturalWidth),
+      )
+      .toBeGreaterThan(0);
+
+    if (position < images.length) {
+      await page.getByRole("button", { name: "Next card" }).click();
+    }
+  }
+
+  expect([...loadedSources].sort()).toEqual(
+    images
+      .map(([, source]) => source.replace("-thumbnail.webp", "-sketch.svg"))
+      .sort(),
   );
   expect(externalImages).toEqual([]);
 });

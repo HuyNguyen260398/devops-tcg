@@ -57,16 +57,26 @@ test.describe("theme switching", () => {
     await expect(toSketch(page)).toBeVisible();
   });
 
-  test("restyles the card surface and its artwork", async ({ page }) => {
+  test("restyles the card surface and swaps in the drawn artwork", async ({
+    page,
+  }) => {
     await page.goto("/");
     const face = card(page).getByTestId("card-front");
-    const artwork = face.locator("img").first();
+    const photo = face.locator(".card-thumbnail-neon");
+    const drawing = face.locator(".card-thumbnail-sketch");
 
-    await expect(artwork).toHaveCSS("filter", "none");
+    // Each theme has its own artwork; the photograph is never filtered into
+    // standing in for a drawing.
+    await expect(photo).toBeVisible();
+    await expect(drawing).toBeHidden();
+    expect(await photo.getAttribute("src")).toMatch(/-thumbnail\.webp$/);
 
     await toSketch(page).click();
 
-    await expect(artwork).toHaveCSS("filter", /invert/);
+    await expect(drawing).toBeVisible();
+    await expect(photo).toBeHidden();
+    expect(await drawing.getAttribute("src")).toMatch(/-sketch\.svg$/);
+    await expect(drawing).toHaveCSS("filter", "none");
     await expect(face).toHaveCSS("background-color", "rgb(251, 250, 246)");
   });
 

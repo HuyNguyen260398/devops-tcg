@@ -216,17 +216,15 @@
     linear-gradient(180deg, rgb(236 231 219 / 0.35), rgb(236 231 219 / 0.72)),
     linear-gradient(120deg, rgb(255 255 255 / 0.4), transparent 45%);
 
-  --thumb-backdrop: #f6f3ea;
-  /* Inverted, not merely desaturated: the artwork is dark neon rendering, which
-     grayscale alone turns into a black slab on paper. Inverting puts the dark
-     linework on a light ground, which is what reads as pencil. */
-  --thumb-filter: grayscale(1) invert(1) contrast(1.15) brightness(1.05);
-  --thumb-veil: linear-gradient(
-    to top,
-    rgb(251 250 246 / 0.9),
-    transparent 45%,
-    rgb(251 250 246 / 0.25)
-  );
+  /* The drawing floats on the card's own paper rather than on a panel of its
+     own, so there is no seam where the artwork ends. */
+  --thumb-backdrop: #fbfaf6;
+  /* The sketch theme draws its own line art, so there is nothing to rescue with
+     a filter — and inverting a drawing would wreck it. */
+  --thumb-filter: none;
+  /* A fade over a line drawing reads as a smudge, so the drawing sits clean on
+     the paper. */
+  --thumb-veil: none;
   --thumb-fallback: radial-gradient(
     circle at center,
     rgb(29 78 216 / 0.1),
@@ -582,6 +580,22 @@ button,
    context inside the card's preserve-3d subtree. */
 .card-thumbnail {
   filter: var(--thumb-filter);
+}
+
+/* Each theme has its own artwork: the photograph for neon, a drawing for
+   sketch. The card renders both and the theme decides which one is painted,
+   so no component has to know which theme is active. `display: none` keeps the
+   inactive one out of the accessibility tree as well as out of the layout. */
+.card-thumbnail-sketch {
+  display: none;
+}
+
+[data-theme="sketch"] .card-thumbnail-neon {
+  display: none;
+}
+
+[data-theme="sketch"] .card-thumbnail-sketch {
+  display: block;
 }
 
 .card-thumbnail-veil {

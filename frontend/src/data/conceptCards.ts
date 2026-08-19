@@ -11,6 +11,10 @@ export const conceptCards = [
     image: {
       src: "/images/proxy-thumbnail.webp",
       alt: "Ethernet cables connected to network equipment",
+      sketch: {
+        src: "/images/proxy-sketch.svg",
+        alt: "Line drawing of a client, a proxy, and a destination server joined by arrows",
+      },
     },
     definition:
       "A proxy receives a request from one system and forwards it to another on the requester’s behalf.",
@@ -61,6 +65,10 @@ export const conceptCards = [
     image: {
       src: "/images/cdn-thumbnail.webp",
       alt: "Isometric CDN edge nodes distributing content around a globe",
+      sketch: {
+        src: "/images/cdn-sketch.svg",
+        alt: "Line drawing of an origin server feeding edge locations set around a globe",
+      },
     },
     definition:
       "A content delivery network distributes cached content across geographically dispersed edge locations so users can receive it from a nearby server.",
@@ -107,6 +115,10 @@ export const conceptCards = [
     image: {
       src: "/images/nginx-thumbnail.webp",
       alt: "Isometric web server routing requests to application services",
+      sketch: {
+        src: "/images/nginx-sketch.svg",
+        alt: "Line drawing of three requests entering a web server and fanning out to application services",
+      },
     },
     definition:
       "NGINX is a high-performance web server that can also route, proxy, cache, and load-balance HTTP and TCP traffic.",
@@ -158,6 +170,10 @@ export const conceptCards = [
     image: {
       src: "/images/reverse-proxy-thumbnail.webp",
       alt: "Isometric reverse proxy directing clients to backend servers",
+      sketch: {
+        src: "/images/reverse-proxy-sketch.svg",
+        alt: "Line drawing of three clients reaching two backend servers through one reverse proxy",
+      },
     },
     definition:
       "A reverse proxy receives client traffic for one or more services, then forwards each request to an appropriate backend.",
@@ -210,6 +226,10 @@ export const conceptCards = [
     image: {
       src: "/images/osi-model-thumbnail.webp",
       alt: "Seven illuminated network layers in an isometric stack",
+      sketch: {
+        src: "/images/osi-model-sketch.svg",
+        alt: "Line drawing of seven stacked network layers with an arrow running down them",
+      },
     },
     definition:
       "The OSI model organizes network communication into seven conceptual layers so protocols and responsibilities can be discussed consistently.",
@@ -257,6 +277,10 @@ export const conceptCards = [
     image: {
       src: "/images/dns-thumbnail.webp",
       alt: "Isometric DNS hierarchy resolving a domain to a server",
+      sketch: {
+        src: "/images/dns-sketch.svg",
+        alt: "Line drawing of a lookup descending a name hierarchy to an answering server",
+      },
     },
     definition:
       "The Domain Name System maps human-readable domain names to records that computers use to locate and communicate with services.",
@@ -304,6 +328,10 @@ export const conceptCards = [
     image: {
       src: "/images/ssl-thumbnail.webp",
       alt: "Dim legacy security tunnel beside a deprecated lock",
+      sketch: {
+        src: "/images/ssl-sketch.svg",
+        alt: "Line drawing of a padlock struck through, its tunnel broken on both sides",
+      },
     },
     definition:
       "Secure Sockets Layer (SSL) is a deprecated predecessor to TLS; modern systems should disable SSL and use TLS instead.",
@@ -358,6 +386,10 @@ export const conceptCards = [
     image: {
       src: "/images/tls-thumbnail.webp",
       alt: "Bright encrypted TLS tunnel joining a client and server",
+      sketch: {
+        src: "/images/tls-sketch.svg",
+        alt: "Line drawing of a sealed pipe joining two hosts with a closed padlock at its centre",
+      },
     },
     definition:
       "Transport Layer Security (TLS) is the modern protocol for authenticating servers and optionally clients while protecting data in transit with encryption and integrity checks.",
@@ -410,6 +442,10 @@ export const conceptCards = [
     image: {
       src: "/images/ssh-thumbnail.webp",
       alt: "Encrypted terminal connection to a remote server",
+      sketch: {
+        src: "/images/ssh-sketch.svg",
+        alt: "Line drawing of a terminal window joined to a remote host by a key",
+      },
     },
     definition:
       "Secure Shell (SSH) provides authenticated, encrypted remote login, command execution, and tunneling over an untrusted network.",
@@ -456,6 +492,10 @@ export const conceptCards = [
     image: {
       src: "/images/lambda-throttle-thumbnail.webp",
       alt: "Isometric queue of Lambda invocations blocked by a concurrency wall",
+      sketch: {
+        src: "/images/lambda-throttle-sketch.svg",
+        alt: "Line drawing of queued invocations stopped by a brick wall, with one passing above it",
+      },
     },
     definition:
       "AWS Lambda throttles a function once its concurrent executions reach the available concurrency limit, rejecting further invocations with a 429 TooManyRequestsException until capacity frees up.",

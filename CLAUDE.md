@@ -166,8 +166,12 @@ Adding a concept card: commit an optimized local WebP under
 `public/images/ATTRIBUTION.md`, append one `ConceptCardData` object with a
 unique `id` and card number, then extend both the content-contract test
 (`src/data/conceptCards.test.ts`) and the e2e image/title tables in
-`e2e/concept-deck.spec.ts`. Any new markup styles itself from the theme tokens,
-so it works in both themes without a second pass.
+`e2e/concept-deck.spec.ts`. A card needs artwork for both themes: the WebP
+photograph plus a hand-authored `*-sketch.svg` line drawing at the same
+`/images/` path stem, each with its own `alt`, because `CardFront` mounts both
+and CSS shows whichever the active `data-theme` calls for. Any new markup
+styles itself from the theme tokens, so it works in both themes without a
+second pass.
 
 The frontend ships only `next`, `react`, and `react-dom` as dependencies —
 icons are inline SVG, there is no state library, and no runtime asset is
