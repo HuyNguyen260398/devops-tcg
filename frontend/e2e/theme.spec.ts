@@ -70,6 +70,22 @@ test.describe("theme switching", () => {
     await expect(face).toHaveCSS("background-color", "rgb(251, 250, 246)");
   });
 
+  // Regression: the toggle used to keep focus after a click, and the deck hands
+  // Space to a focused button, so the next Space re-toggled the theme instead of
+  // flipping the card.
+  test("leaves Space flipping the card after the toggle is clicked", async ({
+    page,
+  }) => {
+    await page.goto("/");
+    await toSketch(page).click();
+
+    await expect(card(page)).toHaveAttribute("data-face", "front");
+    await page.keyboard.press(" ");
+
+    await expect(card(page)).toHaveAttribute("data-face", "back");
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "sketch");
+  });
+
   test("keeps the flip working under the sketch theme", async ({ page }) => {
     await page.goto("/");
     await toSketch(page).click();

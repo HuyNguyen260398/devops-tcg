@@ -53,6 +53,30 @@ describe("ThemeToggle", () => {
     ).toBeInTheDocument();
   });
 
+  // The deck yields Enter and Space to a focused button, so a toggle that kept
+  // focus after a pointer click would swallow the next Space instead of letting
+  // it flip the card.
+  it("does not keep focus after a pointer click", async () => {
+    const user = userEvent.setup();
+    render(<ThemeToggle />);
+
+    await user.click(screen.getByRole("button"));
+
+    expect(screen.getByRole("button")).not.toHaveFocus();
+  });
+
+  // A keyboard user put focus there deliberately; it stays.
+  it("keeps focus after a keyboard activation", async () => {
+    const user = userEvent.setup();
+    render(<ThemeToggle />);
+
+    screen.getByRole("button").focus();
+    await user.keyboard("{Enter}");
+
+    expect(screen.getByRole("button")).toHaveFocus();
+    expect(document.documentElement).toHaveAttribute("data-theme", "sketch");
+  });
+
   it("carries an aria-hidden icon", () => {
     render(<ThemeToggle />);
 
