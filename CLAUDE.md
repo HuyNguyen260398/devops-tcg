@@ -101,6 +101,18 @@ Two non-obvious mechanisms worth knowing before editing `ConceptDeck.tsx`:
   or even a rounded clip on a descendant such as the artwork block. The face
   being the scroller is what keeps a finger able to scroll a long card, and it
   fails only on Linux Chromium, so `pnpm test:e2e` on macOS will not catch it.
+- **Colour comes from theme tokens, never from the palette.** `globals.css`
+  declares every theme-dependent value as a custom property twice — on `:root`
+  for the `neon` default and on `[data-theme="sketch"]` for the light sketch
+  theme — and `tailwind.config.ts` maps them to semantic names (`text-ink`,
+  `bg-panel`, `border-rule`, `font-display`). A component must never reach for
+  `text-cyan-200` or a hex literal, and because the tokens are opaque strings,
+  Tailwind opacity modifiers (`text-ink/60`) do not work on them. `ThemeToggle`
+  is the only component that knows a theme exists: it stamps `data-theme` on
+  the document element and writes the `devops-tcg-theme` key, and an inline
+  script in `layout.tsx` replays that key before first paint so a stored sketch
+  choice never flashes neon. It also takes the first tab stop, ahead of the
+  card. Adding a theme is a third token block, not a component change.
 - **The faces are swapped by `visibility`, not by backface culling.** WebKit
   does not backface-cull a composited scrolling layer, and both faces scroll,
   so on iOS the turned-away face painted its mirrored text straight through the
@@ -151,7 +163,8 @@ Adding a concept card: commit an optimized local WebP under
 `public/images/ATTRIBUTION.md`, append one `ConceptCardData` object with a
 unique `id` and card number, then extend both the content-contract test
 (`src/data/conceptCards.test.ts`) and the e2e image/title tables in
-`e2e/concept-deck.spec.ts`.
+`e2e/concept-deck.spec.ts`. Any new markup styles itself from the theme tokens,
+so it works in both themes without a second pass.
 
 The frontend ships only `next`, `react`, and `react-dom` as dependencies —
 icons are inline SVG, there is no state library, and no runtime asset is

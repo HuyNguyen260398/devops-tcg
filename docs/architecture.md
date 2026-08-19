@@ -73,4 +73,8 @@ credentials, cookies, or user-specific content.
 - Application DynamoDB tables or another database
 - CloudFront `/api/*` behavior
 - Runtime image or card-content downloads
-- Browser persistence, accounts, scores, or user state
+- Accounts, scores, progress, or any user state beyond the theme choice
+- Browser persistence other than a single `localStorage` key,
+  `devops-tcg-theme`, holding `neon` or `sketch`. It is read by a pre-paint
+  inline script and by the header toggle, it is never sent anywhere, and an
+  unreadable or unrecognised value resolves to the neon default.
