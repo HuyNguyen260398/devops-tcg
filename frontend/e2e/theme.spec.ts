@@ -1,0 +1,95 @@
+import { expect, test } from "@playwright/test";
+
+const toSketch = (page: import("@playwright/test").Page) =>
+  page.getByRole("button", { name: "Switch to the sketch theme" });
+
+const toNeon = (page: import("@playwright/test").Page) =>
+  page.getByRole("button", { name: "Switch to the neon theme" });
+
+const card = (page: import("@playwright/test").Page) =>
+  page.locator(".concept-card[data-face]");
+
+test.describe("theme switching", () => {
+  test("starts on neon and switches to sketch", async ({ page }) => {
+    await page.goto("/");
+
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "neon");
+
+    await toSketch(page).click();
+
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "sketch");
+    await expect(toNeon(page)).toBeVisible();
+  });
+
+  test("switches back to neon", async ({ page }) => {
+    await page.goto("/");
+    await toSketch(page).click();
+    await toNeon(page).click();
+
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "neon");
+    await expect(toSketch(page)).toBeVisible();
+  });
+
+  test("remembers the theme across a reload without a neon frame", async ({
+    page,
+  }) => {
+    await page.goto("/");
+    await toSketch(page).click();
+    await page.reload();
+
+    // Asserted before any wait, so a theme applied only at hydration would
+    // still be neon here.
+    expect(
+      await page.evaluate(() => document.documentElement.dataset.theme),
+    ).toBe("sketch");
+    await expect(toNeon(page)).toBeVisible();
+  });
+
+  test("falls back to neon when the stored value is unrecognised", async ({
+    page,
+  }) => {
+    await page.addInitScript(() => {
+      window.localStorage.setItem("devops-tcg-theme", "chartreuse");
+    });
+    await page.goto("/");
+
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "neon");
+    await expect(toSketch(page)).toBeVisible();
+  });
+
+  test("restyles the card surface and its artwork", async ({ page }) => {
+    await page.goto("/");
+    const face = card(page).getByTestId("card-front");
+    const artwork = face.locator("img").first();
+
+    await expect(artwork).toHaveCSS("filter", "none");
+
+    await toSketch(page).click();
+
+    await expect(artwork).toHaveCSS("filter", /invert/);
+    await expect(face).toHaveCSS("background-color", "rgb(251, 250, 246)");
+  });
+
+  test("keeps the flip working under the sketch theme", async ({ page }) => {
+    await page.goto("/");
+    await toSketch(page).click();
+
+    await expect(card(page)).toHaveAttribute("data-face", "front");
+    await card(page).click();
+    await expect(card(page)).toHaveAttribute("data-face", "back");
+  });
+
+  test("adds no horizontal overflow under the sketch theme", async ({
+    page,
+  }) => {
+    await page.goto("/");
+    await toSketch(page).click();
+
+    const overflows = await page.evaluate(
+      () =>
+        document.documentElement.scrollWidth >
+        document.documentElement.clientWidth,
+    );
+    expect(overflows).toBe(false);
+  });
+});

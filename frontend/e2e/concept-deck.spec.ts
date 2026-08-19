@@ -232,6 +232,13 @@ test("shows keyboard focus on the card edge, not as a panel around it", async ({
   await page.goto("/");
   const active = card(page);
   await expect(active).toBeVisible(); // The card only exists after hydration.
+
+  // The theme toggle sits in the header, so it takes the first tab stop and the
+  // card takes the second.
+  await page.keyboard.press("Tab");
+  await expect(
+    page.getByRole("button", { name: /^Switch to the .* theme$/ }),
+  ).toBeFocused();
   await page.keyboard.press("Tab");
 
   await expect
