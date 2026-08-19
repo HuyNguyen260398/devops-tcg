@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-DevOps TCG is a read-only concept study deck (nine hardcoded cards) built as a
+DevOps TCG is a read-only concept study deck (ten hardcoded cards) built as a
 Next.js 14 static export and served from a private S3 bucket behind CloudFront
 at https://tcg.nghuy.link. There is no backend, API, database, auth, cookie, or
 browser persistence — and adding one is out of scope by design (see
@@ -142,7 +142,9 @@ Changes here follow a spec → plan → implementation trail under
 and a task-by-task plan in `plans/YYYY-MM-DD-<slug>.md`. For a non-trivial
 feature, read the latest of both before coding, and treat the plan's "Global
 Constraints" as binding. Commits are conventional-commit style and small
-(`feat:`, `fix:`, `test:`, `docs:`, `ci:`).
+(`feat:`, `fix:`, `test:`, `docs:`, `ci:`). Work and commit directly on `main` —
+this repo does not use feature branches. Pushing `main` deploys to production,
+so push only when asked.
 
 Adding a concept card: commit an optimized local WebP under
 `frontend/public/images/`, record its source/license in
