@@ -58,6 +58,7 @@
   --control-ink: #ecfeff;
   --control-hover-border: rgb(165 243 252 / 0.7);
   --control-hover: rgb(103 232 249 / 0.15);
+  --control-shadow: 0 0 24px rgb(34 211 238 / 0.18);
   --focus-ring: 0 0 0 2px rgb(103 232 249), 0 0 55px rgb(34 211 238 / 0.28);
 
   /* Card shell */

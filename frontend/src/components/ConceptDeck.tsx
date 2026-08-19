@@ -77,15 +77,15 @@ function DeckHeader({ position, total }: DeckHeaderProps) {
   const ready = position !== null;
 
   return (
-    <header className="concept-deck-header mx-auto flex w-full max-w-[350px] shrink-0 flex-col items-center border-b border-white/10 text-center">
-      <h1 className="text-2xl font-black uppercase tracking-[0.12em] text-white sm:text-3xl">
+    <header className="concept-deck-header mx-auto flex w-full max-w-[350px] shrink-0 flex-col items-center border-b border-rule text-center">
+      <h1 className="font-display text-2xl font-black uppercase tracking-[0.12em] text-ink sm:text-3xl">
         DevOps TCG
       </h1>
       <p
         aria-label={ready ? `Card ${position} of ${total}` : undefined}
         aria-live={ready ? "polite" : undefined}
         aria-hidden={ready ? undefined : true}
-        className="mt-1 font-mono text-xs font-semibold tracking-[0.18em] text-slate-300"
+        className="mt-1 font-mono text-xs font-semibold tracking-[0.18em] text-ink-muted"
       >
         {ready ? formatPosition(position) : "--"} / {formatPosition(total)}
       </p>
