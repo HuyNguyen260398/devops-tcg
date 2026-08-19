@@ -5,6 +5,7 @@ import { shuffleCards, type RandomSource } from "@/lib/shuffle";
 import type { ConceptCardData } from "@/types/concept";
 import { ConceptCard } from "./ConceptCard";
 import { DeckControls } from "./DeckControls";
+import { ThemeToggle } from "./ThemeToggle";
 
 interface ConceptDeckProps {
   readonly cards: readonly ConceptCardData[];
@@ -89,6 +90,7 @@ function DeckHeader({ position, total }: DeckHeaderProps) {
       >
         {ready ? formatPosition(position) : "--"} / {formatPosition(total)}
       </p>
+      <ThemeToggle />
     </header>
   );
 }
