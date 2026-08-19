@@ -446,4 +446,64 @@ export const conceptCards = [
       },
     ],
   },
+  {
+    id: "lambda-throttle",
+    cardNumber: "#010",
+    series: "SERVERLESS SERIES",
+    type: "COMPUTE",
+    title: "Lambda Throttle",
+    descriptor: "CONCURRENCY LIMIT",
+    image: {
+      src: "/images/lambda-throttle-thumbnail.webp",
+      alt: "Isometric queue of Lambda invocations blocked by a concurrency wall",
+    },
+    definition:
+      "AWS Lambda throttles a function once its concurrent executions reach the available concurrency limit, rejecting further invocations with a 429 TooManyRequestsException until capacity frees up.",
+    keywords: [
+      "concurrency limit",
+      "reserved concurrency",
+      "burst limit",
+      "429",
+      "retry",
+    ],
+    components: [
+      {
+        name: "Invocation source",
+        description:
+          "Calls the function directly or through an event source such as a queue or stream.",
+      },
+      {
+        name: "Concurrency limit",
+        description:
+          "Caps simultaneous executions through the account quota, reserved concurrency, and the burst rate.",
+      },
+      {
+        name: "Throttle response",
+        description:
+          "Rejects invocations beyond the limit and records them in the Throttles metric.",
+      },
+    ],
+    howItWorks: [
+      {
+        step: 1,
+        description:
+          "An invocation arrives and Lambda counts the executions already running.",
+      },
+      {
+        step: 2,
+        description:
+          "Spare concurrency lets Lambda run the request in an execution environment.",
+      },
+      {
+        step: 3,
+        description:
+          "With no concurrency left, Lambda throttles the invocation and returns a 429 TooManyRequestsException.",
+      },
+      {
+        step: 4,
+        description:
+          "Synchronous callers retry themselves, while asynchronous and event source invocations are retried by Lambda until they succeed or expire.",
+      },
+    ],
+  },
 ] as const satisfies readonly ConceptCardData[];

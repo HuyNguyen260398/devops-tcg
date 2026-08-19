@@ -16,6 +16,12 @@ const expectedCards = [
   ["ssl", "#007", "SSL", "/images/ssl-thumbnail.webp"],
   ["tls", "#008", "TLS", "/images/tls-thumbnail.webp"],
   ["ssh", "#009", "SSH", "/images/ssh-thumbnail.webp"],
+  [
+    "lambda-throttle",
+    "#010",
+    "Lambda Throttle",
+    "/images/lambda-throttle-thumbnail.webp",
+  ],
 ] as const;
 
 describe("conceptCards", () => {
@@ -44,7 +50,7 @@ describe("conceptCards", () => {
     expect(conceptCards[0].howItWorks).toHaveLength(4);
   });
 
-  it("contains all nine concepts in the approved order", () => {
+  it("contains all ten concepts in the approved order", () => {
     expect(conceptCards).toHaveLength(expectedCards.length);
     expect(
       conceptCards.map(({ id, cardNumber, title, image }) => [
@@ -57,11 +63,15 @@ describe("conceptCards", () => {
   });
 
   it("uses unique identifiers, numbers, and local illustrations", () => {
-    expect(new Set(conceptCards.map(({ id }) => id)).size).toBe(9);
-    expect(new Set(conceptCards.map(({ cardNumber }) => cardNumber)).size).toBe(
-      9,
+    expect(new Set(conceptCards.map(({ id }) => id)).size).toBe(
+      expectedCards.length,
     );
-    expect(new Set(conceptCards.map(({ image }) => image.src)).size).toBe(9);
+    expect(new Set(conceptCards.map(({ cardNumber }) => cardNumber)).size).toBe(
+      expectedCards.length,
+    );
+    expect(new Set(conceptCards.map(({ image }) => image.src)).size).toBe(
+      expectedCards.length,
+    );
     expect(
       conceptCards.every(({ image }) => image.src.startsWith("/images/")),
     ).toBe(true);
@@ -103,5 +113,17 @@ describe("conceptCards", () => {
     expect(tls?.howItWorks[2]?.description).toMatch(
       /client authentication is optional/i,
     );
+  });
+
+  it("explains Lambda throttling as a concurrency limit answered with 429", () => {
+    const throttle = conceptCards.find(({ id }) => id === "lambda-throttle");
+
+    expect(throttle?.definition).toMatch(/concurrenc/i);
+    expect(throttle?.definition).toMatch(/429/);
+    expect(throttle?.keywords).toContain("reserved concurrency");
+    expect(throttle?.howItWorks[2]?.description).toMatch(
+      /TooManyRequestsException/,
+    );
+    expect(throttle?.howItWorks[3]?.description).toMatch(/retr/i);
   });
 });
