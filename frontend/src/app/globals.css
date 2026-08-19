@@ -4,16 +4,128 @@
 
 :root {
   color-scheme: dark;
-  --stage: #050714;
-  --surface: #0a1730;
-  --cyan: #67e8f9;
-  --violet: #a78bfa;
-  /* One source for every deck timing. The flip's half point is where the two
-     faces swap, so it must stay exactly half of the flip. */
+
+  /* Motion. One source for every deck timing. The flip's half point is where
+     the two faces swap, so it must stay exactly half of the flip. */
   --travel: 320ms;
   --flip: 440ms;
   --flip-half: 220ms;
   --travel-ease: cubic-bezier(0.22, 0.61, 0.24, 1);
+
+  /* Ground */
+  --paper: #050714;
+  --stage-image:
+    radial-gradient(
+      circle at 50% -10%,
+      rgb(34 211 238 / 0.08),
+      transparent 34rem
+    ),
+    linear-gradient(180deg, #071023 0%, #050714 54%, #03040c 100%);
+  --orb-a: radial-gradient(circle at 50% 50%, #22d3ee, transparent 62%);
+  --orb-b: radial-gradient(circle at 50% 50%, #8b5cf6, transparent 62%);
+  --orb-opacity: 0.12;
+
+  /* Ink. The components carried three body shades — slate-100, slate-200 and
+     slate-300 — which collapse into --ink-muted, the middle of the three. */
+  --ink: #f8fafc;
+  --ink-muted: #e2e8f0;
+  --ink-faint: rgb(165 243 252 / 0.7);
+
+  /* Accents */
+  --accent: #a5f3fc;
+  --accent-soft: rgb(34 211 238 / 0.12);
+  --accent-ink: #cffafe;
+  --mark: #ddd6fe;
+  --mark-soft: rgb(167 139 250 / 0.1);
+  --mark-border: rgb(196 181 253 / 0.2);
+  --mark-ink: #ede9fe;
+
+  /* Panels and rules */
+  --panel: rgb(255 255 255 / 0.07);
+  --rule: rgb(255 255 255 / 0.1);
+
+  /* Badges */
+  --chip: rgb(2 6 23 / 0.85);
+  --chip-border: rgb(255 255 255 / 0.2);
+  --chip-ink: #ffffff;
+  --type-chip: rgb(8 51 68 / 0.85);
+  --type-chip-border: rgb(165 243 252 / 0.3);
+  --type-chip-ink: #cffafe;
+
+  /* Controls */
+  --control: #071226;
+  --control-border: rgb(165 243 252 / 0.35);
+  --control-ink: #ecfeff;
+  --control-hover-border: rgb(165 243 252 / 0.7);
+  --control-hover: rgb(103 232 249 / 0.15);
+  --focus-ring: 0 0 0 2px rgb(103 232 249), 0 0 55px rgb(34 211 238 / 0.28);
+
+  /* Card shell */
+  --card-radius: 28px;
+  --card-radius-outer: 29px;
+  --card-radius-inner: 16px;
+  --card-border-width: 2px;
+  --card-border-color: transparent;
+  --card-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.12),
+    inset 0 -1px 0 rgb(103 232 249 / 0.08), 0 28px 70px rgb(0 0 0 / 0.52),
+    0 0 55px rgb(34 211 238 / 0.11);
+  --card-shadow-flat: 0 18px 40px rgb(0 0 0 / 0.45);
+  /* Three layers: the glass sheen, the card surface, then the foil rim that
+     fills the transparent border. Backgrounds do not scroll, which is why the
+     sheen lives here and not in an overlay element. */
+  --card-face-image:
+    linear-gradient(
+      125deg,
+      rgb(255 255 255 / 0.14),
+      transparent 22%,
+      transparent 72%,
+      rgb(167 139 250 / 0.1)
+    ),
+    linear-gradient(145deg, rgb(15 35 65 / 0.98), rgb(5 11 28 / 0.99)),
+    var(--card-rim-image);
+  --card-surface: #0a1730;
+  --card-glow: 0 0 55px rgb(34 211 238 / 0.11);
+  /* The rim alone. The shuffle placeholder paints it as a full background
+     rather than into a transparent border, so it cannot reuse the face stack:
+     the face's opaque surface layer would cover it. */
+  --card-rim-image: conic-gradient(
+    from 210deg,
+    #67e8f9,
+    #8b5cf6,
+    #f6c453,
+    #22d3ee,
+    #67e8f9
+  );
+  --placeholder-image:
+    radial-gradient(circle at 50% 25%, rgb(34 211 238 / 0.1), transparent 40%),
+    linear-gradient(145deg, rgb(15 35 65 / 0.98), rgb(5 11 28 / 0.99));
+  --placeholder-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.12), 0 28px 70px rgb(0 0 0 / 0.52);
+  --veil-image:
+    linear-gradient(180deg, rgb(4 8 20 / 0.12), rgb(5 10 24 / 0.88)),
+    linear-gradient(120deg, rgb(34 211 238 / 0.16), transparent 45%);
+
+  /* Artwork */
+  --thumb-backdrop: #0f172a;
+  --thumb-filter: none;
+  --thumb-veil: linear-gradient(
+    to top,
+    #08142b,
+    transparent 50%,
+    rgb(2 6 23 / 0.35)
+  );
+  --thumb-fallback: radial-gradient(
+    circle at center,
+    rgb(34 211 238 / 0.18),
+    transparent 65%
+  );
+
+  /* Typography */
+  --font-body:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+  --font-display: var(--font-body);
 }
 
 * {
@@ -22,7 +134,7 @@
 
 html {
   min-width: 320px;
-  background: var(--stage);
+  background: var(--paper);
 }
 
 body {
@@ -30,22 +142,10 @@ body {
   min-height: 100vh;
   min-height: 100dvh;
   overflow: hidden;
-  background:
-    radial-gradient(
-      circle at 50% -10%,
-      rgb(34 211 238 / 0.08),
-      transparent 34rem
-    ),
-    linear-gradient(180deg, #071023 0%, var(--stage) 54%, #03040c 100%);
-  color: #f8fafc;
-  font-family:
-    Inter,
-    ui-sans-serif,
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    sans-serif;
+  background-color: var(--paper);
+  background-image: var(--stage-image);
+  color: var(--ink);
+  font-family: var(--font-body);
 }
 
 .app-shell {
@@ -101,20 +201,20 @@ button,
   position: absolute;
   width: 30rem;
   height: 30rem;
-  opacity: 0.12;
+  opacity: var(--orb-opacity);
   pointer-events: none;
 }
 
 .stage-orb-cyan {
   top: 1rem;
   left: max(-16rem, calc(50% - 38rem));
-  background: radial-gradient(circle at 50% 50%, #22d3ee, transparent 62%);
+  background: var(--orb-a);
 }
 
 .stage-orb-violet {
   right: max(-17rem, calc(50% - 39rem));
   bottom: -1rem;
-  background: radial-gradient(circle at 50% 50%, #8b5cf6, transparent 62%);
+  background: var(--orb-b);
 }
 
 .concept-card {
@@ -125,9 +225,7 @@ button,
 /* Keyboard focus lights up the card's own edge. An offset ring would paint an
    opaque band around the card, which reads as a panel behind it. */
 .concept-card:focus-visible {
-  box-shadow:
-    0 0 0 2px rgb(103 232 249),
-    0 0 55px rgb(34 211 238 / 0.28);
+  box-shadow: var(--focus-ring);
 }
 
 .deck-carousel,
@@ -203,7 +301,7 @@ button,
 /* Only the card in hand carries the full glow; a neighbour's shadow is drawn
    at a fraction of the blur radius nobody can see through it anyway. */
 .deck-slot:not([data-slot="0"]) .card-face-front {
-  box-shadow: 0 18px 40px rgb(0 0 0 / 0.45);
+  box-shadow: var(--card-shadow-flat);
 }
 
 .deck-slot[data-slot="0"] {
@@ -247,10 +345,8 @@ button,
   position: absolute;
   z-index: 20;
   inset: 0;
-  border-radius: 29px;
-  background:
-    linear-gradient(180deg, rgb(4 8 20 / 0.12), rgb(5 10 24 / 0.88)),
-    linear-gradient(120deg, rgb(34 211 238 / 0.16), transparent 45%);
+  border-radius: var(--card-radius-outer);
+  background-image: var(--veil-image);
   pointer-events: none;
 }
 
@@ -258,25 +354,15 @@ button,
   width: min(calc(100vw - 7rem), 350px);
   max-width: 350px;
   margin-inline: auto;
-  background: conic-gradient(
-    from 210deg,
-    #67e8f9,
-    #8b5cf6,
-    #f6c453,
-    #22d3ee,
-    #67e8f9
-  );
-  box-shadow: 0 0 55px rgb(34 211 238 / 0.11);
+  background: var(--card-rim-image);
+  box-shadow: var(--card-glow);
 }
 
 .concept-card-placeholder-surface {
-  border: 1px solid rgb(255 255 255 / 0.12);
-  background:
-    radial-gradient(circle at 50% 25%, rgb(34 211 238 / 0.1), transparent 40%),
-    linear-gradient(145deg, rgb(15 35 65 / 0.98), rgb(5 11 28 / 0.99));
-  box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 0.12),
-    0 28px 70px rgb(0 0 0 / 0.52);
+  border: 1px solid var(--rule);
+  background-color: var(--card-surface);
+  background-image: var(--placeholder-image);
+  box-shadow: var(--placeholder-shadow);
 }
 
 .concept-card-inner {
@@ -319,32 +405,19 @@ button,
   /* The foil edge is a transparent border filled by the conic layer beneath
      the card's own surface, so each face carries its own rim and nothing
      bright is left behind when the faces turn edge-on. */
-  border: 2px solid transparent;
-  border-radius: 28px;
-  background-color: var(--surface);
+  border: var(--card-border-width) solid var(--card-border-color);
+  border-radius: var(--card-radius);
+  background-color: var(--card-surface);
   /* The glass sheen is a background layer rather than an ::after overlay. An
      absolutely positioned child of a scroll container travels with the
      content, so the sheen used to scroll: its rounded bottom edge slid up and
      cut a lit band across the middle of any card long enough to scroll. A
      background does not scroll — it stays fixed to the padding box — so the
      card's surface is now the same wherever the text has been dragged to. */
-  background-image:
-    linear-gradient(
-      125deg,
-      rgb(255 255 255 / 0.14),
-      transparent 22%,
-      transparent 72%,
-      rgb(167 139 250 / 0.1)
-    ),
-    linear-gradient(145deg, rgb(15 35 65 / 0.98), rgb(5 11 28 / 0.99)),
-    conic-gradient(from 210deg, #67e8f9, #8b5cf6, #f6c453, #22d3ee, #67e8f9);
+  background-image: var(--card-face-image);
   background-origin: padding-box, padding-box, border-box;
   background-clip: padding-box, padding-box, border-box;
-  box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 0.12),
-    inset 0 -1px 0 rgb(103 232 249 / 0.08),
-    0 28px 70px rgb(0 0 0 / 0.52),
-    0 0 55px rgb(34 211 238 / 0.11);
+  box-shadow: var(--card-shadow);
   /* Kept for the browsers that honour it, but not relied upon: WebKit does not
      backface-cull a composited scrolling layer, and every face carries one. On
      iOS that let the turned-away face keep painting straight through the face
@@ -382,6 +455,21 @@ button,
 
 .card-face-front {
   position: relative;
+}
+
+/* The artwork is restyled per theme with a filter, so the committed WebP files
+   serve both themes unmodified. No blend mode: it would create a stacking
+   context inside the card's preserve-3d subtree. */
+.card-thumbnail {
+  filter: var(--thumb-filter);
+}
+
+.card-thumbnail-veil {
+  background-image: var(--thumb-veil);
+}
+
+.card-thumbnail-fallback {
+  background-image: var(--thumb-fallback);
 }
 
 @media (min-width: 640px) {
