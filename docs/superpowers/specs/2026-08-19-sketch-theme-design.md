@@ -122,8 +122,11 @@ never leaves the neon theme never downloads it.
 ## Thumbnail Treatment
 
 Under the sketch theme the card artwork is restyled with a CSS `filter` only:
-grayscale, raised contrast, and slightly raised brightness, so the photograph
-reads as a pencil drawing on the paper ground. The filter value is a token, so
+grayscale, inversion, and slightly raised contrast and brightness, so the
+artwork reads as a pencil drawing on the paper ground. The inversion is what
+makes it work: the committed thumbnails are dark neon renderings, and
+desaturating one without inverting it produces a near-black block on the paper
+rather than a drawing. The filter value is a token, so
 the neon theme sets it to `none` and the same rule serves both themes. The
 committed WebP files are not modified, no second copy of any image is added, and
 the existing image-failure fallback — which must keep the definition readable —
