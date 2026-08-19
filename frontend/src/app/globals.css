@@ -489,6 +489,14 @@ button,
   transform: rotateY(180deg);
 }
 
+/* The deck tosses a coin for the direction, so the same card does not always
+   turn the same way. -180 composes with the back face's own rotateY(180deg) to
+   0, exactly as +180 composes to 360, so the back face lands unmirrored either
+   way — and both are edge-on at half the flip, where the faces swap. */
+.concept-card[data-flip="reverse"][data-face="back"] .concept-card-inner {
+  transform: rotateY(-180deg);
+}
+
 /* The flip's layers are built while the card sits still rather than on the
    rotation's first frame, which is where the hitch came from: the browser had
    to promote two card-sized surfaces with the animation already under way.

@@ -2,6 +2,7 @@
 
 import { forwardRef } from "react";
 import type { ConceptCardData } from "@/types/concept";
+import type { FlipDirection } from "./ConceptDeck";
 import { CardBack } from "./CardBack";
 import { CardFront } from "./CardFront";
 
@@ -9,6 +10,7 @@ interface ConceptCardProps {
   readonly card: ConceptCardData;
   readonly isActive: boolean;
   readonly isFlipped?: boolean;
+  readonly flipDirection?: FlipDirection;
   readonly onToggle?: () => void;
 }
 
@@ -20,7 +22,10 @@ const baseClassName =
 const activeClassName = "cursor-pointer focus-visible:outline-none";
 
 export const ConceptCard = forwardRef<HTMLDivElement, ConceptCardProps>(
-  function ConceptCard({ card, isActive, isFlipped = false, onToggle }, ref) {
+  function ConceptCard(
+    { card, isActive, isFlipped = false, flipDirection = "forward", onToggle },
+    ref,
+  ) {
     // The deck owns the flip so its keyboard shortcuts work from anywhere on
     // the page, not only while the card itself holds focus.
     const showBack = isActive && isFlipped;
@@ -46,6 +51,7 @@ export const ConceptCard = forwardRef<HTMLDivElement, ConceptCardProps>(
         aria-label={`${card.title} card, ${showBack ? "back" : "front"} shown`}
         aria-pressed={showBack}
         data-face={showBack ? "back" : "front"}
+        data-flip={flipDirection}
         className={`${baseClassName} ${activeClassName}`}
         onClick={onToggle}
       >

@@ -57,6 +57,10 @@ const slotOffset = (index: number, activeIndex: number, length: number) => {
 
 type NavigationDirection = "previous" | "next";
 
+// Which way the card rotates about its Y axis. Both land the same face and
+// both are edge-on at half the flip, where the faces swap visibility.
+export type FlipDirection = "forward" | "reverse";
+
 // One gesture's whole life. `axis` is decided once and then never revisited,
 // and `velocity` is the speed of the last sample so a release can tell a flick
 // from a drag that merely ended in the same place.
@@ -127,6 +131,7 @@ export function ConceptDeck({ cards, random = Math.random }: ConceptDeckProps) {
   const [deckOrder, setDeckOrder] = useState<DeckOrder | null>(null);
   const [direction, setDirection] = useState<NavigationDirection | null>(null);
   const [isFlipped, setIsFlipped] = useState(false);
+  const [flipDirection, setFlipDirection] = useState<FlipDirection>("forward");
   const activeCardRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const restoreActiveFocus = useRef(false);
@@ -167,6 +172,14 @@ export function ConceptDeck({ cards, random = Math.random }: ConceptDeckProps) {
     restoreActiveFocus.current = false;
   }, [activeIndex]);
 
+  // Which way the card turns is a coin toss, so the flip is not the same
+  // animation every time. Re-rolling on the way back costs nothing: the front's
+  // transform is 0 whichever way the card last turned, so nothing jumps.
+  const flip = useCallback(() => {
+    setFlipDirection(random() < 0.5 ? "reverse" : "forward");
+    setIsFlipped((flipped) => !flipped);
+  }, [random]);
+
   // Deck shortcuts listen on the document so they keep working when focus sits
   // outside the card, such as after the pointer scrolls a card face.
   useEffect(() => {
@@ -184,7 +197,7 @@ export function ConceptDeck({ cards, random = Math.random }: ConceptDeckProps) {
         if (target?.closest("button")) return;
 
         event.preventDefault();
-        setIsFlipped((flipped) => !flipped);
+        flip();
         return;
       }
 
@@ -199,7 +212,7 @@ export function ConceptDeck({ cards, random = Math.random }: ConceptDeckProps) {
 
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [deckLength, navigate]);
+  }, [deckLength, navigate, flip]);
 
   if (cards.length === 0) {
     return <p>No concept cards available.</p>;
@@ -223,7 +236,7 @@ export function ConceptDeck({ cards, random = Math.random }: ConceptDeckProps) {
       return;
     }
 
-    setIsFlipped((flipped) => !flipped);
+    flip();
   };
 
   // The drag is written straight to the track's own transform rather than held
@@ -394,6 +407,7 @@ export function ConceptDeck({ cards, random = Math.random }: ConceptDeckProps) {
                   card={deckCard}
                   isActive={isActive}
                   isFlipped={isFlipped}
+                  flipDirection={flipDirection}
                   onToggle={toggleFlip}
                 />
               </div>

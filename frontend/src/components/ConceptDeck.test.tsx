@@ -37,6 +37,33 @@ describe("ConceptDeck", () => {
     expect(screen.queryByRole("button", { name: /show card/i })).toBeNull();
   });
 
+  // The flip turns whichever way the coin lands, so the animation is not the
+  // same every time. Both directions are edge-on at half the timeline, which is
+  // what the visibility swap between the faces depends on.
+  it("turns the card the reverse way on a low roll", async () => {
+    const user = userEvent.setup();
+    render(<ConceptDeck cards={conceptCards} random={() => 0.2} />);
+
+    const card = screen.getByRole("button", { name: /card, front shown$/ });
+
+    await user.click(card);
+
+    expect(card).toHaveAttribute("data-flip", "reverse");
+    expect(card).toHaveAttribute("data-face", "back");
+  });
+
+  it("turns the card the forward way on a high roll", async () => {
+    const user = userEvent.setup();
+    render(<ConceptDeck cards={conceptCards} random={() => 0.9} />);
+
+    const card = screen.getByRole("button", { name: /card, front shown$/ });
+
+    await user.click(card);
+
+    expect(card).toHaveAttribute("data-flip", "forward");
+    expect(card).toHaveAttribute("data-face", "back");
+  });
+
   it("flips with card click, Enter, and Space without a Flip control", async () => {
     const user = userEvent.setup();
     render(<ConceptDeck cards={conceptCards} random={() => 0.999999} />);

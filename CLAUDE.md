@@ -86,7 +86,10 @@ Two non-obvious mechanisms worth knowing before editing `ConceptDeck.tsx`:
   because several cards are mounted at once, per-card element ids must come from
   `useId()` and test queries for card content must be scoped to one slot.
   `globals.css` also owns the 3D flip (`.concept-card-inner`, driven by
-  `data-face`) and the `prefers-reduced-motion: reduce` block that zeroes both
+  `data-face`, with `data-flip` choosing between a `+180deg` and a `-180deg`
+  rotation so the turn is a coin toss rather than the same animation every
+  time — both settle to the same matrix and both are edge-on at half the flip,
+  so the visibility swap is unaffected) and the `prefers-reduced-motion: reduce` block that zeroes both
   the flip and the slot transitions (through the `--travel`/`--flip` tokens).
 - **Everything that decorates a face is a background layer on it.** The face
   is itself the scroll container, so an absolutely positioned overlay inside it
