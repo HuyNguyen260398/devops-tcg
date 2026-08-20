@@ -526,4 +526,124 @@ export const conceptCards = [
       },
     ],
   },
+  {
+    id: "public-ca",
+    cardNumber: "#011",
+    type: "SECURITY",
+    title: "Public CA",
+    image: {
+      src: "/images/public-ca-thumbnail.webp",
+      alt: "Isometric certificate authority signing a certificate that browsers around a globe already trust",
+      sketch: {
+        src: "/images/public-ca-sketch.svg",
+        alt: "Line drawing of a root authority signing a stamped certificate accepted by browser windows",
+      },
+    },
+    definition:
+      "A public certificate authority issues certificates that browsers and operating systems already trust, so any client on the internet can verify the holder without extra configuration.",
+    keywords: [
+      "root program",
+      "domain validation",
+      "trust store",
+      "chain of trust",
+      "publicly trusted",
+    ],
+    components: [
+      {
+        name: "Root CA",
+        description:
+          "Anchors trust in browser and operating system trust stores.",
+      },
+      {
+        name: "Intermediate CA",
+        description: "Signs subscriber certificates on the root's behalf.",
+      },
+      {
+        name: "Domain validation",
+        description: "Proves the applicant controls the name being certified.",
+      },
+    ],
+    howItWorks: [
+      {
+        step: 1,
+        description:
+          "A subscriber requests a certificate for a domain it operates.",
+      },
+      {
+        step: 2,
+        description:
+          "The certificate authority validates control of that domain before issuing anything.",
+      },
+      {
+        step: 3,
+        description:
+          "An intermediate signs the certificate, chaining it to a trusted root.",
+      },
+      {
+        step: 4,
+        description:
+          "Clients verify the chain against their own trust store, so nothing has to be configured.",
+      },
+    ],
+  },
+  {
+    id: "private-ca",
+    cardNumber: "#012",
+    type: "SECURITY",
+    title: "Private CA",
+    image: {
+      src: "/images/private-ca-thumbnail.webp",
+      alt: "Isometric internal certificate authority issuing certificates inside a closed organization boundary",
+      sketch: {
+        src: "/images/private-ca-sketch.svg",
+        alt: "Line drawing of a private root inside a fenced boundary signing certificates for internal services",
+      },
+    },
+    definition:
+      "A private certificate authority issues certificates for an organization's own systems, and only clients configured to trust its root will accept them.",
+    keywords: [
+      "internal PKI",
+      "private root",
+      "trust distribution",
+      "mTLS",
+      "service identity",
+    ],
+    components: [
+      {
+        name: "Private root",
+        description:
+          "Acts as the organization's own trust anchor, kept offline.",
+      },
+      {
+        name: "Issuing CA",
+        description: "Signs certificates for internal services and workloads.",
+      },
+      {
+        name: "Trust distribution",
+        description: "Installs the root in every client that must accept it.",
+      },
+    ],
+    howItWorks: [
+      {
+        step: 1,
+        description:
+          "The organization creates its own root and keeps it offline.",
+      },
+      {
+        step: 2,
+        description:
+          "That root is distributed to every client and host that must trust it.",
+      },
+      {
+        step: 3,
+        description:
+          "An issuing certificate authority signs certificates for internal services and workloads.",
+      },
+      {
+        step: 4,
+        description:
+          "Configured clients accept those certificates, while anything outside the organization does not.",
+      },
+    ],
+  },
 ] as const satisfies readonly ConceptCardData[];

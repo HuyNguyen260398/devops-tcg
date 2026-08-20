@@ -22,6 +22,8 @@ const expectedCards = [
     "Lambda Throttle",
     "/images/lambda-throttle-thumbnail.webp",
   ],
+  ["public-ca", "#011", "Public CA", "/images/public-ca-thumbnail.webp"],
+  ["private-ca", "#012", "Private CA", "/images/private-ca-thumbnail.webp"],
 ] as const;
 
 describe("conceptCards", () => {
@@ -49,7 +51,7 @@ describe("conceptCards", () => {
     expect(conceptCards[0].howItWorks).toHaveLength(4);
   });
 
-  it("contains all ten concepts in the approved order", () => {
+  it("contains all twelve concepts in the approved order", () => {
     expect(conceptCards).toHaveLength(expectedCards.length);
     expect(
       conceptCards.map(({ id, cardNumber, title, image }) => [
@@ -120,6 +122,23 @@ describe("conceptCards", () => {
     expect(tls?.howItWorks[2]?.description).toMatch(
       /client authentication is optional/i,
     );
+  });
+
+  it("separates a publicly trusted CA from an organisation's own", () => {
+    const publicCa = conceptCards.find(({ id }) => id === "public-ca");
+    const privateCa = conceptCards.find(({ id }) => id === "private-ca");
+
+    // The pair is only worth two cards if each says what the other does not:
+    // who already trusts the root, and who is left rejecting the certificate.
+    expect(publicCa?.definition).toMatch(/browsers and operating systems/i);
+    expect(publicCa?.definition).toMatch(/without extra configuration/i);
+    expect(publicCa?.howItWorks[1]?.description).toMatch(/validat/i);
+    expect(publicCa?.keywords).toContain("trust store");
+
+    expect(privateCa?.definition).toMatch(/own systems/i);
+    expect(privateCa?.definition).toMatch(/trust its root/i);
+    expect(privateCa?.howItWorks[1]?.description).toMatch(/distribut/i);
+    expect(privateCa?.keywords).toContain("internal PKI");
   });
 
   it("explains Lambda throttling as a concurrency limit answered with 429", () => {
