@@ -11,10 +11,8 @@ export interface HowItWorksStep {
 export interface ConceptCardData {
   readonly id: string;
   readonly cardNumber: string;
-  readonly series: string;
   readonly type: string;
   readonly title: string;
-  readonly descriptor: string;
   readonly image: {
     readonly src: string;
     readonly alt: string;

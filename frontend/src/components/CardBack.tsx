@@ -6,16 +6,13 @@ interface CardBackProps {
 
 export function CardBack({ card }: CardBackProps) {
   return (
-    <article className="relative z-10 flex h-full flex-col p-5 sm:p-6">
+    // The face is the scroll container, so this block must be free to grow
+    // past it; a height-capped one drops its bottom padding under long content.
+    <article className="relative z-10 min-h-full p-5 pb-6 sm:p-6 sm:pb-7">
       <header className="mb-5 flex items-start justify-between border-b border-rule pb-4">
-        <div>
-          <p className="mb-1 text-[0.6rem] font-semibold tracking-[0.24em] text-ink-faint">
-            {card.series}
-          </p>
-          <h2 className="font-display text-3xl font-black tracking-[-0.03em] text-ink">
-            {card.title}
-          </h2>
-        </div>
+        <h2 className="font-display text-3xl font-black tracking-[-0.03em] text-ink">
+          {card.title}
+        </h2>
         <p className="rounded-full border border-mark-border bg-mark-soft px-2.5 py-1.5 text-[0.55rem] font-bold tracking-[0.16em] text-mark-ink">
           ANATOMY / FLOW
         </p>

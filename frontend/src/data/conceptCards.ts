@@ -4,10 +4,8 @@ export const conceptCards = [
   {
     id: "proxy",
     cardNumber: "#001",
-    series: "NETWORK SERIES",
     type: "NETWORK",
     title: "Proxy",
-    descriptor: "INTERMEDIARY",
     image: {
       src: "/images/proxy-thumbnail.webp",
       alt: "Ethernet cables connected to network equipment",
@@ -58,10 +56,8 @@ export const conceptCards = [
   {
     id: "cdn",
     cardNumber: "#002",
-    series: "DELIVERY SERIES",
     type: "NETWORK",
     title: "CDN",
-    descriptor: "EDGE DELIVERY",
     image: {
       src: "/images/cdn-thumbnail.webp",
       alt: "Isometric CDN edge nodes distributing content around a globe",
@@ -108,10 +104,8 @@ export const conceptCards = [
   {
     id: "nginx",
     cardNumber: "#003",
-    series: "WEB SERIES",
     type: "PLATFORM",
     title: "NGINX",
-    descriptor: "EVENT DRIVEN",
     image: {
       src: "/images/nginx-thumbnail.webp",
       alt: "Isometric web server routing requests to application services",
@@ -163,10 +157,8 @@ export const conceptCards = [
   {
     id: "reverse-proxy",
     cardNumber: "#004",
-    series: "NETWORK SERIES",
     type: "NETWORK",
     title: "Reverse Proxy",
-    descriptor: "SERVER SIDE",
     image: {
       src: "/images/reverse-proxy-thumbnail.webp",
       alt: "Isometric reverse proxy directing clients to backend servers",
@@ -219,10 +211,8 @@ export const conceptCards = [
   {
     id: "osi-model",
     cardNumber: "#005",
-    series: "FOUNDATIONS SERIES",
     type: "NETWORK",
     title: "OSI Model",
-    descriptor: "7 LAYERS",
     image: {
       src: "/images/osi-model-thumbnail.webp",
       alt: "Seven illuminated network layers in an isometric stack",
@@ -270,10 +260,8 @@ export const conceptCards = [
   {
     id: "dns",
     cardNumber: "#006",
-    series: "NAMING SERIES",
     type: "NETWORK",
     title: "DNS",
-    descriptor: "RESOLUTION",
     image: {
       src: "/images/dns-thumbnail.webp",
       alt: "Isometric DNS hierarchy resolving a domain to a server",
@@ -321,10 +309,8 @@ export const conceptCards = [
   {
     id: "ssl",
     cardNumber: "#007",
-    series: "SECURITY SERIES",
     type: "SECURITY",
     title: "SSL",
-    descriptor: "DEPRECATED",
     image: {
       src: "/images/ssl-thumbnail.webp",
       alt: "Dim legacy security tunnel beside a deprecated lock",
@@ -379,10 +365,8 @@ export const conceptCards = [
   {
     id: "tls",
     cardNumber: "#008",
-    series: "SECURITY SERIES",
     type: "SECURITY",
     title: "TLS",
-    descriptor: "SECURE TRANSPORT",
     image: {
       src: "/images/tls-thumbnail.webp",
       alt: "Bright encrypted TLS tunnel joining a client and server",
@@ -435,10 +419,8 @@ export const conceptCards = [
   {
     id: "ssh",
     cardNumber: "#009",
-    series: "SECURITY SERIES",
     type: "SECURITY",
     title: "SSH",
-    descriptor: "REMOTE ACCESS",
     image: {
       src: "/images/ssh-thumbnail.webp",
       alt: "Encrypted terminal connection to a remote server",
@@ -485,10 +467,8 @@ export const conceptCards = [
   {
     id: "lambda-throttle",
     cardNumber: "#010",
-    series: "SERVERLESS SERIES",
     type: "COMPUTE",
     title: "Lambda Throttle",
-    descriptor: "CONCURRENCY LIMIT",
     image: {
       src: "/images/lambda-throttle-thumbnail.webp",
       alt: "Isometric queue of Lambda invocations blocked by a concurrency wall",

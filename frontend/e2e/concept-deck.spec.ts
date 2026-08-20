@@ -870,6 +870,40 @@ test("keeps the Reverse Proxy card readable at 200 percent text zoom", async ({
   expect(size.content).toBeLessThanOrEqual(size.viewport);
 });
 
+// The face is the scroll container, so its own content block has to grow with
+// the text: a height-capped one spills past its padding and parks the last line
+// on the card's bottom edge.
+test("leaves space under the last line when a face scrolls", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await navigateToCard(page, "Reverse Proxy");
+
+  const gapAtScrollEnd = async (face: "card-front" | "card-back") => {
+    const node = scroller(page, face);
+    const overflows = await node.evaluate(
+      (element) => element.scrollHeight > element.clientHeight,
+    );
+    expect(overflows).toBe(true);
+
+    return node.evaluate((element) => {
+      element.scrollTop = element.scrollHeight;
+      const lowest = Array.from(element.querySelectorAll("*"))
+        .filter((child) => !child.children.length && child.textContent?.trim())
+        .reduce(
+          (bottom, child) =>
+            Math.max(bottom, child.getBoundingClientRect().bottom),
+          0,
+        );
+      return element.getBoundingClientRect().bottom - lowest;
+    });
+  };
+
+  expect(await gapAtScrollEnd("card-front")).toBeGreaterThan(16);
+  await card(page).click();
+  expect(await gapAtScrollEnd("card-back")).toBeGreaterThan(16);
+});
+
 test("removes transition for reduced motion", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/");

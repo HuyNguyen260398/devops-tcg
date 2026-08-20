@@ -104,6 +104,10 @@ Two non-obvious mechanisms worth knowing before editing `ConceptDeck.tsx`:
   or even a rounded clip on a descendant such as the artwork block. The face
   being the scroller is what keeps a finger able to scroll a long card, and it
   fails only on Linux Chromium, so `pnpm test:e2e` on macOS will not catch it.
+  The same fact is why each face's content block is `min-h-full` rather than a
+  height-capped `h-full` flex column: a capped block lets long content spill
+  past its own `padding-bottom`, parking the last line on the card's bottom
+  edge instead of leaving room under it.
 - **Colour comes from theme tokens, never from the palette.** `globals.css`
   declares every theme-dependent value as a custom property twice — on `:root`
   for the `neon` default and on `[data-theme="sketch"]` for the light sketch

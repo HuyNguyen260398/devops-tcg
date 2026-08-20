@@ -15,17 +15,20 @@ export function CardFront({ card }: CardFrontProps) {
   const keywordsHeadingId = `${headingId}-keywords`;
 
   return (
-    <article className="relative flex h-full flex-col">
-      <header className="absolute inset-x-0 top-0 z-10 flex items-center justify-between p-4 text-[0.65rem] font-bold tracking-[0.18em] text-chip-ink">
-        <span className="rounded-full border border-chip-border bg-chip px-3 py-1.5 shadow-lg">
+    // The face is the scroll container, so this block must be free to grow past
+    // it: a height-capped flex column lets long content spill out of its own
+    // padding box and leaves the last line sitting on the card's bottom edge.
+    <article className="relative min-h-full">
+      <header className="flex items-center justify-between px-4 pb-3 pt-4 text-[0.65rem] font-bold tracking-[0.18em] text-chip-ink">
+        <span className="rounded-full border border-chip-border bg-chip px-3 py-1.5">
           {card.cardNumber}
         </span>
-        <span className="rounded-full border border-type-chip-border bg-type-chip px-3 py-1.5 text-type-chip-ink shadow-lg">
+        <span className="rounded-full border border-type-chip-border bg-type-chip px-3 py-1.5 text-type-chip-ink">
           {card.type}
         </span>
       </header>
 
-      <div className="relative h-[220px] shrink-0 overflow-hidden bg-thumb-backdrop sm:h-[230px]">
+      <div className="relative h-[220px] overflow-hidden bg-thumb-backdrop sm:h-[230px]">
         {imageFailed ? (
           <div
             role="img"
@@ -67,32 +70,23 @@ export function CardFront({ card }: CardFrontProps) {
         />
       </div>
 
-      <div className="relative z-10 flex min-h-0 flex-1 flex-col px-5 pb-5 pt-4 sm:px-6">
-        <div className="mb-4 flex items-end justify-between border-b border-rule pb-4">
-          <div>
-            <p className="mb-1 text-[0.6rem] font-semibold tracking-[0.24em] text-ink-faint">
-              {card.series}
-            </p>
-            <h2 className="font-display text-4xl font-black tracking-[-0.04em] text-ink">
-              {card.title}
-            </h2>
-          </div>
-          <p className="pb-1 text-[0.6rem] font-bold tracking-[0.18em] text-mark">
-            {card.descriptor}
-          </p>
+      <div className="relative z-10 flex flex-col px-5 pb-6 pt-4 sm:px-6 sm:pb-7">
+        <div className="mb-4 border-b border-rule pb-4">
+          <h2 className="font-display text-4xl font-black tracking-[-0.04em] text-ink">
+            {card.title}
+          </h2>
         </div>
 
-        <section
-          aria-labelledby={definitionHeadingId}
-          className="mb-4 rounded-card-inner border border-rule bg-panel p-4 shadow-inner"
-        >
+        <section aria-labelledby={definitionHeadingId} className="mb-4">
           <h3
             id={definitionHeadingId}
             className="font-display mb-2 text-[0.62rem] font-bold uppercase tracking-[0.2em] text-accent"
           >
-            Basic definition
+            Definition
           </h3>
-          <p className="text-sm leading-6 text-ink-muted">{card.definition}</p>
+          <p className="rounded-card-inner border border-rule bg-panel p-4 text-sm leading-6 text-ink-muted shadow-inner">
+            {card.definition}
+          </p>
         </section>
 
         <section aria-labelledby={keywordsHeadingId}>

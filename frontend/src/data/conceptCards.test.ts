@@ -31,7 +31,6 @@ describe("conceptCards", () => {
       cardNumber: "#001",
       type: "NETWORK",
       title: "Proxy",
-      descriptor: "INTERMEDIARY",
       image: {
         src: "/images/proxy-thumbnail.webp",
         alt: "Ethernet cables connected to network equipment",
@@ -79,15 +78,9 @@ describe("conceptCards", () => {
 
   it("gives every card a complete learning contract", () => {
     for (const card of conceptCards) {
-      expect(
-        [
-          card.series,
-          card.type,
-          card.title,
-          card.descriptor,
-          card.definition,
-        ].every(Boolean),
-      ).toBe(true);
+      expect([card.type, card.title, card.definition].every(Boolean)).toBe(
+        true,
+      );
       expect(card.image.alt).toBeTruthy();
       expect(card.keywords.length).toBeGreaterThan(0);
       expect(card.keywords.every(Boolean)).toBe(true);
