@@ -22,17 +22,18 @@ OpenAI image generation on 2026-08-15 and are stored locally:
 
 ## Project-drawn illustrations
 
-`lambda-throttle-thumbnail.webp` was drawn for DevOps TCG on 2026-08-19, and
-`public-ca-thumbnail.webp` and `private-ca-thumbnail.webp` on 2026-08-20, each
-as an isometric SVG scene composed in-repo and rendered to WebP with headless
-Chromium. They contain no third-party artwork.
+`lambda-throttle-thumbnail.webp` was drawn for DevOps TCG on 2026-08-19,
+`public-ca-thumbnail.webp` and `private-ca-thumbnail.webp` on 2026-08-20, and
+`jwt-thumbnail.webp` on 2026-08-21, each as an isometric SVG scene composed
+in-repo and rendered to WebP with headless Chromium. They contain no
+third-party artwork.
 
 ## Sketch-theme drawings
 
-The twelve `*-sketch.svg` files are original hand-authored SVG line drawings
-made for DevOps TCG on 2026-08-19, and on 2026-08-20 for the two certificate
-authority cards. They are plain `<path>` geometry — no tracing of
-any third-party image, no generator, and no external asset — and they are the
+The thirteen `*-sketch.svg` files are original hand-authored SVG line drawings
+made for DevOps TCG on 2026-08-19, on 2026-08-20 for the two certificate
+authority cards, and on 2026-08-21 for JWT. They are plain `<path>` geometry
+— no tracing of any third-party image, no generator, and no external asset — and they are the
 artwork the sketch theme shows in place of the photographs above. Ink is
 `#1d1d1b`, the highlighter block is `#fff2c4`, and the subject block is
 `#dbe7ff`, matching the sketch theme's tokens.

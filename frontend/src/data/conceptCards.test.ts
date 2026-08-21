@@ -24,6 +24,7 @@ const expectedCards = [
   ],
   ["public-ca", "#011", "Public CA", "/images/public-ca-thumbnail.webp"],
   ["private-ca", "#012", "Private CA", "/images/private-ca-thumbnail.webp"],
+  ["jwt", "#013", "JWT", "/images/jwt-thumbnail.webp"],
 ] as const;
 
 describe("conceptCards", () => {
@@ -51,7 +52,7 @@ describe("conceptCards", () => {
     expect(conceptCards[0].howItWorks).toHaveLength(4);
   });
 
-  it("contains all twelve concepts in the approved order", () => {
+  it("contains all thirteen concepts in the approved order", () => {
     expect(conceptCards).toHaveLength(expectedCards.length);
     expect(
       conceptCards.map(({ id, cardNumber, title, image }) => [
@@ -139,6 +140,19 @@ describe("conceptCards", () => {
     expect(privateCa?.definition).toMatch(/trust its root/i);
     expect(privateCa?.howItWorks[1]?.description).toMatch(/distribut/i);
     expect(privateCa?.keywords).toContain("internal PKI");
+  });
+
+  it("presents a JWT as claims a service can verify without the issuer", () => {
+    const jwt = conceptCards.find(({ id }) => id === "jwt");
+
+    // The card earns its place only by saying what a session cookie does not:
+    // the verifier needs the key, not a call back to whoever issued the token.
+    expect(jwt?.definition).toMatch(/signed claims/i);
+    expect(jwt?.definition).toMatch(/without calling back to the issuer/i);
+    expect(jwt?.keywords).toContain("stateless");
+    // Encoded is not encrypted is the mistake this card exists to prevent.
+    expect(jwt?.components[1]?.description).toMatch(/not encrypted/i);
+    expect(jwt?.howItWorks[3]?.description).toMatch(/expired/i);
   });
 
   it("explains Lambda throttling as a concurrency limit answered with 429", () => {

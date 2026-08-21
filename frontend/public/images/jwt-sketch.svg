@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 278 220">
+  <path d="M118 127 L172 124 L174 166 L120 169 Z" fill="#fff2c4" />
+  <g fill="#dbe7ff">
+    <path d="M28 62 L80 59 L82 121 L30 124 Z" />
+    <path d="M200 64 L242 61 L244 106 L202 109 Z" />
+  </g>
+  <g fill="none" stroke="#1d1d1b" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M31 64 L83 61 L85 123 L33 126 Z" />
+    <path d="M32 84 L84 81 M32 104 L84 101" />
+    <path d="M42 74 L70 72.5 M42 94 L64 92.5 M42 114 L68 112.5" />
+    <circle cx="93" cy="110" r="7" />
+    <path d="M100 110 L124 109 M117 109 L117 116 M110 110 L110 115" />
+    <path d="M90 76 C116 52 150 48 180 61" stroke-dasharray="8 7" />
+    <path d="M172 52 L183 62 L170 68" />
+    <path d="M222 58 L248 68 L248 92 C248 106 236 114 222 120 C208 114 196 106 196 92 L196 68 Z" />
+    <path d="M209 88 L218 97 L236 79" />
+    <path d="M58 132 L108 129 L110 171 L60 174 Z" />
+    <path d="M70 145 L98 143.5 M70 156 L88 155" />
+    <path d="M121 127 L171 124 L173 166 L123 169 Z" />
+    <path d="M132 139 L162 137.5 M132 149 L162 147.5 M132 159 L150 158" />
+    <path d="M184 122 L222 120 L224 162 L186 164 Z" />
+    <circle cx="204" cy="142" r="11" />
+    <path d="M199 142 L203 147 L210 137" />
+  </g>
+  <g fill="#1d1d1b">
+    <circle cx="115" cy="150" r="3.4" />
+    <circle cx="178" cy="144" r="3.4" />
+  </g>
+</svg>

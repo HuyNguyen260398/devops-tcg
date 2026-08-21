@@ -646,4 +646,58 @@ export const conceptCards = [
       },
     ],
   },
+  {
+    id: "jwt",
+    cardNumber: "#013",
+    type: "SECURITY",
+    title: "JWT",
+    image: {
+      src: "/images/jwt-thumbnail.webp",
+      alt: "Isometric authorization server signing a token that a service verifies on its own",
+      sketch: {
+        src: "/images/jwt-sketch.svg",
+        alt: "Line drawing of a three-part token between an issuer rack holding a key and a shield marked with a check",
+      },
+    },
+    definition:
+      "A JSON Web Token carries signed claims about a subject, so any service holding the issuer's key can verify the caller without calling back to the issuer.",
+    keywords: ["signed claims", "issuer", "signature", "expiry", "stateless"],
+    components: [
+      {
+        name: "Issuer",
+        description:
+          "Authenticates the subject and signs the token with its key.",
+      },
+      {
+        name: "Token",
+        description:
+          "Carries the claims in three base64url parts, so the payload is encoded and readable, not encrypted.",
+      },
+      {
+        name: "Verifying service",
+        description:
+          "Holds the issuer's key and decides whether to accept the token.",
+      },
+    ],
+    howItWorks: [
+      {
+        step: 1,
+        description: "The subject authenticates with the issuer.",
+      },
+      {
+        step: 2,
+        description:
+          "The issuer signs a token carrying the claims and an expiry.",
+      },
+      {
+        step: 3,
+        description: "The subject presents that token with each request.",
+      },
+      {
+        step: 4,
+        description:
+          "The service verifies the signature against the issuer's key and rejects an altered or expired token, with no lookup of its own.",
+      },
+    ],
+  },
 ] as const satisfies readonly ConceptCardData[];
