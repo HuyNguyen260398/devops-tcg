@@ -288,6 +288,43 @@ test("spreads the deck across the width it is given", async ({
   }
 });
 
+test("leaves the same gap between every pair of adjacent cards", async ({
+  page,
+}) => {
+  await page.goto("/");
+
+  // Measured off the real layout rather than the geometry: a slot's rect grows
+  // with its tilt, so the card's own edges come from its layout width times the
+  // scale in its computed matrix, about the centre the rotation leaves alone.
+  const edges = await page.evaluate(() =>
+    [...document.querySelectorAll<HTMLElement>(".deck-slot:not([data-staged])")]
+      .map((slot) => {
+        const rect = slot.getBoundingClientRect();
+        const [a, b] = new DOMMatrix(getComputedStyle(slot).transform)
+          .toFloat32Array()
+          .subarray(0, 2);
+        const half = (slot.offsetWidth * Math.hypot(a, b)) / 2;
+        const centre = rect.x + rect.width / 2;
+
+        return { left: centre - half, right: centre + half };
+      })
+      .sort((one, other) => one.left - other.left),
+  );
+
+  expect(edges.length).toBeGreaterThanOrEqual(3);
+
+  const gaps = edges
+    .slice(1)
+    .map((card, index) => card.left - edges[index].right);
+
+  // Every card stands clear of its neighbours, by the same amount each time.
+  for (const gap of gaps) {
+    expect(gap).toBeGreaterThan(0);
+  }
+
+  expect(Math.max(...gaps) - Math.min(...gaps)).toBeLessThan(2);
+});
+
 test("shows keyboard focus on the card edge, not as a panel around it", async ({
   page,
 }) => {

@@ -402,7 +402,7 @@ describe("ConceptDeck", () => {
   });
 
   it("spreads further ranks across a wider screen", () => {
-    setViewportWidth(1700);
+    setViewportWidth(1800);
     render(<ConceptDeck cards={conceptCards} random={() => 0.999999} />);
 
     // Three ranks either side of the centre, plus the staged one behind them.
@@ -420,7 +420,7 @@ describe("ConceptDeck", () => {
     expect(mountedSlots()).toHaveLength(5);
 
     act(() => {
-      setViewportWidth(1700);
+      setViewportWidth(1800);
       window.dispatchEvent(new Event("resize"));
     });
 

@@ -23,10 +23,11 @@ const wrapIndex = (index: number, length: number) =>
 // screen it is given rather than always showing three cards. The thresholds
 // are derived from the slot geometry in globals.css — a rank is on screen
 // while its inner edge is still inside the viewport, which for the capped
-// 350px card and its gap works out at these widths. Rank one is always at
-// least partly on screen, down to 320px, so the deck never shows fewer cards
-// than it does today. Change the geometry tokens and these move with them.
-const RANK_BREAKPOINTS = [1010, 1580, 2160];
+// 350px card at an even 2rem between cards puts rank two past 1108px, rank
+// three past 1732px and rank four past 2286px. Rank one is always at least
+// partly on screen, down to 320px. Change the geometry tokens and these move
+// with them.
+const RANK_BREAKPOINTS = [1110, 1735, 2290];
 
 const ranksForWidth = (width: number) =>
   RANK_BREAKPOINTS.reduce(

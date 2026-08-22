@@ -23,13 +23,12 @@
   --flip-half: 220ms;
   --travel-ease: cubic-bezier(0.22, 0.61, 0.24, 1);
 
-  /* Slot geometry. Every rank of the deck is generated from these: rank d sits
-     --deck-gap * (base + d * step) out from the centre, shrinks by scale-step,
-     tilts a little further and fades a little more. ConceptDeck derives how
+  /* Slot geometry. Every rank of the deck is generated from these: each card
+     shrinks by scale-step, tilts a little further and fades a little more than
+     the one inside it, and sits --slot-gap clear of it. ConceptDeck derives how
      many ranks fit a viewport from the same numbers, so widening the spread is
      a change here and nowhere else. */
-  --slot-spread-base: 0.28;
-  --slot-spread-step: 0.72;
+  --slot-gap: 2rem;
   --slot-scale-step: 0.1;
   --slot-tilt-base: 1deg;
   --slot-tilt-step: 1.5deg;
@@ -388,13 +387,14 @@ button,
      rather than letting the controls cover its artwork. The 350px cap means
      this only affects viewports below roughly 470px. */
   --deck-card-width: min(calc(100vw - 7rem), 350px);
-  /* Half the centred card plus half a 0.9-scaled neighbour is 0.95 card
-     widths, so anything below that parks a neighbour directly behind the
-     centred card and reads as a panel sitting behind the flip. The tilt widens
-     a neighbour's painted box by about half its height times sin(2.5deg), so
-     the clearance is a fixed length rather than a share of the card width,
-     which would shrink on the phone widths that need it most. */
-  --deck-gap: calc(var(--deck-card-width) + 1.5rem);
+  /* One card plus the air beside it: the step from one rank's centre to the
+     next if nothing shrank. Half the centred card plus half a 0.9-scaled
+     neighbour is 0.95 card widths, so a rank must sit at least that far out or
+     it parks behind the centred card and reads as a panel sitting behind the
+     flip — which the spread below clears by --slot-gap at every rank, a fixed
+     length rather than a share of the card width, since a share would shrink
+     on the phone widths that need it most. */
+  --deck-gap: calc(var(--deck-card-width) + var(--slot-gap));
   /* The resting transform. The pointer handlers overwrite it directly during a
      drag so every mounted card trails the finger together, leaving the per-slot
      transforms to describe position in the deck and nothing else. */
@@ -443,13 +443,25 @@ button,
    expressions — at depth 0 the shift and tilt are multiplied by a --side of
    zero and the scale is 1 — so a deck that mounts three ranks and one that
    mounts nine are the same rule. The fallbacks keep a slot that somehow
-   arrives without them sitting square in the centre rather than unplaced. */
+   arrives without them sitting square in the centre rather than unplaced.
+
+   The shift is what spaces the deck evenly. A card at rank d is scaled to
+   1 - d * scale-step, so stepping out by a whole --deck-gap each time would
+   leave a wider and wider band of empty stage between cards that are getting
+   smaller. Subtracting the width every rank inside this one has given up —
+   card-width * scale-step * d² / 2, the sum of those losses — leaves exactly
+   --slot-gap of air between every pair of adjacent cards, whatever their
+   depth. (The step shrinks with depth, so the ranks stay in order for far more
+   ranks than a screen can ever show.) */
 .deck-slot {
   z-index: calc(10 - var(--depth, 0));
   transform: translateX(
       calc(
-        -50% + var(--side, 0) * var(--deck-gap) *
-          (var(--slot-spread-base) + var(--depth, 0) * var(--slot-spread-step))
+        -50% + var(--side, 0) *
+          (
+            var(--depth, 0) * var(--deck-gap) - var(--deck-card-width) *
+              (var(--slot-scale-step) * var(--depth, 0) * var(--depth, 0) / 2)
+          )
       )
     )
     scale(calc(1 - var(--depth, 0) * var(--slot-scale-step)))
