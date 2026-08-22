@@ -23,6 +23,19 @@
   --flip-half: 220ms;
   --travel-ease: cubic-bezier(0.22, 0.61, 0.24, 1);
 
+  /* Slot geometry. Every rank of the deck is generated from these: rank d sits
+     --deck-gap * (base + d * step) out from the centre, shrinks by scale-step,
+     tilts a little further and fades a little more. ConceptDeck derives how
+     many ranks fit a viewport from the same numbers, so widening the spread is
+     a change here and nowhere else. */
+  --slot-spread-base: 0.28;
+  --slot-spread-step: 0.72;
+  --slot-scale-step: 0.1;
+  --slot-tilt-base: 1deg;
+  --slot-tilt-step: 1.5deg;
+  --slot-fade: 0.55;
+  --slot-fade-step: 0.12;
+
   /* Ground */
   --paper: #050714;
   --stage-image:
@@ -299,6 +312,16 @@ body {
   right: max(0.5rem, env(safe-area-inset-right));
 }
 
+/* Mirrors the header's give-back at the other end of the column: the control
+   sits in the deck's flow, so its margin is height taken from the card. */
+.deck-footer {
+  margin-top: clamp(0.5rem, 1.5vh, 1rem);
+}
+
+.shuffle-button {
+  touch-action: manipulation;
+}
+
 button,
 [role="button"] {
   -webkit-tap-highlight-color: transparent;
@@ -414,41 +437,67 @@ button,
   box-shadow: var(--card-shadow-flat);
 }
 
+/* One formula for every rank, driven by the --depth and --side ConceptDeck
+   writes onto each slot: how far out the card sits, how much it shrinks, which
+   way it tilts and how far it has faded. The centre falls out of the same
+   expressions — at depth 0 the shift and tilt are multiplied by a --side of
+   zero and the scale is 1 — so a deck that mounts three ranks and one that
+   mounts nine are the same rule. The fallbacks keep a slot that somehow
+   arrives without them sitting square in the centre rather than unplaced. */
+.deck-slot {
+  z-index: calc(10 - var(--depth, 0));
+  transform: translateX(
+      calc(
+        -50% + var(--side, 0) * var(--deck-gap) *
+          (var(--slot-spread-base) + var(--depth, 0) * var(--slot-spread-step))
+      )
+    )
+    scale(calc(1 - var(--depth, 0) * var(--slot-scale-step)))
+    rotate(
+      calc(
+        var(--side, 0) *
+          (var(--slot-tilt-base) + var(--depth, 0) * var(--slot-tilt-step))
+      )
+    );
+  opacity: calc(var(--slot-fade) - var(--depth, 0) * var(--slot-fade-step));
+}
+
 .deck-slot[data-slot="0"] {
-  z-index: 3;
-  transform: translateX(-50%);
   opacity: 1;
 }
 
-.deck-slot[data-slot="-1"],
-.deck-slot[data-slot="1"] {
-  z-index: 2;
-  opacity: 0.3;
-}
-
-.deck-slot[data-slot="-1"] {
-  transform: translateX(calc(-50% - var(--deck-gap))) scale(0.9) rotate(-2.5deg);
-}
-
-.deck-slot[data-slot="1"] {
-  transform: translateX(calc(-50% + var(--deck-gap))) scale(0.9) rotate(2.5deg);
-}
-
-/* Staged off-stage: mounted and ready to travel in, but never visible. */
-.deck-slot[data-slot="-2"],
-.deck-slot[data-slot="2"] {
-  z-index: 1;
+/* The outermost rank is mounted only so an arriving card has somewhere to
+   travel in from, and the deck fits its ranks to the viewport, so this one is
+   off screen as well as unpainted. */
+.deck-slot[data-staged] {
   opacity: 0;
 }
 
-.deck-slot[data-slot="-2"] {
-  transform: translateX(calc(-50% - var(--deck-gap) * 1.75)) scale(0.8)
-    rotate(-4deg);
+/* The whole shuffle is choreographed from one attribute. ConceptDeck advances
+   the active index once per step and writes that step's `--travel` and
+   `--travel-ease` onto the track, so the reel is the deck's ordinary slot
+   travel repeated and braked — there is no second animation to keep in step
+   with the first, and nothing here re-renders per frame. */
+.deck-track[data-spinning] {
+  /* The card in hand is in flight, not under the finger. */
+  pointer-events: none;
 }
 
-.deck-slot[data-slot="2"] {
-  transform: translateX(calc(-50% + var(--deck-gap) * 1.75)) scale(0.8)
-    rotate(4deg);
+/* A reel has to read as a stream of cards rather than one card blinking, so
+   every rank is lifted by the same amount while it runs — the fade down the
+   ranks is kept, only brighter. */
+.deck-track[data-spinning] .deck-slot {
+  opacity: calc(
+    var(--slot-fade) + 0.22 - var(--depth, 0) * var(--slot-fade-step)
+  );
+}
+
+.deck-track[data-spinning] .deck-slot[data-slot="0"] {
+  opacity: 1;
+}
+
+.deck-track[data-spinning] .deck-slot[data-staged] {
+  opacity: 0;
 }
 
 .deck-slot-veil {

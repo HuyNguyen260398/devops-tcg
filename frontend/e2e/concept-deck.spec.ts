@@ -231,11 +231,61 @@ test("centers the stacked header and shows faded adjacent cards", async ({
     expect(style.events).toBe("none");
   }
 
-  const staged = page.locator('.deck-slot[data-slot="2"]');
-  await expect(staged).toHaveCount(1);
-  expect(
-    await staged.evaluate((node) => Number(getComputedStyle(node).opacity)),
-  ).toBe(0);
+  // However many ranks this viewport spreads to, the one behind them is
+  // mounted unpainted so an arriving card has somewhere to travel in from.
+  const staged = page.locator(".deck-slot[data-staged]");
+  await expect(staged).toHaveCount(2);
+  for (const node of await staged.all()) {
+    expect(
+      await node.evaluate((slot) => Number(getComputedStyle(slot).opacity)),
+    ).toBe(0);
+  }
+});
+
+test("spreads the deck across the width it is given", async ({
+  page,
+}, testInfo) => {
+  await page.goto("/");
+
+  const painted = page.locator(".deck-slot:not([data-staged])");
+  const viewportWidth = await page.evaluate(
+    () => document.documentElement.clientWidth,
+  );
+
+  // A phone has room for the centred card and one rank; a desktop fits more,
+  // and every rank it mounts has to earn its place on screen.
+  await expect(painted).toHaveCount(testInfo.project.name === "mobile" ? 3 : 5);
+
+  for (const node of await painted.all()) {
+    const bounds = await node.boundingBox();
+    expect(bounds).not.toBeNull();
+    expect(bounds!.x).toBeLessThan(viewportWidth);
+    expect(bounds!.x + bounds!.width).toBeGreaterThan(0);
+  }
+
+  // Each rank sits further out and fades further back than the one inside it.
+  const ranks = await page.evaluate(() =>
+    [1, 2].map((depth) => {
+      const node = document.querySelector<HTMLElement>(
+        `.deck-slot[data-slot="${depth}"]:not([data-staged])`,
+      );
+
+      return node === null
+        ? null
+        : {
+            left: node.getBoundingClientRect().left,
+            opacity: Number(getComputedStyle(node).opacity),
+          };
+    }),
+  );
+
+  expect(ranks[0]).not.toBeNull();
+
+  if (ranks[1] !== null) {
+    expect(ranks[1].left).toBeGreaterThan(ranks[0]!.left);
+    expect(ranks[1].opacity).toBeLessThan(ranks[0]!.opacity);
+    expect(ranks[1].opacity).toBeGreaterThan(0);
+  }
 });
 
 test("shows keyboard focus on the card edge, not as a panel around it", async ({
@@ -914,6 +964,133 @@ test("leaves space under the last line when a face scrolls", async ({
   expect(await gapAtScrollEnd("card-front")).toBeGreaterThan(16);
   await card(page).click();
   expect(await gapAtScrollEnd("card-back")).toBeGreaterThan(16);
+});
+
+// Eight to eleven cards fly past a shuffle, so from the top of the deck the
+// reel can only come to rest on one of these four positions — and only if it
+// travelled forwards. Going the other way would land on 03 through 06.
+const LANDINGS = ["09 / 13", "10 / 13", "11 / 13", "12 / 13"];
+
+const landedAt = async (page: import("@playwright/test").Page) => {
+  const counter = await page
+    .locator('[aria-label^="Card "]')
+    .first()
+    .textContent();
+
+  return counter?.trim();
+};
+
+test("shuffles the deck from a control centred under the cards", async ({
+  page,
+}) => {
+  await page.goto("/");
+  const shuffle = page.getByRole("button", { name: "Shuffle" });
+  const track = page.getByTestId("deck-track");
+
+  const [cardBounds, shuffleBounds, viewport] = await Promise.all([
+    card(page).boundingBox(),
+    shuffle.boundingBox(),
+    page.evaluate(() => document.documentElement.clientWidth),
+  ]);
+
+  expect(cardBounds).not.toBeNull();
+  expect(shuffleBounds).not.toBeNull();
+  await expect(shuffle).toBeInViewport({ ratio: 1 });
+  expect(shuffleBounds!.y).toBeGreaterThanOrEqual(
+    cardBounds!.y + cardBounds!.height,
+  );
+  expect(
+    Math.abs(shuffleBounds!.x + shuffleBounds!.width / 2 - viewport / 2),
+  ).toBeLessThan(2);
+  expect(shuffleBounds!.height).toBeGreaterThanOrEqual(44);
+
+  await shuffle.click();
+
+  // The reel runs, then brakes to a stop on the card it dealt itself.
+  await expect(track).toHaveAttribute("data-spinning", "true");
+  await expect(track).not.toHaveAttribute("data-spinning", "true");
+  expect(LANDINGS).toContain(await landedAt(page));
+  await expect(card(page)).toHaveAttribute("data-face", "front");
+  await expect(slot(page, 0)).toBeVisible();
+
+  // Nothing of the reel's own timing is left on the track for the next move.
+  expect(
+    await track.evaluate((node) => [
+      node.style.getPropertyValue("--travel"),
+      node.style.getPropertyValue("--travel-ease"),
+    ]),
+  ).toEqual(["", ""]);
+});
+
+test("slides the deck leftwards from the card already in hand", async ({
+  page,
+}) => {
+  await page.goto("/");
+
+  const inHand = await slot(page, 0).getAttribute("data-testid");
+  expect(inHand).not.toBeNull();
+
+  // The rank a card travels into is the one drawn to the left of centre.
+  const [centreBounds, leftRankBounds] = await Promise.all([
+    slot(page, 0).boundingBox(),
+    slot(page, -1).boundingBox(),
+  ]);
+  expect(centreBounds).not.toBeNull();
+  expect(leftRankBounds!.x).toBeLessThan(centreBounds!.x);
+
+  await page.getByRole("button", { name: "Shuffle" }).click();
+
+  // The reel picks the deck up where it stood rather than cutting away from
+  // it: the card in hand is still on stage, travelling out through the left
+  // ranks, while the next card of the new order takes the centre. (Which card
+  // that is comes from the deal, so it is not the neighbour that stood there.)
+  // Both are read in one round trip because the reel takes its next step in
+  // 80ms, and by then the card in hand is a rank further out.
+  const moved = await page.evaluate((testId) => {
+    const travelling = document.querySelector(`[data-testid="${testId}"]`);
+    const centre = document.querySelector('.deck-slot[data-slot="0"]');
+
+    return {
+      slot: Number(travelling?.getAttribute("data-slot")),
+      centre: centre?.getAttribute("data-testid") ?? null,
+    };
+  }, inHand!);
+
+  expect(moved.slot).toBeLessThan(0);
+  expect(moved.centre).not.toBe(inHand);
+});
+
+test("ignores a finger on the deck while the reel is running", async ({
+  page,
+}, testInfo) => {
+  test.skip(testInfo.project.name !== "mobile");
+  await page.goto("/");
+  const track = page.getByTestId("deck-track");
+
+  await page.getByRole("button", { name: "Shuffle" }).click();
+  await expect(track).toHaveAttribute("data-spinning", "true");
+
+  const box = await track.boundingBox();
+  expect(box).not.toBeNull();
+  await page.touchscreen.tap(box!.x + 8, box!.y + box!.height / 2);
+
+  // The reel must not trail the finger, and the tap must not turn a card.
+  await expect(track).not.toHaveAttribute("data-dragging", "true");
+  await expect(track).not.toHaveAttribute("data-spinning", "true");
+  await expect(card(page)).toHaveAttribute("data-face", "front");
+  expect(LANDINGS).toContain(await landedAt(page));
+});
+
+test("lands the shuffle at once for reduced motion", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/");
+
+  const track = page.getByTestId("deck-track");
+  await page.getByRole("button", { name: "Shuffle" }).click();
+
+  // Same destination, no reel: the counter is already there.
+  expect(LANDINGS).toContain(await landedAt(page));
+  await expect(track).not.toHaveAttribute("data-spinning", "true");
 });
 
 test("removes transition for reduced motion", async ({ page }) => {

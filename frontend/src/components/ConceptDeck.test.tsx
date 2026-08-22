@@ -1,7 +1,7 @@
 import { renderToStaticMarkup } from "react-dom/server";
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { conceptCards } from "@/data/conceptCards";
 import { ConceptDeck } from "./ConceptDeck";
 
@@ -9,6 +9,20 @@ const slot = (cardId: string) =>
   document.querySelector<HTMLElement>(`[data-testid="deck-slot-${cardId}"]`);
 
 const slotOf = (cardId: string) => slot(cardId)?.getAttribute("data-slot");
+
+const mountedSlots = () => screen.getAllByTestId(/^deck-slot-/);
+
+// The deck spreads to the width it is given, so a test that cares how many
+// cards are on stage has to say how wide the window is. jsdom opens at 1024.
+const setViewportWidth = (width: number) => {
+  Object.defineProperty(window, "innerWidth", {
+    configurable: true,
+    writable: true,
+    value: width,
+  });
+};
+
+afterEach(() => setViewportWidth(1024));
 
 describe("ConceptDeck", () => {
   it("renders the title above its counter with enabled carousel controls", () => {
@@ -375,13 +389,60 @@ describe("ConceptDeck", () => {
     expect(slotOf("jwt")).toBe("-1");
   });
 
-  it("stages the card beyond each visible neighbour so none can pop in", () => {
+  it("stages the rank beyond the spread so no card can pop in", () => {
+    setViewportWidth(320);
     render(<ConceptDeck cards={conceptCards} random={() => 0.999999} />);
 
     expect(slotOf("nginx")).toBe("2");
     expect(slotOf("private-ca")).toBe("-2");
+    expect(slot("nginx")).toHaveAttribute("data-staged", "true");
+    expect(slot("cdn")).not.toHaveAttribute("data-staged");
     expect(slot("reverse-proxy")).toBeNull();
-    expect(screen.getAllByTestId(/^deck-slot-/)).toHaveLength(5);
+    expect(mountedSlots()).toHaveLength(5);
+  });
+
+  it("spreads further ranks across a wider screen", () => {
+    setViewportWidth(1700);
+    render(<ConceptDeck cards={conceptCards} random={() => 0.999999} />);
+
+    // Three ranks either side of the centre, plus the staged one behind them.
+    expect(mountedSlots()).toHaveLength(9);
+    expect(slotOf("reverse-proxy")).toBe("3");
+    expect(slot("reverse-proxy")).not.toHaveAttribute("data-staged");
+    expect(slot("osi-model")).toHaveAttribute("data-staged", "true");
+    expect(slot("dns")).toBeNull();
+  });
+
+  it("re-spreads the deck when the window is resized", () => {
+    setViewportWidth(320);
+    render(<ConceptDeck cards={conceptCards} random={() => 0.999999} />);
+
+    expect(mountedSlots()).toHaveLength(5);
+
+    act(() => {
+      setViewportWidth(1700);
+      window.dispatchEvent(new Event("resize"));
+    });
+
+    expect(mountedSlots()).toHaveLength(9);
+  });
+
+  // The rank's position, size, tilt and fade are all worked out from these two
+  // numbers in globals.css, so the deck only has to say where a card stands.
+  it("hands every slot its depth and its side", () => {
+    setViewportWidth(320);
+    render(<ConceptDeck cards={conceptCards} random={() => 0.999999} />);
+
+    const depthAndSide = (cardId: string) => [
+      slot(cardId)!.style.getPropertyValue("--depth"),
+      slot(cardId)!.style.getPropertyValue("--side"),
+    ];
+
+    expect(depthAndSide("proxy")).toEqual(["0", "0"]);
+    expect(depthAndSide("cdn")).toEqual(["1", "1"]);
+    expect(depthAndSide("jwt")).toEqual(["1", "-1"]);
+    expect(depthAndSide("nginx")).toEqual(["2", "1"]);
+    expect(depthAndSide("private-ca")).toEqual(["2", "-1"]);
   });
 
   it("moves the same card element between slots instead of remounting it", async () => {
@@ -631,5 +692,174 @@ describe("ConceptDeck", () => {
     ).toBeInTheDocument();
     expect(screen.getByText("02 / 13")).toBeInTheDocument();
     expect(conceptCards[0].title).toBe("Proxy");
+  });
+  // The shuffle deals a new order and slides it past, right to left, over a
+  // stepped sequence of real timers, so these let the clock run and assert
+  // where the reel stops. Fake timers are not an option: user-event's own
+  // waits deadlock under them.
+  describe("shuffle control", () => {
+    const shuffleButton = () => screen.getByRole("button", { name: "Shuffle" });
+
+    // Comfortably past the longest reel the deck can run, and awaited inside
+    // act so the state its timers set lands before the assertions.
+    const settle = () =>
+      act(async () => {
+        await new Promise((resolve) => setTimeout(resolve, 1800));
+      });
+
+    const activeTitle = () =>
+      screen
+        .getByRole("button", { name: /card, (front|back) shown$/ })
+        .getAttribute("aria-label")
+        ?.replace(/ card, (?:front|back) shown$/, "");
+
+    // The whole loop as the reader would meet it, one Next click at a time.
+    const walkDeck = async (user: ReturnType<typeof userEvent.setup>) => {
+      const titles: (string | undefined)[] = [];
+
+      for (let step = 0; step < conceptCards.length; step += 1) {
+        titles.push(activeTitle());
+        await user.click(screen.getByRole("button", { name: "Next card" }));
+      }
+
+      return titles;
+    };
+
+    // A constant zero roll leaves the deck's order alone, so what it proves is
+    // the travel: eight steps to the left of CDN is Lambda Throttle.
+    it("slides the deck right to left and stops on the card it dealt", async () => {
+      const user = userEvent.setup();
+      render(<ConceptDeck cards={conceptCards} random={() => 0} />);
+
+      expect(
+        screen.getByRole("button", { name: "CDN card, front shown" }),
+      ).toBeInTheDocument();
+
+      await user.click(shuffleButton());
+
+      // The reel picks the deck up where it stood: the card that was in hand
+      // travels off to the left rather than being cut away.
+      expect(track()).toHaveAttribute("data-spinning", "true");
+      expect(track()).toHaveAttribute("data-direction", "next");
+      expect(slotOf("cdn")).toBe("-1");
+
+      await settle();
+
+      expect(track()).not.toHaveAttribute("data-spinning");
+      expect(
+        screen.getByRole("button", {
+          name: "Lambda Throttle card, front shown",
+        }),
+      ).toBeInTheDocument();
+      expect(screen.getByLabelText("Card 9 of 13")).toHaveTextContent(
+        "09 / 13",
+      );
+    });
+
+    // A higher roll buys three more steps, so no two shuffles run the same
+    // length or stop the same distance away.
+    it("runs a longer reel for a higher roll", async () => {
+      const user = userEvent.setup();
+      render(<ConceptDeck cards={conceptCards} random={() => 0.999999} />);
+
+      await user.click(shuffleButton());
+      await settle();
+
+      expect(
+        screen.getByRole("button", { name: "Private CA card, front shown" }),
+      ).toBeInTheDocument();
+      expect(screen.getByText("12 / 13")).toBeInTheDocument();
+    });
+
+    it("deals an order the deck did not already have", async () => {
+      const user = userEvent.setup();
+      render(<ConceptDeck cards={conceptCards} random={() => 0.5} />);
+
+      const before = await walkDeck(user);
+
+      await user.click(shuffleButton());
+      await settle();
+
+      const after = await walkDeck(user);
+
+      expect(after).not.toEqual(before);
+      expect([...after].sort()).toEqual([...before].sort());
+    });
+
+    it("turns a flipped card back to its front", async () => {
+      const user = userEvent.setup();
+      render(<ConceptDeck cards={conceptCards} random={() => 0} />);
+
+      await user.click(
+        screen.getByRole("button", { name: "CDN card, front shown" }),
+      );
+      expect(
+        screen.getByRole("button", { name: "CDN card, back shown" }),
+      ).toBeInTheDocument();
+
+      await user.click(shuffleButton());
+      await settle();
+
+      expect(activeTitle()).toBe("Lambda Throttle");
+      expect(
+        screen.getByRole("button", { name: /card, front shown$/ }),
+      ).toBeInTheDocument();
+    });
+
+    it("ignores flips, navigation and a second shuffle while the reel runs", async () => {
+      const user = userEvent.setup();
+      render(<ConceptDeck cards={conceptCards} random={() => 0} />);
+
+      await user.click(shuffleButton());
+
+      fireEvent.keyDown(document.body, { key: " " });
+      fireEvent.keyDown(document.body, { key: "ArrowRight" });
+      await user.click(shuffleButton());
+
+      // A key, a second reel or a flip that had been taken would move the deck
+      // off the eight steps this shuffle dealt itself.
+      await settle();
+
+      expect(activeTitle()).toBe("Lambda Throttle");
+      expect(
+        screen.getByRole("button", { name: /card, front shown$/ }),
+      ).toBeInTheDocument();
+    });
+
+    it("lands on the same card at once when motion is turned down", async () => {
+      const user = userEvent.setup();
+
+      vi.stubGlobal(
+        "matchMedia",
+        vi.fn(() => ({ matches: true })),
+      );
+
+      try {
+        render(<ConceptDeck cards={conceptCards} random={() => 0} />);
+
+        await user.click(shuffleButton());
+
+        expect(track()).not.toHaveAttribute("data-spinning");
+        expect(activeTitle()).toBe("Lambda Throttle");
+        expect(screen.getByText("09 / 13")).toBeInTheDocument();
+      } finally {
+        vi.unstubAllGlobals();
+      }
+    });
+
+    it("holds the control inert in the pre-shuffle placeholder", () => {
+      const html = renderToStaticMarkup(
+        <ConceptDeck cards={conceptCards} random={() => 0} />,
+      );
+
+      expect(html).toContain("Shuffle");
+      expect(html).toContain("disabled");
+    });
+
+    it("disables the control for a one-card deck", () => {
+      render(<ConceptDeck cards={conceptCards.slice(0, 1)} random={() => 0} />);
+
+      expect(shuffleButton()).toBeDisabled();
+    });
   });
 });

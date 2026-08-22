@@ -65,7 +65,7 @@ rendering the side arrows. Deck bounds, counter, and navigation all derive from
 `cards.length`, so adding a card is a data change plus tests — never a component
 redesign.
 
-Two non-obvious mechanisms worth knowing before editing `ConceptDeck.tsx`:
+Non-obvious mechanisms worth knowing before editing `ConceptDeck.tsx`:
 
 - **Hydration-safe shuffle.** The server render must be deterministic, so the
   Fisher-Yates shuffle (`src/lib/shuffle.ts`, randomness injectable via the
@@ -75,13 +75,19 @@ Two non-obvious mechanisms worth knowing before editing `ConceptDeck.tsx`:
   `() => 0.999999`, which leaves the source order intact) rather than stubbing
   `Math.random`.
 - **Slot-based travel, not a re-rendered track.** Every card within
-  `SLOT_RADIUS` of the active index stays mounted, keyed by `card.id`, and
-  carries `data-slot` — its shortest signed distance from centre (`-2…2`).
-  `globals.css` gives each `data-slot` value a transform and transitions
-  between them, so changing the index makes the *same DOM node* travel from one
-  slot to the next. Slots `±2` are staged invisibly so an arriving card is never
-  mounted into view. Consequences worth remembering: nothing may key off a
-  remount; only `offset === 0` renders a back face, takes focus, or gets
+  the deck's spread of the active index stays mounted, keyed by `card.id`, and
+  carries `data-slot` — its shortest signed distance from centre — plus the
+  `--depth` (`|offset|`) and `--side` (`-1`/`0`/`1`) that place it. `globals.css`
+  turns those two numbers into one formula for every rank — how far out it
+  sits, how much it shrinks, which way it tilts, how far it has faded — and
+  transitions between them, so changing the index makes the *same DOM node*
+  travel from one slot to the next. How many ranks are mounted comes from the
+  viewport: `RANK_BREAKPOINTS` in `ConceptDeck.tsx` (derived from the
+  `--slot-*` geometry tokens, and re-measured on resize) says how many fit, so
+  a phone still shows three cards while a wide screen fills with nine. One rank
+  beyond those is mounted carrying `data-staged` and painted at zero opacity,
+  so an arriving card is never mounted into view. Consequences worth
+  remembering: nothing may key off a remount; only `offset === 0` renders a back face, takes focus, or gets
   `data-face`, so `.concept-card[data-face]` is the active-card selector; and
   because several cards are mounted at once, per-card element ids must come from
   `useId()` and test queries for card content must be scoped to one slot.
@@ -108,6 +114,23 @@ Two non-obvious mechanisms worth knowing before editing `ConceptDeck.tsx`:
   height-capped `h-full` flex column: a capped block lets long content spill
   past its own `padding-bottom`, parking the last line on the card's bottom
   edge instead of leaving room under it.
+- **The shuffle is a reel, built from the slot travel itself.**
+  `ShuffleControl` sits in the deck's flow under the carousel (the fixed arrow
+  layer is for the arrows only). A click deals a new order, rotates it so the
+  card already in hand keeps its index — otherwise the deck would cut to
+  another card before the reel had moved a pixel — and then slides that order
+  past, right to left, by advancing the active index one step at a time. Each
+  step writes its own `--travel` and `--travel-ease` onto the track before the
+  index changes, so the reel *is* the ordinary slot transition, repeated: eight
+  to eleven steps run flat out and linear at `SPIN_FAST`, then the last
+  `SPIN_BRAKE_STEPS` stretch towards `SPIN_SLOWEST` and the final one eases out
+  onto the card it stops on. There is no second animation system and no timing
+  token to keep in sync — `globals.css` only lifts the neighbouring slots'
+  opacity under `data-spinning` so the reel reads as a stream of cards, and the
+  track's inline properties are removed when it stops. A flip, a navigation, a
+  swipe or a second shuffle is refused while the reel runs, and under
+  `prefers-reduced-motion` the deck lands on the same card at once — so the
+  animation's payload is never gated on an animation nobody sees.
 - **Colour comes from theme tokens, never from the palette.** `globals.css`
   declares every theme-dependent value as a custom property twice — on `:root`
   for the `neon` default and on `[data-theme="sketch"]` for the light sketch
@@ -132,9 +155,10 @@ Two non-obvious mechanisms worth knowing before editing `ConceptDeck.tsx`:
 
 Behavioral contracts the tests enforce (don't regress them silently):
 card click / Enter / Space all flip; arrow buttons are named `Previous card`
-and `Next card` with `aria-hidden` SVG chevrons; keyboard focus is restored to
-the active card after ArrowLeft/ArrowRight navigation but not after button
-clicks; the position counter is a polite live region; no horizontal document
+and `Next card` with `aria-hidden` SVG chevrons; the `Shuffle` button is
+centred under the card, deals a new order, reels forwards eight to eleven cards
+and stops front-up on the card it dealt; keyboard focus is restored to the active card after
+ArrowLeft/ArrowRight navigation but not after button clicks; the position counter is a polite live region; no horizontal document
 overflow at 320px; images failing to load keep the definition readable.
 
 ## Infrastructure
