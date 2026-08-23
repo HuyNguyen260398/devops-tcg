@@ -25,6 +25,7 @@ const expectedCards = [
   ["public-ca", "#011", "Public CA", "/images/public-ca-thumbnail.webp"],
   ["private-ca", "#012", "Private CA", "/images/private-ca-thumbnail.webp"],
   ["jwt", "#013", "JWT", "/images/jwt-thumbnail.webp"],
+  ["aws-lambda", "#014", "AWS Lambda", "/images/aws-lambda-thumbnail.webp"],
 ] as const;
 
 describe("conceptCards", () => {
@@ -52,7 +53,7 @@ describe("conceptCards", () => {
     expect(conceptCards[0].howItWorks).toHaveLength(4);
   });
 
-  it("contains all thirteen concepts in the approved order", () => {
+  it("contains all fourteen concepts in the approved order", () => {
     expect(conceptCards).toHaveLength(expectedCards.length);
     expect(
       conceptCards.map(({ id, cardNumber, title, image }) => [
@@ -165,5 +166,22 @@ describe("conceptCards", () => {
       /TooManyRequestsException/,
     );
     expect(throttle?.howItWorks[3]?.description).toMatch(/retr/i);
+  });
+
+  it("presents Lambda as event-driven code on managed execution environments", () => {
+    const lambda = conceptCards.find(({ id }) => id === "aws-lambda");
+
+    // The general card must carry what the throttle card assumes: an
+    // invocation is an event, and the environment running it is Lambda's to
+    // create, reuse, and bill for — not a server anyone provisions.
+    expect(lambda?.definition).toMatch(/event/i);
+    expect(lambda?.definition).toMatch(/execution environment/i);
+    expect(lambda?.keywords).toContain("serverless");
+    // Reuse is the whole reason a cold start is only sometimes paid.
+    expect(lambda?.howItWorks[1]?.description).toMatch(/cold start/i);
+    expect(lambda?.howItWorks[3]?.description).toMatch(/reuse|frozen/i);
+    // Scaling belongs here; the 429 that ends it belongs to Lambda Throttle.
+    expect(lambda?.howItWorks[3]?.description).toMatch(/concurren|scal/i);
+    expect(lambda?.definition).not.toMatch(/429/);
   });
 });

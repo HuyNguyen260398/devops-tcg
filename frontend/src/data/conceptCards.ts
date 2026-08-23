@@ -700,4 +700,66 @@ export const conceptCards = [
       },
     ],
   },
+  {
+    id: "aws-lambda",
+    cardNumber: "#014",
+    type: "COMPUTE",
+    title: "AWS Lambda",
+    image: {
+      src: "/images/aws-lambda-thumbnail.webp",
+      alt: "Isometric event source invoking a Lambda function whose execution environments scale out behind it",
+      sketch: {
+        src: "/images/aws-lambda-sketch.svg",
+        alt: "Line drawing of an event reaching a Lambda function that returns a result, with spare execution environments stacked behind it",
+      },
+    },
+    definition:
+      "AWS Lambda runs a function in an execution environment it creates on demand for each event, so there is no server to provision and the bill covers only the time the code runs.",
+    keywords: [
+      "serverless",
+      "event source",
+      "handler",
+      "execution environment",
+      "cold start",
+    ],
+    components: [
+      {
+        name: "Event source",
+        description:
+          "Delivers the event that invokes the function, whether a direct call, an HTTP request, or a queue, stream, or bucket notification.",
+      },
+      {
+        name: "Function",
+        description:
+          "Packages the handler, its runtime, and settings such as memory, timeout, and environment variables.",
+      },
+      {
+        name: "Execution environment",
+        description:
+          "The isolated sandbox Lambda starts to run the handler and then keeps for a while to serve later events.",
+      },
+    ],
+    howItWorks: [
+      {
+        step: 1,
+        description:
+          "An event source invokes the function and Lambda looks for an execution environment already idle.",
+      },
+      {
+        step: 2,
+        description:
+          "With none free, Lambda pays a cold start: it provisions an environment, downloads the package, and runs the initialisation code outside the handler.",
+      },
+      {
+        step: 3,
+        description:
+          "The handler receives the event, runs until it returns or hits the configured timeout, and Lambda bills the duration and memory it used.",
+      },
+      {
+        step: 4,
+        description:
+          "Lambda freezes the environment for reuse by the next event, and meets concurrent events by scaling out more environments rather than queueing behind one.",
+      },
+    ],
+  },
 ] as const satisfies readonly ConceptCardData[];
