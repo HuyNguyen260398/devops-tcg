@@ -762,4 +762,128 @@ export const conceptCards = [
       },
     ],
   },
+  {
+    id: "aws-iam-role",
+    cardNumber: "#015",
+    type: "SECURITY",
+    title: "AWS IAM Role",
+    image: {
+      src: "/images/aws-iam-role-thumbnail.webp",
+      alt: "Isometric principal passing a trust gate to assume a role and collect an expiring credential set",
+      sketch: {
+        src: "/images/aws-iam-role-sketch.svg",
+        alt: "Line drawing of a service assuming a role through a trust gate and receiving a session badge marked with a clock",
+      },
+    },
+    definition:
+      "An IAM role is an identity nobody owns and nobody signs in as: a principal assumes it and is handed temporary credentials for one session, so access is borrowed for a while rather than issued as a lasting secret.",
+    keywords: [
+      "identity",
+      "trust policy",
+      "AssumeRole",
+      "temporary credentials",
+      "STS",
+    ],
+    components: [
+      {
+        name: "Trust policy",
+        description:
+          "Names who may assume the role — a service, another account, or a federated identity provider — and is the only policy that answers that question.",
+      },
+      {
+        name: "Permissions policies",
+        description:
+          "The identity policies attached to the role, which decide what an assumed session is allowed to do once it exists.",
+      },
+      {
+        name: "STS",
+        description:
+          "The token service that mints the session's access key, secret, and session token, and stamps them with an expiry.",
+      },
+    ],
+    howItWorks: [
+      {
+        step: 1,
+        description:
+          "A principal — an EC2 instance, a Lambda function, a user, or a workload in another account — calls AssumeRole on the role's ARN.",
+      },
+      {
+        step: 2,
+        description:
+          "IAM reads the trust policy first: unless it names that principal, the call is refused before any permission is even considered.",
+      },
+      {
+        step: 3,
+        description:
+          "STS returns a temporary credential set for the session and records when it expires, typically an hour later.",
+      },
+      {
+        step: 4,
+        description:
+          "Requests signed with those credentials are judged against the role's permissions, and stop working the moment the session expires rather than waiting to be revoked.",
+      },
+    ],
+  },
+  {
+    id: "aws-iam-policy",
+    cardNumber: "#016",
+    type: "SECURITY",
+    title: "AWS IAM Policy",
+    image: {
+      src: "/images/aws-iam-policy-thumbnail.webp",
+      alt: "Isometric request meeting a policy document whose deny tile stands in front of its allow tile",
+      sketch: {
+        src: "/images/aws-iam-policy-sketch.svg",
+        alt: "Line drawing of a request reaching a policy document of statements, with a deny stamp overlapping the allow beside it",
+      },
+    },
+    definition:
+      "An IAM policy is a JSON document of statements that allow or deny actions on resources, and AWS reads every policy that applies to a request together before deciding.",
+    keywords: [
+      "JSON document",
+      "statement",
+      "least privilege",
+      "explicit deny",
+      "condition",
+    ],
+    components: [
+      {
+        name: "Statement",
+        description:
+          "The unit AWS evaluates: an Effect of Allow or Deny, the Actions it covers, the Resources it covers, and an optional Condition.",
+      },
+      {
+        name: "Identity and resource policies",
+        description:
+          "The same document attached in two places — to a user, group, or role, or to the resource itself, which can also grant across accounts.",
+      },
+      {
+        name: "Condition",
+        description:
+          "Keys that narrow when a statement applies at all, such as the source network, whether MFA was used, or a tag on the resource.",
+      },
+    ],
+    howItWorks: [
+      {
+        step: 1,
+        description:
+          "A signed request arrives naming a principal, an action, and the resource it means to act on.",
+      },
+      {
+        step: 2,
+        description:
+          "AWS gathers every policy in scope — the principal's identity policies, the resource's own policy, any permissions boundary, session policy, or service control policy.",
+      },
+      {
+        step: 3,
+        description:
+          "An explicit deny in any one of them ends the evaluation there, and no allow anywhere else can overrule it.",
+      },
+      {
+        step: 4,
+        description:
+          "Otherwise the request still needs an allow that matches it, because the default is deny — a permission nobody granted is one the request does not have.",
+      },
+    ],
+  },
 ] as const satisfies readonly ConceptCardData[];

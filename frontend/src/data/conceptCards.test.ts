@@ -26,6 +26,18 @@ const expectedCards = [
   ["private-ca", "#012", "Private CA", "/images/private-ca-thumbnail.webp"],
   ["jwt", "#013", "JWT", "/images/jwt-thumbnail.webp"],
   ["aws-lambda", "#014", "AWS Lambda", "/images/aws-lambda-thumbnail.webp"],
+  [
+    "aws-iam-role",
+    "#015",
+    "AWS IAM Role",
+    "/images/aws-iam-role-thumbnail.webp",
+  ],
+  [
+    "aws-iam-policy",
+    "#016",
+    "AWS IAM Policy",
+    "/images/aws-iam-policy-thumbnail.webp",
+  ],
 ] as const;
 
 describe("conceptCards", () => {
@@ -53,7 +65,7 @@ describe("conceptCards", () => {
     expect(conceptCards[0].howItWorks).toHaveLength(4);
   });
 
-  it("contains all fourteen concepts in the approved order", () => {
+  it("contains all sixteen concepts in the approved order", () => {
     expect(conceptCards).toHaveLength(expectedCards.length);
     expect(
       conceptCards.map(({ id, cardNumber, title, image }) => [
@@ -183,5 +195,39 @@ describe("conceptCards", () => {
     // Scaling belongs here; the 429 that ends it belongs to Lambda Throttle.
     expect(lambda?.howItWorks[3]?.description).toMatch(/concurren|scal/i);
     expect(lambda?.definition).not.toMatch(/429/);
+  });
+
+  it("presents an IAM role as an identity that is assumed, not owned", () => {
+    const role = conceptCards.find(({ id }) => id === "aws-iam-role");
+
+    // The card exists to break the habit of thinking of a role as a user with
+    // credentials: nobody signs in as it, and what it hands out expires.
+    expect(role?.definition).toMatch(/assume/i);
+    expect(role?.definition).toMatch(/temporary/i);
+    expect(role?.definition).not.toMatch(/password|access key id/i);
+    expect(role?.keywords).toContain("trust policy");
+    // The trust policy is the half of a role that a permissions policy is not,
+    // and it is checked first — an allow it does not name never gets read.
+    expect(role?.components[0]?.description).toMatch(/who/i);
+    expect(role?.howItWorks[1]?.description).toMatch(/trust policy/i);
+    expect(role?.howItWorks[2]?.description).toMatch(/expir/i);
+    // What those permissions say is the policy card's story, not this one's.
+    expect(role?.definition).not.toMatch(/explicit deny/i);
+  });
+
+  it("presents an IAM policy as a document evaluated deny-first", () => {
+    const policy = conceptCards.find(({ id }) => id === "aws-iam-policy");
+
+    // Two rules decide every AWS request, and both are counter-intuitive
+    // enough to be the reason this card is in the deck.
+    expect(policy?.definition).toMatch(/allow|deny/i);
+    expect(policy?.keywords).toContain("least privilege");
+    expect(policy?.components[0]?.name).toMatch(/statement/i);
+    // An explicit deny wins outright; without an allow the answer is still no.
+    expect(policy?.howItWorks[2]?.description).toMatch(/explicit deny/i);
+    expect(policy?.howItWorks[3]?.description).toMatch(/allow/i);
+    expect(policy?.howItWorks[3]?.description).toMatch(/default/i);
+    // Who may assume a role is the role card's story, not this one's.
+    expect(policy?.definition).not.toMatch(/assume/i);
   });
 });
