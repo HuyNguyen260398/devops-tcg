@@ -38,6 +38,7 @@ const expectedCards = [
     "AWS IAM Policy",
     "/images/aws-iam-policy-thumbnail.webp",
   ],
+  ["oidc", "#017", "OIDC", "/images/oidc-thumbnail.webp"],
 ] as const;
 
 describe("conceptCards", () => {
@@ -65,7 +66,7 @@ describe("conceptCards", () => {
     expect(conceptCards[0].howItWorks).toHaveLength(4);
   });
 
-  it("contains all sixteen concepts in the approved order", () => {
+  it("contains all seventeen concepts in the approved order", () => {
     expect(conceptCards).toHaveLength(expectedCards.length);
     expect(
       conceptCards.map(({ id, cardNumber, title, image }) => [
@@ -229,5 +230,27 @@ describe("conceptCards", () => {
     expect(policy?.howItWorks[3]?.description).toMatch(/default/i);
     // Who may assume a role is the role card's story, not this one's.
     expect(policy?.definition).not.toMatch(/assume/i);
+  });
+
+  it("presents OIDC as the identity OAuth 2.0 alone never states", () => {
+    const oidc = conceptCards.find(({ id }) => id === "oidc");
+
+    // The card only earns its slot beside JWT by naming what it layers on and
+    // what that layer adds: authentication, carried in an ID token.
+    expect(oidc?.definition).toMatch(/OAuth 2\.0/);
+    expect(oidc?.definition).toMatch(/authenticat/i);
+    expect(oidc?.definition).toMatch(/ID token/i);
+    expect(oidc?.keywords).toContain("ID token");
+    // Treating an access token as proof of identity is the mistake this card
+    // exists to prevent, so the ID token component has to say the difference.
+    expect(oidc?.components[2]?.description).toMatch(/access token/i);
+    expect(oidc?.components[2]?.description).toMatch(/not proof/i);
+    // The password stays with the provider — that is the point of the redirect.
+    expect(oidc?.howItWorks[1]?.description).toMatch(
+      /never reach the relying party/i,
+    );
+    // Verification is against published keys, the same contract JWT states.
+    expect(oidc?.howItWorks[3]?.description).toMatch(/signature/i);
+    expect(oidc?.howItWorks[3]?.description).toMatch(/audience/i);
   });
 });

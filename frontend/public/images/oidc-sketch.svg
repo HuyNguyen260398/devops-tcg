@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 278 220">
+  <!-- the ID token is what OpenID Connect adds, so it takes the highlighter -->
+  <path d="M90 126 L158 123 L161 177 L93 180 Z" fill="#fff2c4" />
+  <g fill="#dbe7ff">
+    <path d="M84 56 L132 54 L134 120 L86 122 Z" />
+    <path d="M186 96 L234 94 L236 142 L188 144 Z" />
+  </g>
+
+  <g fill="none" stroke="#1d1d1b" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+    <!-- the user, who authenticates and never hands a password to the app -->
+    <circle cx="52" cy="86" r="9" />
+    <path d="M38 114 C38 96 66 96 66 114" />
+    <path d="M70 100 L78 99 M74 94 L82 99 L74 104" />
+
+    <!-- the identity provider, holding the key that signs the claim -->
+    <path d="M84 56 L132 54 L134 120 L86 122 Z" />
+    <circle cx="97" cy="80" r="6" />
+    <path d="M103 80 L125 79 M121 79 L121 85 M114 80 L114 84" />
+    <path d="M90 101 L131 100" />
+
+    <!-- the ID token: claims about the user, signed and readable -->
+    <path d="M90 126 L158 123 L161 177 L93 180 Z" />
+    <circle cx="111" cy="145" r="8" />
+    <path d="M99 166 C99 152 123 152 123 166" />
+    <path d="M133 140 L153 139 M133 152 L148 151" />
+    <circle cx="146" cy="166" r="8" />
+    <path d="M142 166 L145 170 L151 162" />
+
+    <!-- the application, which accepts the identity only after checking it -->
+    <path d="M165 140 L176 139 M172 134 L180 139 L172 144" />
+    <path d="M186 96 L234 94 L236 142 L188 144 Z" />
+    <path d="M187 110 L235 108" />
+    <path d="M198 124 L206 133 L226 114" />
+  </g>
+
+  <g fill="#1d1d1b">
+    <circle cx="70" cy="100" r="3" />
+    <circle cx="164" cy="140" r="3" />
+  </g>
+</svg>

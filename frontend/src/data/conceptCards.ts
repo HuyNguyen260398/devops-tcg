@@ -886,4 +886,66 @@ export const conceptCards = [
       },
     ],
   },
+  {
+    id: "oidc",
+    cardNumber: "#017",
+    type: "SECURITY",
+    title: "OIDC",
+    image: {
+      src: "/images/oidc-thumbnail.webp",
+      alt: "Isometric identity provider authenticating a user and handing an application a signed identity card",
+      sketch: {
+        src: "/images/oidc-sketch.svg",
+        alt: "Line drawing of a person reaching a provider holding a key, which issues an identity card that an application checks",
+      },
+    },
+    definition:
+      "OpenID Connect is an identity layer over OAuth 2.0: the provider authenticates the user and returns a signed ID token saying who they are, so an application can learn the user's identity without ever handling their password.",
+    keywords: [
+      "ID token",
+      "identity provider",
+      "relying party",
+      "authorization code",
+      "single sign-on",
+    ],
+    components: [
+      {
+        name: "Identity provider",
+        description:
+          "Authenticates the user, issues the ID token, and publishes the signing keys anyone verifying it needs.",
+      },
+      {
+        name: "Relying party",
+        description:
+          "The application that sends the user to the provider and reads the identity out of the token it gets back.",
+      },
+      {
+        name: "ID token",
+        description:
+          "A JWT of claims about the user — subject, issuer, audience, expiry — and the thing OAuth 2.0 alone never states; an access token grants access and is not proof of who is calling.",
+      },
+    ],
+    howItWorks: [
+      {
+        step: 1,
+        description:
+          "The relying party redirects the browser to the provider, asking for the openid scope.",
+      },
+      {
+        step: 2,
+        description:
+          "The provider authenticates the user with whatever it requires, and those credentials never reach the relying party.",
+      },
+      {
+        step: 3,
+        description:
+          "The browser returns with a short-lived authorization code, which the relying party exchanges at the token endpoint for an ID token.",
+      },
+      {
+        step: 4,
+        description:
+          "The relying party verifies the signature against the provider's published keys and checks the issuer, audience, and expiry before believing the identity.",
+      },
+    ],
+  },
 ] as const satisfies readonly ConceptCardData[];
