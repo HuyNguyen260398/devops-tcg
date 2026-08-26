@@ -39,6 +39,7 @@ const expectedCards = [
     "/images/aws-iam-policy-thumbnail.webp",
   ],
   ["oidc", "#017", "OIDC", "/images/oidc-thumbnail.webp"],
+  ["kafka", "#018", "Kafka", "/images/kafka-thumbnail.webp"],
 ] as const;
 
 describe("conceptCards", () => {
@@ -66,7 +67,7 @@ describe("conceptCards", () => {
     expect(conceptCards[0].howItWorks).toHaveLength(4);
   });
 
-  it("contains all seventeen concepts in the approved order", () => {
+  it("contains all eighteen concepts in the approved order", () => {
     expect(conceptCards).toHaveLength(expectedCards.length);
     expect(
       conceptCards.map(({ id, cardNumber, title, image }) => [
@@ -252,5 +253,24 @@ describe("conceptCards", () => {
     // Verification is against published keys, the same contract JWT states.
     expect(oidc?.howItWorks[3]?.description).toMatch(/signature/i);
     expect(oidc?.howItWorks[3]?.description).toMatch(/audience/i);
+  });
+
+  it("presents Kafka as a retained stream many consumers read", () => {
+    const kafka = conceptCards.find(({ id }) => id === "kafka");
+
+    // The card is a general-purpose introduction, so the definition has to say
+    // what Kafka is for: events kept for a while, not messages handed over once.
+    expect(kafka?.definition).toMatch(/event/i);
+    expect(kafka?.definition).toMatch(/retain|retention/i);
+    expect(kafka?.keywords).toContain("consumer group");
+    // Reading is not consuming — that is the habit a queue leaves behind, and
+    // it is why one stream can feed several unrelated readers at once.
+    expect(kafka?.components[1]?.description).toMatch(/append-only|log/i);
+    expect(kafka?.components[1]?.description).toMatch(/does not remove/i);
+    expect(kafka?.components[2]?.description).toMatch(/own offset/i);
+    // Durability is the broker's job, and it is what makes the rest credible.
+    expect(kafka?.components[0]?.description).toMatch(/replicat/i);
+    expect(kafka?.howItWorks[1]?.description).toMatch(/append/i);
+    expect(kafka?.howItWorks[3]?.description).toMatch(/retention/i);
   });
 });

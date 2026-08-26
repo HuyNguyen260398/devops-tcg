@@ -948,4 +948,66 @@ export const conceptCards = [
       },
     ],
   },
+  {
+    id: "kafka",
+    cardNumber: "#018",
+    type: "PLATFORM",
+    title: "Kafka",
+    image: {
+      src: "/images/kafka-thumbnail.webp",
+      alt: "Isometric scene of a producer feeding a topic whose segmented log two consumer groups read from different cells",
+      sketch: {
+        src: "/images/kafka-sketch.svg",
+        alt: "Line drawing of a producer appending records to a segmented log that two consumer groups read at different points",
+      },
+    },
+    definition:
+      "Apache Kafka is a distributed event streaming platform: producers append events to partitioned topics that brokers store on disk and retain for a set period, so many independent consumers can read the same stream at their own pace.",
+    keywords: [
+      "event streaming",
+      "topic",
+      "partition",
+      "offset",
+      "consumer group",
+    ],
+    components: [
+      {
+        name: "Broker cluster",
+        description:
+          "Holds the topics on disk and replicates every partition across brokers, so the stream outlives any one machine.",
+      },
+      {
+        name: "Topic",
+        description:
+          "A named, append-only log split into partitions, where every event keeps a numbered offset until retention expires — reading an event does not remove it.",
+      },
+      {
+        name: "Producers and consumer groups",
+        description:
+          "Producers append events without knowing who reads them, and each consumer group tracks its own offset, so a second group reads the same events without disturbing the first.",
+      },
+    ],
+    howItWorks: [
+      {
+        step: 1,
+        description:
+          "A producer sends an event to a topic, and the key it sets decides which partition the event lands in.",
+      },
+      {
+        step: 2,
+        description:
+          "The broker appends the event to the end of that partition's log on disk and copies it to the brokers that hold the follower replicas.",
+      },
+      {
+        step: 3,
+        description:
+          "Consumers in a group each read the partitions assigned to them, in order, committing the offset they have reached.",
+      },
+      {
+        step: 4,
+        description:
+          "The event stays until retention expires, so another group — or the same one, rewound to an earlier offset — reads the same stream again.",
+      },
+    ],
+  },
 ] as const satisfies readonly ConceptCardData[];

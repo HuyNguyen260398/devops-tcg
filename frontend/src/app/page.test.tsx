@@ -12,7 +12,7 @@ describe("Home", () => {
     expect(
       await screen.findByRole("button", { name: /card, front shown$/ }),
     ).toBeInTheDocument();
-    expect(screen.getByText("01 / 17")).toBeInTheDocument();
+    expect(screen.getByText("01 / 18")).toBeInTheDocument();
     expect(
       screen.queryByText(/click the card or use enter or space/i),
     ).not.toBeInTheDocument();

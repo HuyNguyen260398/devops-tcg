@@ -24,16 +24,18 @@ OpenAI image generation on 2026-08-15 and are stored locally:
 
 `lambda-throttle-thumbnail.webp` was drawn for DevOps TCG on 2026-08-19,
 `public-ca-thumbnail.webp` and `private-ca-thumbnail.webp` on 2026-08-20,
-`jwt-thumbnail.webp` on 2026-08-21, and `oidc-thumbnail.webp` on 2026-08-25,
-each as an isometric SVG scene composed in-repo and rendered to WebP with
-headless Chromium. They contain no third-party artwork.
+`jwt-thumbnail.webp` on 2026-08-21, `oidc-thumbnail.webp` on 2026-08-25, and
+`kafka-thumbnail.webp` on 2026-08-26, each as an isometric SVG scene composed
+in-repo and rendered to WebP with headless Chromium. They contain no
+third-party artwork.
 
 ## Sketch-theme drawings
 
-The seventeen `*-sketch.svg` files are original hand-authored SVG line drawings
+The eighteen `*-sketch.svg` files are original hand-authored SVG line drawings
 made for DevOps TCG on 2026-08-19, on 2026-08-20 for the two certificate
 authority cards, on 2026-08-21 for JWT, on 2026-08-23 for AWS Lambda, on
-2026-08-24 for the two IAM cards, and on 2026-08-25 for OIDC. Their line work is plain `<path>` geometry —
+2026-08-24 for the two IAM cards, on 2026-08-25 for OIDC, and on 2026-08-26 for
+Kafka. Their line work is plain `<path>` geometry —
 no tracing of any third-party image, no generator, and no external asset — and
 they are the artwork the sketch theme shows in place of the photographs above.
 Ink is `#1d1d1b`, the highlighter block is `#fff2c4`, and the subject block is

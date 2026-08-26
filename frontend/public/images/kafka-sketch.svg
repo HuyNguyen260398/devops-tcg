@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 278 220">
+  <!-- the retained log is the point of the card, so it takes the highlighter -->
+  <path d="M98 92 L186 89 L188 137 L100 140 Z" fill="#fff2c4" />
+  <g fill="#dbe7ff">
+    <path d="M46 98 L80 96 L82 132 L48 134 Z" />
+    <path d="M200 46 L234 44 L236 80 L202 82 Z" />
+    <path d="M200 148 L234 146 L236 182 L202 184 Z" />
+  </g>
+
+  <g fill="none" stroke="#1d1d1b" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+    <!-- the producer, which appends events without knowing who reads them -->
+    <path d="M46 98 L80 96 L82 132 L48 134 Z" />
+    <path d="M53 109 L74 108 M53 117 L74 116 M53 125 L68 124" />
+    <path d="M85 114 L95 113 M90 108 L97 113 L90 118" />
+
+    <!-- the topic: an append-only log kept in numbered partitions -->
+    <path d="M98 92 L186 89 L188 137 L100 140 Z" />
+    <path d="M116 91 L118 139 M133 91 L135 138 M151 90 L153 138 M168 90 L170 137" />
+
+    <!-- each group reads the same log from an offset of its own -->
+    <path d="M177 106 C184 96 187 78 196 66 M190 64 L198 62 L198 70" />
+    <path d="M129 138 C148 158 174 166 194 166 M188 161 L195 166 L188 171" />
+
+    <path d="M200 46 L234 44 L236 80 L202 82 Z" />
+    <circle cx="213" cy="58" r="5" />
+    <path d="M206 72 C206 62 220 62 220 72" />
+    <path d="M226 56 L232 55 M226 64 L230 63" />
+
+    <path d="M200 148 L234 146 L236 182 L202 184 Z" />
+    <circle cx="213" cy="160" r="5" />
+    <path d="M206 174 C206 164 220 164 220 174" />
+    <path d="M226 158 L232 157 M226 166 L230 165" />
+  </g>
+
+  <g fill="#1d1d1b">
+    <circle cx="85" cy="114" r="3" />
+    <circle cx="125" cy="115" r="4" />
+    <circle cx="177" cy="114" r="4" />
+  </g>
+</svg>
