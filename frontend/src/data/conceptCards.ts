@@ -1010,4 +1010,66 @@ export const conceptCards = [
       },
     ],
   },
+  {
+    id: "redis",
+    cardNumber: "#019",
+    type: "PLATFORM",
+    title: "Redis",
+    image: {
+      src: "/images/redis-thumbnail.webp",
+      alt: "Isometric scene of clients queued at a single command loop that reads a bank of memory cells, with a disk file to one side",
+      sketch: {
+        src: "/images/redis-sketch.svg",
+        alt: "Line drawing of clients waiting at one command loop that reaches into a grid of memory cells, with a snapshot file beneath it",
+      },
+    },
+    definition:
+      "Redis is an in-memory data structure store: keys hold typed values \u2014 strings, hashes, lists, sets, sorted sets \u2014 that live in RAM and are served by a single command loop, so an operation takes microseconds and durability is something you turn on rather than something you get.",
+    keywords: [
+      "in-memory",
+      "key-value",
+      "data structure",
+      "TTL",
+      "persistence",
+    ],
+    components: [
+      {
+        name: "Keyspace",
+        description:
+          "One flat namespace of keys, each holding a typed value rather than a blob of text \u2014 a hash, a list, a set, a sorted set \u2014 and each able to carry a TTL that removes it when the deadline passes.",
+      },
+      {
+        name: "Command loop",
+        description:
+          "A single thread that runs one command at a time to completion, which is what makes every command atomic without a lock \u2014 and why one slow command holds up every other client.",
+      },
+      {
+        name: "Persistence and replication",
+        description:
+          "RDB snapshots and the AOF command log copy the keyspace to disk, and replicas receive the same writes, but memory stays the source of truth and both are opt-in.",
+      },
+    ],
+    howItWorks: [
+      {
+        step: 1,
+        description:
+          "A client opens one connection and sends a command naming a key, such as setting a field on a hash.",
+      },
+      {
+        step: 2,
+        description:
+          "The server takes that command into its command loop and runs it to completion against memory, so no other client observes a half-finished change.",
+      },
+      {
+        step: 3,
+        description:
+          "The reply goes back in microseconds, while the write is passed to any replicas and, where AOF is enabled, appended to the log on disk.",
+      },
+      {
+        step: 4,
+        description:
+          "The key stays until it is deleted, its TTL expires, or Redis evicts it to stay under maxmemory \u2014 and with no persistence configured, a restart brings the server back empty.",
+      },
+    ],
+  },
 ] as const satisfies readonly ConceptCardData[];

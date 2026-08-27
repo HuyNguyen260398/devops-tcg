@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 278 220">
+  <g transform="translate(139 110) scale(0.93) translate(-139 -110)">
+  <!-- memory is where the data lives, so the keyspace takes the highlighter -->
+  <path d="M140 53 L232 51 L233 167 L141 169 Z" fill="#fff2c4" />
+  <g fill="#dbe7ff">
+    <path d="M45 41 L76 39 L77 66 L46 68 Z" />
+    <path d="M45 97 L76 95 L77 122 L46 124 Z" />
+    <path d="M45 153 L76 151 L77 178 L46 180 Z" />
+    <path d="M160 182 C160 176 212 176 212 182 L212 193 C212 199 160 199 160 193 Z" />
+  </g>
+
+  <g fill="none" stroke="#1d1d1b" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+    <!-- three clients, one lane: they queue for the same single loop -->
+    <path d="M45 41 L76 39 L77 66 L46 68 Z" />
+    <path d="M52 50 L69 49 M52 58 L64 57" />
+    <path d="M45 97 L76 95 L77 122 L46 124 Z" />
+    <path d="M52 106 L69 105 M52 114 L64 113" />
+    <path d="M45 153 L76 151 L77 178 L46 180 Z" />
+    <path d="M52 162 L69 161 M52 170 L64 169" />
+
+    <path d="M79 53 C89 55 87 98 94 110" />
+    <path d="M79 109 C84 109 89 110 94 110" />
+    <path d="M79 165 C89 163 87 122 94 110" />
+
+    <!-- the command loop: one command at a time, run all the way through -->
+    <path d="M118 100 A 15 15 0 1 1 103 101" />
+    <path d="M96 99 L103 101 L100 108" />
+    <path d="M129 110 L137 110 M133 106 L138 110 L133 114" />
+
+    <!-- the keyspace: typed values in cells, one of them on a TTL -->
+    <path d="M140 53 L232 51 L233 167 L141 169 Z" />
+    <path d="M186 52 L187 168" />
+    <path d="M140 82 L232 80 M140 111 L233 109 M141 140 L233 138" />
+    <path d="M152 63 L174 62 M152 71 L167 70" />
+    <path d="M198 90 L220 89 M198 96 L220 95 M198 102 L212 101" />
+    <path d="M198 121 L220 120 M198 129 L213 128" />
+  </g>
+
+  <g fill="#1d1d1b">
+    <circle cx="209" cy="65" r="5" />
+    <circle cx="154" cy="94" r="2.6" />
+    <circle cx="163" cy="94" r="2.6" />
+    <circle cx="172" cy="94" r="2.6" />
+    <circle cx="199" cy="153" r="2.6" />
+    <circle cx="208" cy="153" r="2.6" />
+    <circle cx="217" cy="153" r="2.6" />
+    <rect x="152" y="152" width="5" height="8" rx="1.5" />
+    <rect x="161" y="147" width="5" height="13" rx="1.5" />
+    <rect x="170" y="143" width="5" height="17" rx="1.5" />
+  </g>
+
+  <g fill="none" stroke="#1d1d1b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+    <!-- a key with a deadline on it leaves the keyspace on its own -->
+    <path d="M147 114 L179 113 L180 137 L148 138 Z" stroke-dasharray="4 4" />
+    <circle cx="163" cy="126" r="7" />
+    <path d="M163 121 L163 126 L167 128" />
+  </g>
+
+  <!-- persistence is a copy taken to disk, and it is something you turn on -->
+  <g fill="none" stroke="#1d1d1b" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M186 170 L186 177" stroke-dasharray="3 4" />
+    <path d="M182 173 L186 178 L190 173" />
+    <path d="M160 182 C160 176 212 176 212 182 L212 193 C212 199 160 199 160 193 Z" />
+    <path d="M160 182 C160 188 212 188 212 182" />
+  </g>
+  </g>
+</svg>

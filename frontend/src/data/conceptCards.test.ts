@@ -40,6 +40,7 @@ const expectedCards = [
   ],
   ["oidc", "#017", "OIDC", "/images/oidc-thumbnail.webp"],
   ["kafka", "#018", "Kafka", "/images/kafka-thumbnail.webp"],
+  ["redis", "#019", "Redis", "/images/redis-thumbnail.webp"],
 ] as const;
 
 describe("conceptCards", () => {
@@ -67,7 +68,7 @@ describe("conceptCards", () => {
     expect(conceptCards[0].howItWorks).toHaveLength(4);
   });
 
-  it("contains all eighteen concepts in the approved order", () => {
+  it("contains all nineteen concepts in the approved order", () => {
     expect(conceptCards).toHaveLength(expectedCards.length);
     expect(
       conceptCards.map(({ id, cardNumber, title, image }) => [
@@ -272,5 +273,29 @@ describe("conceptCards", () => {
     expect(kafka?.components[0]?.description).toMatch(/replicat/i);
     expect(kafka?.howItWorks[1]?.description).toMatch(/append/i);
     expect(kafka?.howItWorks[3]?.description).toMatch(/retention/i);
+  });
+
+  it("presents Redis as memory first, with durability an opt-in", () => {
+    const redis = conceptCards.find(({ id }) => id === "redis");
+
+    // The card is the general introduction, so the definition has to say where
+    // the data lives and what that buys — not pick the cache use case.
+    expect(redis?.definition).toMatch(/in-memory/i);
+    expect(redis?.definition).toMatch(/data structure/i);
+    expect(redis?.keywords).toContain("key-value");
+    // Values are typed. Treating Redis as a flat string cache is the habit the
+    // keyspace component exists to correct.
+    expect(redis?.components[0]?.description).toMatch(/hash|list|sorted set/i);
+    expect(redis?.components[0]?.description).toMatch(/TTL|expire/i);
+    // One command at a time is where the atomicity comes from, and it is also
+    // why one slow command stalls every other client.
+    expect(redis?.components[1]?.description).toMatch(/one command at a time/i);
+    expect(redis?.components[1]?.description).toMatch(/atomic/i);
+    // Durability is something you turn on. A default Redis restarts empty, and
+    // that is the misconception this card exists to break.
+    expect(redis?.components[2]?.description).toMatch(/RDB|AOF/);
+    expect(redis?.howItWorks[1]?.description).toMatch(/memory|RAM/i);
+    expect(redis?.howItWorks[3]?.description).toMatch(/evict/i);
+    expect(redis?.howItWorks[3]?.description).toMatch(/restart/i);
   });
 });
