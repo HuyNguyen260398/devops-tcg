@@ -41,6 +41,7 @@ const expectedCards = [
   ["oidc", "#017", "OIDC", "/images/oidc-thumbnail.webp"],
   ["kafka", "#018", "Kafka", "/images/kafka-thumbnail.webp"],
   ["redis", "#019", "Redis", "/images/redis-thumbnail.webp"],
+  ["rbac", "#020", "RBAC", "/images/rbac-thumbnail.webp"],
 ] as const;
 
 describe("conceptCards", () => {
@@ -68,7 +69,7 @@ describe("conceptCards", () => {
     expect(conceptCards[0].howItWorks).toHaveLength(4);
   });
 
-  it("contains all nineteen concepts in the approved order", () => {
+  it("contains all twenty concepts in the approved order", () => {
     expect(conceptCards).toHaveLength(expectedCards.length);
     expect(
       conceptCards.map(({ id, cardNumber, title, image }) => [
@@ -297,5 +298,29 @@ describe("conceptCards", () => {
     expect(redis?.howItWorks[1]?.description).toMatch(/memory|RAM/i);
     expect(redis?.howItWorks[3]?.description).toMatch(/evict/i);
     expect(redis?.howItWorks[3]?.description).toMatch(/restart/i);
+  });
+
+  it("presents RBAC as permissions held by roles, never by people", () => {
+    const rbac = conceptCards.find(({ id }) => id === "rbac");
+
+    // The card sits one level above the deck's IAM pair, so the definition has
+    // to name the indirection itself rather than any one implementation of it.
+    expect(rbac?.definition).toMatch(/role/i);
+    expect(rbac?.definition).toMatch(/rather than to people/i);
+    expect(rbac?.keywords).toContain("role assignment");
+    // A subject holding a permission of its own is RBAC already abandoned.
+    expect(rbac?.components[0]?.description).toMatch(/never/i);
+    expect(rbac?.components[0]?.description).toMatch(/assignment/i);
+    // A role is a job, not a person; carving it finer is where roles multiply.
+    expect(rbac?.components[1]?.description).toMatch(/role explosion/i);
+    // What an administrator hands out is the assignment, not the permission.
+    expect(rbac?.howItWorks[1]?.description).toMatch(/assign/i);
+    // Additive with no deny rule to write is the habit this card exists to
+    // break: what no assigned role names is already refused.
+    expect(rbac?.howItWorks[2]?.description).toMatch(/union/i);
+    expect(rbac?.howItWorks[2]?.description).toMatch(/additive/i);
+    expect(rbac?.howItWorks[2]?.description).toMatch(/deny/i);
+    // Where RBAC stops: a rule that reads the request itself needs attributes.
+    expect(rbac?.howItWorks[3]?.description).toMatch(/attribute/i);
   });
 });

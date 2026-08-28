@@ -1072,4 +1072,66 @@ export const conceptCards = [
       },
     ],
   },
+  {
+    id: "rbac",
+    cardNumber: "#020",
+    type: "SECURITY",
+    title: "RBAC",
+    image: {
+      src: "/images/rbac-thumbnail.webp",
+      alt: "Isometric scene of three people assigned to two role cards, whose listed permissions open a locked resource while a dashed tile beside it stays crossed out",
+      sketch: {
+        src: "/images/rbac-sketch.svg",
+        alt: "Line drawing of three subjects joined to two role cards, the permissions listed on those cards reaching a keyhole panel that a dashed crossed-out tile sits beneath",
+      },
+    },
+    definition:
+      "Role-based access control grants permissions to named roles rather than to people, then assigns roles to subjects — a subject's access is the union of the permissions its roles carry, so a change of job is a change of assignment and never a change to anyone's own permission list.",
+    keywords: [
+      "role assignment",
+      "permission",
+      "least privilege",
+      "separation of duties",
+      "role explosion",
+    ],
+    components: [
+      {
+        name: "Subject",
+        description:
+          "The user, group, or service account that acts. It holds role assignments and never permissions of its own — the moment one is granted directly, the model has been abandoned for that subject.",
+      },
+      {
+        name: "Role",
+        description:
+          "A named bundle of permissions defined by a job rather than a person, reviewed and reused as a unit; cutting roles finer than the jobs they describe is where role explosion starts.",
+      },
+      {
+        name: "Permission",
+        description:
+          "One operation on one resource — the smallest thing that can be granted, and under RBAC it is only ever collected into a role, never bound straight to a subject.",
+      },
+    ],
+    howItWorks: [
+      {
+        step: 1,
+        description:
+          "Permissions are written as operations on resources and gathered into roles named for the jobs people actually do.",
+      },
+      {
+        step: 2,
+        description:
+          "An administrator assigns roles to a subject, and that assignment is the whole grant — nothing is handed to the person directly.",
+      },
+      {
+        step: 3,
+        description:
+          "On a request the system takes the union of the subject's assigned roles and allows it only if some permission covers the operation. RBAC is additive, so there is no deny rule to write: what no role names is already refused.",
+      },
+      {
+        step: 4,
+        description:
+          "Editing one role moves every holder at once and revoking an assignment removes the access, which is also the model's limit — a rule that depends on the request itself, such as who owns the record or what time it is, needs attributes instead.",
+      },
+    ],
+  },
 ] as const satisfies readonly ConceptCardData[];

@@ -25,20 +25,21 @@ OpenAI image generation on 2026-08-15 and are stored locally:
 `lambda-throttle-thumbnail.webp` was drawn for DevOps TCG on 2026-08-19,
 `public-ca-thumbnail.webp` and `private-ca-thumbnail.webp` on 2026-08-20,
 `jwt-thumbnail.webp` on 2026-08-21, `oidc-thumbnail.webp` on 2026-08-25,
-`kafka-thumbnail.webp` on 2026-08-26, and `redis-thumbnail.webp` on
-2026-08-27, each as an isometric SVG scene composed
-in-repo and rendered to WebP with headless Chromium. They contain no
+`kafka-thumbnail.webp` on 2026-08-26, `redis-thumbnail.webp` on 2026-08-27,
+and `rbac-thumbnail.webp` on 2026-08-28, each as an isometric SVG scene
+composed in-repo and rendered to WebP with headless Chromium. They contain no
 third-party artwork.
 
 ## Sketch-theme drawings
 
-The nineteen `*-sketch.svg` files are original hand-authored SVG line drawings
+The twenty `*-sketch.svg` files are original hand-authored SVG line drawings
 made for DevOps TCG on 2026-08-19, on 2026-08-20 for the two certificate
 authority cards, on 2026-08-21 for JWT, on 2026-08-23 for AWS Lambda, on
 2026-08-24 for the two IAM cards, on 2026-08-25 for OIDC, on 2026-08-26 for
-Kafka, and on 2026-08-27 for Redis. Their line work is plain `<path>` geometry —
-no tracing of any third-party image, no generator, and no external asset — and
-they are the artwork the sketch theme shows in place of the photographs above.
+Kafka, on 2026-08-27 for Redis, and on 2026-08-28 for RBAC. Their line work is
+plain `<path>` geometry — no tracing of any third-party image, no generator, and
+no external asset — and they are the artwork the sketch theme shows in place of
+the photographs above.
 Ink is `#1d1d1b`, the highlighter block is `#fff2c4`, and the subject block is
 `#dbe7ff`, matching the sketch theme's tokens. `aws-lambda-sketch.svg`,
 `aws-iam-role-sketch.svg` and `aws-iam-policy-sketch.svg` are the exceptions to
