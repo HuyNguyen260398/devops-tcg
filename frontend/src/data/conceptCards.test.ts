@@ -42,6 +42,12 @@ const expectedCards = [
   ["kafka", "#018", "Kafka", "/images/kafka-thumbnail.webp"],
   ["redis", "#019", "Redis", "/images/redis-thumbnail.webp"],
   ["rbac", "#020", "RBAC", "/images/rbac-thumbnail.webp"],
+  [
+    "redis-cluster",
+    "#021",
+    "Redis Cluster",
+    "/images/redis-cluster-thumbnail.webp",
+  ],
 ] as const;
 
 describe("conceptCards", () => {
@@ -69,7 +75,7 @@ describe("conceptCards", () => {
     expect(conceptCards[0].howItWorks).toHaveLength(4);
   });
 
-  it("contains all twenty concepts in the approved order", () => {
+  it("contains all twenty-one concepts in the approved order", () => {
     expect(conceptCards).toHaveLength(expectedCards.length);
     expect(
       conceptCards.map(({ id, cardNumber, title, image }) => [
@@ -322,5 +328,37 @@ describe("conceptCards", () => {
     expect(rbac?.howItWorks[2]?.description).toMatch(/deny/i);
     // Where RBAC stops: a rule that reads the request itself needs attributes.
     expect(rbac?.howItWorks[3]?.description).toMatch(/attribute/i);
+  });
+
+  it("presents Redis Cluster as slots routed to owners, not a proxy", () => {
+    const cluster = conceptCards.find(({ id }) => id === "redis-cluster");
+
+    // The card is the sequel to Redis, so the definition has to name what
+    // sharding is done in units of — slots, never keys or nodes.
+    expect(cluster?.definition).toMatch(/16384/);
+    expect(cluster?.definition).toMatch(/slot/i);
+    expect(cluster?.keywords).toContain("hash slot");
+    // A slot is what a shard owns and what a resharding moves. Thinking in
+    // keys is what makes resharding look impossible.
+    expect(cluster?.components[0]?.description).toMatch(/CRC16/);
+    expect(cluster?.components[0]?.description).toMatch(/hash tag/i);
+    // Availability is per shard: a promoted replica takes its own slots, and
+    // slots with no live owner leave the cluster short rather than the whole
+    // keyspace down.
+    expect(cluster?.components[1]?.description).toMatch(/replica/i);
+    expect(cluster?.components[1]?.description).toMatch(/majority/i);
+    // There is no proxy in front of a cluster. The client holds the map and
+    // follows the redirect itself — the habit this card exists to correct.
+    expect(cluster?.components[2]?.description).toMatch(
+      /no proxy|without a proxy/i,
+    );
+    expect(cluster?.components[2]?.description).toMatch(/MOVED/);
+    expect(cluster?.howItWorks[1]?.description).toMatch(/own|owner/i);
+    expect(cluster?.howItWorks[2]?.description).toMatch(/MOVED/);
+    expect(cluster?.howItWorks[2]?.description).toMatch(/ASK/);
+    // Where the model stops: a command whose keys hash apart is refused, and
+    // co-locating them is a deliberate act.
+    expect(cluster?.howItWorks[3]?.description).toMatch(/CROSSSLOT/);
+    expect(cluster?.howItWorks[3]?.description).toMatch(/hash tag/i);
   });
 });

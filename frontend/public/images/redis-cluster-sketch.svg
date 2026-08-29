@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 278 220">
+  <g transform="translate(139 110) scale(0.93) translate(-139 -110)">
+  <!-- the slot map is what makes it a cluster, so it takes the highlighter -->
+  <path d="M42 126 L84 124 L85 150 L43 152 Z" fill="#fff2c4" />
+  <g fill="#dbe7ff">
+    <path d="M44 78 L80 76 L81 112 L45 114 Z" />
+    <path d="M150 34 L228 32 L229 58 L151 60 Z" />
+    <path d="M150 90 L228 88 L229 114 L151 116 Z" />
+    <path d="M150 146 L228 144 L229 170 L151 172 Z" />
+  </g>
+
+  <g fill="none" stroke="#1d1d1b" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+    <!-- the client: it holds the map itself, so nothing sits in front of it -->
+    <path d="M44 78 L80 76 L81 112 L45 114 Z" />
+    <path d="M51 88 L72 87 M51 96 L66 95" />
+
+    <!-- the map it cached: slot ranges, each cell pointing at one owner -->
+    <path d="M62 114 L62 125" />
+    <path d="M42 126 L84 124 L85 150 L43 152 Z" />
+    <path d="M42 135 L85 133 M42 144 L85 142" />
+    <path d="M56 125 L57 151" />
+
+    <!-- three shards, each a primary over its replica -->
+    <path d="M150 34 L228 32 L229 58 L151 60 Z" />
+    <path d="M158 44 L188 43 M158 51 L176 50" />
+    <path d="M190 60 L190 65" stroke-dasharray="3 4" />
+    <path d="M162 65 L220 64 L221 79 L163 80 Z" />
+
+    <path d="M150 90 L228 88 L229 114 L151 116 Z" />
+    <path d="M158 100 L188 99 M158 107 L176 106" />
+    <path d="M190 116 L190 121" stroke-dasharray="3 4" />
+    <path d="M162 121 L220 120 L221 135 L163 136 Z" />
+
+    <path d="M150 146 L228 144 L229 170 L151 172 Z" />
+    <path d="M158 156 L188 155 M158 163 L176 162" />
+    <path d="M190 172 L190 177" stroke-dasharray="3 4" />
+    <path d="M162 177 L220 176 L221 191 L163 192 Z" />
+  </g>
+
+  <!-- a primary is the node that answers for the slots: one filled mark each -->
+  <g fill="#1d1d1b">
+    <circle cx="214" cy="46" r="4" />
+    <circle cx="214" cy="102" r="4" />
+    <circle cx="214" cy="158" r="4" />
+    <circle cx="232" cy="46" r="2.6" />
+    <circle cx="232" cy="102" r="2.6" />
+    <circle cx="232" cy="158" r="2.6" />
+  </g>
+
+  <!-- the gossip bus: how a shard finds out a primary has stopped answering -->
+  <g fill="none" stroke="#1d1d1b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M232 46 L232 158" stroke-dasharray="3 5" />
+    <path d="M229 46 L232 46 M229 102 L232 102 M229 158 L232 158" />
+  </g>
+
+  <g fill="none" stroke="#1d1d1b" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+    <!-- asked the wrong shard: the request lands where the slot is not -->
+    <path d="M86 100 C110 100 124 101 145 102" />
+    <path d="M138 98 L145 102 L138 106" />
+    <!-- MOVED comes back rather than a proxy forwarding it on -->
+    <path d="M144 112 C124 117 108 118 88 120" stroke-dasharray="5 4" />
+    <path d="M95 116 L88 120 L95 124" />
+    <!-- and the client goes to the shard that owns the slot -->
+    <path d="M86 90 C104 88 120 70 145 51" />
+    <path d="M142 58 L145 51 L137 52" />
+  </g>
+  </g>
+</svg>
