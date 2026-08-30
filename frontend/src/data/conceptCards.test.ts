@@ -48,6 +48,7 @@ const expectedCards = [
     "Redis Cluster",
     "/images/redis-cluster-thumbnail.webp",
   ],
+  ["container", "#022", "Container", "/images/container-thumbnail.webp"],
 ] as const;
 
 describe("conceptCards", () => {
@@ -75,7 +76,7 @@ describe("conceptCards", () => {
     expect(conceptCards[0].howItWorks).toHaveLength(4);
   });
 
-  it("contains all twenty-one concepts in the approved order", () => {
+  it("contains all twenty-two concepts in the approved order", () => {
     expect(conceptCards).toHaveLength(expectedCards.length);
     expect(
       conceptCards.map(({ id, cardNumber, title, image }) => [
@@ -360,5 +361,37 @@ describe("conceptCards", () => {
     // co-locating them is a deliberate act.
     expect(cluster?.howItWorks[3]?.description).toMatch(/CROSSSLOT/);
     expect(cluster?.howItWorks[3]?.description).toMatch(/hash tag/i);
+  });
+
+  it("separates what a container may see from what it may consume", () => {
+    const container = conceptCards.find(({ id }) => id === "container");
+
+    // The card exists to break the "a container is a small VM" habit: it is a
+    // process on the host's own kernel, which is both why it costs so little
+    // and why the boundary is thinner than it looks.
+    expect(container?.definition).toMatch(/process/i);
+    expect(container?.definition).toMatch(/kernel/i);
+    expect(container?.keywords).toContain("namespace");
+    expect(container?.keywords).toContain("cgroup");
+    // A digest is the bytes; a tag is a pointer that moves underneath you.
+    expect(container?.components[0]?.description).toMatch(/digest/i);
+    expect(container?.components[0]?.description).toMatch(/tag/i);
+    // Isolation is granted one resource at a time, so it is given away one
+    // resource at a time — the reason a single flag can undo it.
+    expect(container?.components[1]?.description).toMatch(/see/i);
+    expect(container?.components[1]?.description).toMatch(/--net=host/);
+    // A memory limit is not backpressure. The kernel enforces it by killing.
+    expect(container?.components[2]?.description).toMatch(/consume/i);
+    expect(container?.components[2]?.description).toMatch(/kill/i);
+    // The image stays read-only; the writes land in a layer above it.
+    expect(container?.howItWorks[1]?.description).toMatch(/copy-on-write/i);
+    expect(container?.howItWorks[1]?.description).toMatch(/writable layer/i);
+    // No boot, the same kernel: why it starts in milliseconds, and why an
+    // escape from it lands on the host rather than in a hypervisor.
+    expect(container?.howItWorks[2]?.description).toMatch(/kernel/i);
+    // Where the model stops: the container is PID 1, and nothing it wrote to
+    // its own filesystem outlives it.
+    expect(container?.howItWorks[3]?.description).toMatch(/PID 1/);
+    expect(container?.howItWorks[3]?.description).toMatch(/volume/i);
   });
 });

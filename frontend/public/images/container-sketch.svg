@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 278 220">
+  <g transform="translate(139 110) scale(0.94) translate(-139 -110) translate(0 -3)">
+  <!-- the namespace frame is what turns a process into a container, so it
+       takes the highlighter -->
+  <path d="M104 110 L188 110 L188 190 L104 190 Z" fill="#fff2c4" />
+  <g fill="#dbe7ff">
+    <path d="M100 32 L184 32 L184 48 L100 48 Z" />
+    <path d="M100 52 L184 52 L184 68 L100 68 Z" />
+    <path d="M100 72 L184 72 L184 88 L100 88 Z" />
+  </g>
+
+  <g fill="none" stroke="#1d1d1b" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+    <!-- the image: read-only layers under one writable layer that is not part
+         of it, which is why the dashes stop at the image -->
+    <path d="M100 12 L184 12 L184 28 L100 28 Z" stroke-dasharray="4 4" />
+    <path d="M100 32 L184 32 L184 48 L100 48 Z" />
+    <path d="M100 52 L184 52 L184 68 L100 68 Z" />
+    <path d="M100 72 L184 72 L184 88 L100 88 Z" />
+
+    <!-- the layers are what the container sees inside -->
+    <path d="M142 92 L142 106" />
+    <path d="M135 99 L142 106 L149 99" />
+
+    <!-- the namespace: its own process tree and its own view of a filesystem -->
+    <path d="M104 110 L188 110 L188 190 L104 190 Z" />
+    <path d="M146 132 L146 142 M126 142 L166 142 M126 142 L126 152 M166 142 L166 152" />
+    <path d="M116 168 L176 168 L176 184 L116 184 Z" />
+    <path d="M116 176 L176 176" />
+
+    <!-- the cgroup: consumption run up against a ceiling it cannot pass -->
+    <path d="M200 118 L232 118 L232 190 L200 190 Z" />
+    <path d="M194 114 L238 114" stroke-width="4.2" />
+    <path d="M188 132 L196 132 M188 152 L196 152 M188 172 L196 172" />
+
+    <!-- one kernel underneath, and the neighbour stands on the same one -->
+    <path d="M38 194 L240 194 L240 216 L38 216 Z" />
+    <path d="M44 140 L92 140 L92 190 L44 190 Z" stroke-dasharray="4 4" />
+  </g>
+
+  <g fill="#1d1d1b">
+    <circle cx="146" cy="128" r="4.2" />
+    <circle cx="126" cy="155" r="3.2" />
+    <circle cx="166" cy="155" r="3.2" />
+    <circle cx="68" cy="158" r="3.2" />
+    <rect x="56" y="172" width="24" height="4" rx="2" />
+    <rect x="202" y="154" width="28" height="34" rx="2" />
+    <rect x="108" y="18" width="26" height="4" rx="2" />
+    <rect x="108" y="38" width="34" height="4" rx="2" />
+    <rect x="108" y="58" width="22" height="4" rx="2" />
+    <rect x="108" y="78" width="38" height="4" rx="2" />
+    <rect x="52" y="203" width="18" height="4" rx="2" />
+    <rect x="84" y="203" width="28" height="4" rx="2" />
+    <rect x="126" y="203" width="20" height="4" rx="2" />
+    <rect x="160" y="203" width="30" height="4" rx="2" />
+    <rect x="204" y="203" width="22" height="4" rx="2" />
+  </g>
+  </g>
+</svg>

@@ -26,19 +26,19 @@ OpenAI image generation on 2026-08-15 and are stored locally:
 `public-ca-thumbnail.webp` and `private-ca-thumbnail.webp` on 2026-08-20,
 `jwt-thumbnail.webp` on 2026-08-21, `oidc-thumbnail.webp` on 2026-08-25,
 `kafka-thumbnail.webp` on 2026-08-26, `redis-thumbnail.webp` on 2026-08-27,
-`rbac-thumbnail.webp` on 2026-08-28, and `redis-cluster-thumbnail.webp` on
-2026-08-29, each as an isometric SVG scene
-composed in-repo and rendered to WebP with headless Chromium. They contain no
-third-party artwork.
+`rbac-thumbnail.webp` on 2026-08-28, `redis-cluster-thumbnail.webp` on
+2026-08-29, and `container-thumbnail.webp` on 2026-08-30, each as an
+isometric SVG scene composed in-repo and rendered to WebP with headless
+Chromium. They contain no third-party artwork.
 
 ## Sketch-theme drawings
 
-The twenty-one `*-sketch.svg` files are original hand-authored SVG line drawings
+The twenty-two `*-sketch.svg` files are original hand-authored SVG line drawings
 made for DevOps TCG on 2026-08-19, on 2026-08-20 for the two certificate
 authority cards, on 2026-08-21 for JWT, on 2026-08-23 for AWS Lambda, on
 2026-08-24 for the two IAM cards, on 2026-08-25 for OIDC, on 2026-08-26 for
-Kafka, on 2026-08-27 for Redis, on 2026-08-28 for RBAC, and on 2026-08-29 for
-Redis Cluster. Their line work is
+Kafka, on 2026-08-27 for Redis, on 2026-08-28 for RBAC, on 2026-08-29 for
+Redis Cluster, and on 2026-08-30 for Container. Their line work is
 plain `<path>` geometry — no tracing of any third-party image, no generator, and
 no external asset — and they are the artwork the sketch theme shows in place of
 the photographs above.

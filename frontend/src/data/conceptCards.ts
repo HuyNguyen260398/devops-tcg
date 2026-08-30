@@ -1190,4 +1190,60 @@ export const conceptCards = [
       },
     ],
   },
+  {
+    id: "container",
+    cardNumber: "#022",
+    type: "COMPUTE",
+    title: "Container",
+    image: {
+      src: "/images/container-thumbnail.webp",
+      alt: "Isometric scene of read-only image layers stacked under one writable layer, starting a single process inside a namespace frame, with a cgroup ceiling capping how much it may take from the host kernel below",
+      sketch: {
+        src: "/images/container-sketch.svg",
+        alt: "Line drawing of three read-only image layers beneath a dashed writable layer, a process boxed inside a namespace frame, and a limit bar above it marked with a memory ceiling",
+      },
+    },
+    definition:
+      "A container is an ordinary process on the host\u2019s kernel that has been handed its own view of the machine \u2014 its own filesystem, network, and process tree \u2014 and a ceiling on what it may consume. The image is what makes it identical on every host; the shared kernel is what makes it cost a process rather than a machine, and also what makes it a thinner boundary than a virtual machine.",
+    keywords: ["image", "namespace", "cgroup", "layer", "ephemeral"],
+    components: [
+      {
+        name: "Image",
+        description:
+          "Read-only layers plus a manifest naming the command, environment, and user the process starts as. It is content-addressed, so a digest is the same bytes everywhere \u2014 a tag is not, and a moving tag is why \u201cit worked yesterday\u201d is no evidence the same image ran. Layers are shared between containers on a host rather than copied.",
+      },
+      {
+        name: "Namespaces",
+        description:
+          "What the process is allowed to see: its own mounts, process tree, network interfaces, and users. Isolation is granted one resource at a time, so it is given away one resource at a time \u2014 --net=host hands back the host\u2019s network, and mounting the runtime\u2019s own socket hands back the host.",
+      },
+      {
+        name: "cgroups",
+        description:
+          "What the process is allowed to consume: CPU, memory, PIDs. CPU is throttling and a busy container merely runs slower, but memory is a hard ceiling the kernel enforces by killing the process. Nothing inside the container gets to refuse, which is why an unset limit is a host-wide risk and a tight one is a restart loop.",
+      },
+    ],
+    howItWorks: [
+      {
+        step: 1,
+        description:
+          "A definition file builds the image one instruction at a time, each producing a layer. Only what the build copies in exists at runtime \u2014 an image that builds is not yet an image that runs.",
+      },
+      {
+        step: 2,
+        description:
+          "The runtime resolves the reference to a digest and pulls only the layers the host lacks, stacking them read-only and adding one writable layer on top. The union is copy-on-write, so a write copies the file up into the writable layer and the image beneath is never touched.",
+      },
+      {
+        step: 3,
+        description:
+          "The runtime asks the kernel for fresh namespaces and a cgroup, then starts the command inside them. There is no boot and no second kernel \u2014 that is why it starts in milliseconds, and why an escape from the sandbox lands on the host rather than in a hypervisor.",
+      },
+      {
+        step: 4,
+        description:
+          "The container lives exactly as long as PID 1 lives: when that process exits \u2014 or the kernel kills it for crossing the memory limit \u2014 the container is over and its writable layer goes with it. Anything that must outlive the process belongs in a volume or outside the host entirely.",
+      },
+    ],
+  },
 ] as const satisfies readonly ConceptCardData[];
