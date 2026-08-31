@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-DevOps TCG is a read-only concept study deck (twenty-two hardcoded cards) built
+DevOps TCG is a read-only concept study deck (twenty-three hardcoded cards) built
 as a Next.js 14 static export and served from a private S3 bucket behind
 CloudFront at https://tcg.nghuy.link. There is no backend, API, database, auth,
 cookie, or browser persistence — and adding one is out of scope by design (see

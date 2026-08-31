@@ -49,6 +49,12 @@ const expectedCards = [
     "/images/redis-cluster-thumbnail.webp",
   ],
   ["container", "#022", "Container", "/images/container-thumbnail.webp"],
+  [
+    "terraform-state",
+    "#023",
+    "Terraform State",
+    "/images/terraform-state-thumbnail.webp",
+  ],
 ] as const;
 
 describe("conceptCards", () => {
@@ -76,7 +82,7 @@ describe("conceptCards", () => {
     expect(conceptCards[0].howItWorks).toHaveLength(4);
   });
 
-  it("contains all twenty-two concepts in the approved order", () => {
+  it("contains all twenty-three concepts in the approved order", () => {
     expect(conceptCards).toHaveLength(expectedCards.length);
     expect(
       conceptCards.map(({ id, cardNumber, title, image }) => [
@@ -393,5 +399,36 @@ describe("conceptCards", () => {
     // its own filesystem outlives it.
     expect(container?.howItWorks[3]?.description).toMatch(/PID 1/);
     expect(container?.howItWorks[3]?.description).toMatch(/volume/i);
+  });
+  it("makes state the third input a plan compares, not a cache", () => {
+    const state = conceptCards.find(({ id }) => id === "terraform-state");
+
+    // The card exists to replace "Terraform diffs my config against the cloud"
+    // with the comparison it actually runs. Everything surprising about a plan
+    // comes from that third input being something other than you assumed.
+    expect(state?.definition).toMatch(/three-way/i);
+    expect(state?.definition).toMatch(/address/i);
+    expect(state?.keywords).toContain("drift");
+    // Losing the file loses the binding, not the infrastructure — and the file
+    // holds whatever the provider returned, secrets included.
+    expect(state?.components[0]?.description).toMatch(
+      /create everything again/i,
+    );
+    expect(state?.components[0]?.description).toMatch(/secret/i);
+    // Shared state is what forces exclusive writes, so the backend decides both.
+    expect(state?.components[1]?.description).toMatch(/local/i);
+    expect(state?.components[2]?.description).toMatch(/force-unlock/i);
+    // Drift is real state moving under Terraform, and it has an author.
+    expect(state?.howItWorks[0]?.description).toMatch(/drift/i);
+    // Deleting a resource block is a destroy, which is why removing code ships.
+    expect(state?.howItWorks[1]?.description).toMatch(/destroy/i);
+    // State is written per resource, so the answer to a failed apply is another
+    // apply — never an editor.
+    expect(state?.howItWorks[2]?.description).toMatch(/lock/i);
+    expect(state?.howItWorks[2]?.description).toMatch(/hand-edit/i);
+    // The binding is by address, so a rename and an import are both map edits
+    // that leave the cloud untouched.
+    expect(state?.howItWorks[3]?.description).toMatch(/moved/i);
+    expect(state?.howItWorks[3]?.description).toMatch(/import/i);
   });
 });

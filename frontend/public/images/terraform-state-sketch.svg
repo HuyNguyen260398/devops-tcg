@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 278 220">
+  <g transform="translate(139 110) scale(0.88) translate(-139 -110) translate(0 4)">
+  <!-- the ledger is the whole card, so it takes the highlighter -->
+  <path d="M70 78 L208 78 L208 150 L70 150 Z" fill="#fff2c4" />
+
+  <g fill="#dbe7ff">
+    <!-- what you declared -->
+    <path d="M94 20 L184 20 L184 26 L94 26 Z" />
+    <path d="M94 32 L164 32 L164 38 L94 38 Z" />
+    <path d="M94 44 L174 44 L174 50 L94 50 Z" />
+    <!-- the objects the ledger's rows are bound to -->
+    <path d="M67 172 L95 172 L95 200 L67 200 Z" />
+    <path d="M106 172 L134 172 L134 200 L106 200 Z" />
+    <path d="M145 172 L173 172 L173 200 L145 200 Z" />
+  </g>
+
+  <g fill="none" stroke="#1d1d1b" stroke-width="2.4" stroke-linejoin="round">
+    <!-- the configuration -->
+    <path d="M84 12 L194 12 L194 56 L84 56 Z" />
+
+    <!-- the state file, and the header that carries its lock -->
+    <path d="M70 78 L208 78 L208 150 L70 150 Z" stroke-width="4.2" />
+    <path d="M70 92 L208 92" />
+
+    <!-- one row per resource address, bound to one real object -->
+    <path d="M80 98 L198 98 L198 112 L80 112 Z" />
+    <path d="M80 116 L198 116 L198 130 L80 130 Z" />
+    <path d="M80 134 L198 134 L198 148 L80 148 Z" />
+
+    <!-- what the provider actually holds -->
+    <path d="M67 172 L95 172 L95 200 L67 200 Z" />
+    <path d="M106 172 L134 172 L134 200 L106 200 Z" />
+    <path d="M145 172 L173 172 L173 200 L145 200 Z" />
+    <!-- an object outside every row: invisible until it is imported -->
+    <path d="M184 172 L212 172 L212 200 L184 200 Z" stroke-dasharray="4 4" />
+
+    <!-- the plan reads the configuration and the state file, and every row
+         reaches down to the object it created -->
+    <path d="M110 56 L110 78" />
+    <path d="M139 56 L139 78" />
+    <path d="M168 56 L168 78" />
+    <path d="M81 150 L81 172" />
+    <path d="M120 150 L120 172" />
+    <path d="M159 150 L159 172" />
+  </g>
+
+  <!-- the lock: the file is shared, so its writes are exclusive -->
+  <g fill="none" stroke="#1d1d1b" stroke-width="2.4">
+    <path d="M82 78 L82 72 A6 6 0 0 1 94 72 L94 78" />
+  </g>
+  <g fill="#1d1d1b">
+    <rect x="78" y="78" width="20" height="14" rx="2" />
+    <!-- each row: an address on the left, the object's own id on the right -->
+    <rect x="88" y="102" width="30" height="6" rx="2" />
+    <rect x="160" y="102" width="30" height="6" rx="2" />
+    <rect x="88" y="120" width="30" height="6" rx="2" />
+    <rect x="160" y="120" width="30" height="6" rx="2" />
+    <rect x="88" y="138" width="30" height="6" rx="2" />
+    <rect x="160" y="138" width="30" height="6" rx="2" />
+    <circle cx="139" cy="105" r="3.2" />
+    <circle cx="139" cy="123" r="3.2" />
+    <circle cx="139" cy="141" r="3.2" />
+  </g>
+  </g>
+</svg>

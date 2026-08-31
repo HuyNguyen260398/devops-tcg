@@ -1246,4 +1246,60 @@ export const conceptCards = [
       },
     ],
   },
+  {
+    id: "terraform-state",
+    cardNumber: "#023",
+    type: "PLATFORM",
+    title: "Terraform State",
+    image: {
+      src: "/images/terraform-state-thumbnail.webp",
+      alt: "Isometric scene of a configuration document and a cloud of real objects with a locked ledger standing between them, its rows binding each resource address to the object it created, and a plan reading all three",
+      sketch: {
+        src: "/images/terraform-state-sketch.svg",
+        alt: "Line drawing of a padlocked state ledger whose rows join a configuration block above to the real objects below, with one object drawn outside every row",
+      },
+    },
+    definition:
+      "Terraform state is the record binding each resource address in your configuration to the real object it created. It is why a plan is not a diff of your code against the cloud but a three-way comparison \u2014 what you declared, what state last saw, and what the provider reports now \u2014 and why every surprising plan turns out to be that third input being something other than you assumed.",
+    keywords: ["desired state", "drift", "lock", "refresh", "import"],
+    components: [
+      {
+        name: "State file",
+        description:
+          "A JSON map from a resource address such as module.frontend.aws_s3_bucket.site to the provider\u2019s own identifier, plus a snapshot of the attributes it returned. Nothing else holds that binding: lose the file and Terraform destroys nothing, it proposes to create everything again beside infrastructure it can no longer see. The snapshot keeps whatever the provider handed back, secrets included, so the file belongs in an encrypted, versioned bucket and never in git.",
+      },
+      {
+        name: "Backend",
+        description:
+          "Where the state lives and who may write it. The default is local \u2014 a file beside the configuration, which is enough for one person and fatal for a team, because two laptops each holding a private answer to what exists will each plan to build it. Making state shared is the whole job of a remote backend, and sharing a file two people can write is what forces the next component.",
+      },
+      {
+        name: "Lock",
+        description:
+          "A claim held for the length of a write so two applies cannot interleave into a state that describes neither run. Backends implement it differently, but the failure is the same everywhere: an interrupted run leaves the lock held, and reaching for force-unlock without knowing whether the other apply finished is how state and reality come apart quietly.",
+      },
+    ],
+    howItWorks: [
+      {
+        step: 1,
+        description:
+          "Terraform reads the configuration and the state, then refreshes \u2014 asking the provider what each recorded object looks like now. What comes back is reality; what was in state is the last thing Terraform saw. The gap between them is drift, and it always has an author: someone who changed it in the console.",
+      },
+      {
+        step: 2,
+        description:
+          "The plan compares three things, not two, and emits one action per resource: create where the configuration has it and state does not, update where both do and the attributes differ, destroy where state has it and the configuration no longer does. That last rule is why deleting a resource block is not tidying up \u2014 it is a destroy, and removing code ships.",
+      },
+      {
+        step: 3,
+        description:
+          "Apply takes the lock, calls the provider in dependency order, and writes state after each resource rather than at the end. A run that fails halfway therefore leaves a state that is accurate for the half that finished, which is why the answer to a failed apply is another apply and never a hand-edit of the file.",
+      },
+      {
+        step: 4,
+        description:
+          "Because the binding is by address, renaming a resource block reads as destroy-plus-create until a moved block or a state move re-points the old address, and an object created outside Terraform stays invisible until it is imported. Neither operation touches the cloud \u2014 both edit only the map.",
+      },
+    ],
+  },
 ] as const satisfies readonly ConceptCardData[];
