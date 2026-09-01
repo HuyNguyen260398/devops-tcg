@@ -1302,4 +1302,60 @@ export const conceptCards = [
       },
     ],
   },
+  {
+    id: "kubernetes-pod",
+    cardNumber: "#024",
+    type: "COMPUTE",
+    title: "Kubernetes Pod",
+    image: {
+      src: "/images/kubernetes-pod-thumbnail.webp",
+      alt: "Isometric scene of two containers standing inside one shared sandbox frame that carries a single network address and a volume beneath it, with a deleted pod crossed out beside the differently named pod created to replace it",
+      sketch: {
+        src: "/images/kubernetes-pod-sketch.svg",
+        alt: "Line drawing of two containers inside one dashed pod boundary sharing a single IP label and a volume, with an arrow from a crossed-out pod to the new one that replaces it",
+      },
+    },
+    definition:
+      "A pod is the smallest thing Kubernetes schedules: one or more containers placed on a single node inside one shared sandbox \u2014 one network namespace, one IP, one set of volumes. It is mortal by design. Nothing repairs a pod in place, and what takes over is not that pod recovered but a different one, with a new name and a new address.",
+    keywords: ["sandbox", "sidecar", "probe", "request", "ephemeral"],
+    components: [
+      {
+        name: "Shared sandbox",
+        description:
+          "The namespaces the containers are put inside rather than each being given their own: one network namespace, so they share an IP and reach each other on localhost, plus whatever volumes the spec mounts. That sharing is the only reason to place two containers in one pod \u2014 and its price is that a port is claimed pod-wide, so two containers cannot both bind :8080 any more than two processes on one host could.",
+      },
+      {
+        name: "Containers",
+        description:
+          "Init containers run to completion, in order, before any of the others start, which is where waiting on a dependency belongs; the rest run alongside each other for the life of the pod. The pod counts as Ready only when every one of them does, so a sidecar that never comes up takes the whole pod out of service even though the application beside it is fine.",
+      },
+      {
+        name: "Requests and limits",
+        description:
+          "A request is what the scheduler subtracts from a node\u2019s capacity to decide where the pod fits \u2014 a claim, not a measurement, which is why a node full of idle pods has no room. A limit is the container card\u2019s cgroup ceiling, enforced per container. Ask for more than any node has and the pod stays Pending indefinitely: a scheduling failure, which never restarts, because nothing ever started.",
+      },
+    ],
+    howItWorks: [
+      {
+        step: 1,
+        description:
+          "The spec is admitted and the scheduler picks one node \u2014 filtering on requests, then scoring what survives. The choice is written into the pod and never revisited: a pod is never rescheduled, so it does not drift to a roomier node later, and a node that grows crowded is resolved by deleting pods rather than moving them.",
+      },
+      {
+        step: 2,
+        description:
+          "The kubelet on that node builds the sandbox first, so the network namespace and the IP exist before anything runs in them, then works through the init containers and starts the rest. A container that crashes is restarted inside that same sandbox, which is why the pod keeps its IP across a restart and why a restart count is a container\u2019s, not the pod\u2019s.",
+      },
+      {
+        step: 3,
+        description:
+          "Probes answer two independent questions, and mixing them up is the classic outage: a failing liveness probe restarts the container, while a failing readiness probe only takes the pod out of its Service endpoints. Point liveness at a slow start with no startup probe and the container is killed before it can ever finish; point readiness at a shared dependency and every replica leaves at once.",
+      },
+      {
+        step: 4,
+        description:
+          "Deletion is the end of it. An eviction, a drain, a lost node, or a rolling update deletes the pod, and the controller above it creates a different pod \u2014 new name, new IP, fresh writable layers. That is why anything that must survive belongs in a volume outliving the pod, and why nothing addresses a pod directly; it addresses a Service, which follows whichever pods are currently Ready.",
+      },
+    ],
+  },
 ] as const satisfies readonly ConceptCardData[];

@@ -55,6 +55,12 @@ const expectedCards = [
     "Terraform State",
     "/images/terraform-state-thumbnail.webp",
   ],
+  [
+    "kubernetes-pod",
+    "#024",
+    "Kubernetes Pod",
+    "/images/kubernetes-pod-thumbnail.webp",
+  ],
 ] as const;
 
 describe("conceptCards", () => {
@@ -82,7 +88,7 @@ describe("conceptCards", () => {
     expect(conceptCards[0].howItWorks).toHaveLength(4);
   });
 
-  it("contains all twenty-three concepts in the approved order", () => {
+  it("contains all twenty-four concepts in the approved order", () => {
     expect(conceptCards).toHaveLength(expectedCards.length);
     expect(
       conceptCards.map(({ id, cardNumber, title, image }) => [
@@ -430,5 +436,40 @@ describe("conceptCards", () => {
     // that leave the cloud untouched.
     expect(state?.howItWorks[3]?.description).toMatch(/moved/i);
     expect(state?.howItWorks[3]?.description).toMatch(/import/i);
+  });
+
+  it("presents a pod as one shared sandbox that is replaced, never repaired", () => {
+    const pod = conceptCards.find(({ id }) => id === "kubernetes-pod");
+
+    // The card exists to break "a pod is just a container": it is the unit of
+    // scheduling, and what the containers inside it share is the whole point.
+    expect(pod?.definition).toMatch(/sandbox/i);
+    expect(pod?.definition).toMatch(/schedul/i);
+    expect(pod?.keywords).toContain("sidecar");
+    expect(pod?.keywords).toContain("ephemeral");
+    // Sharing one network namespace is both the reason to co-locate two
+    // containers and the reason they cannot both claim a port.
+    expect(pod?.components[0]?.description).toMatch(/network namespace/i);
+    expect(pod?.components[0]?.description).toMatch(/localhost/i);
+    // Init containers finish before the rest start, and readiness is all-or-nothing.
+    expect(pod?.components[1]?.description).toMatch(/init container/i);
+    expect(pod?.components[1]?.description).toMatch(/Ready/);
+    // Requests are a claim the scheduler subtracts, so an unschedulable pod
+    // waits rather than crashes.
+    expect(pod?.components[2]?.description).toMatch(/request/i);
+    expect(pod?.components[2]?.description).toMatch(/Pending/);
+    // The node is chosen once and never revisited.
+    expect(pod?.howItWorks[0]?.description).toMatch(/scheduler/i);
+    expect(pod?.howItWorks[0]?.description).toMatch(/never rescheduled/i);
+    // The sandbox is built before the containers, which is why a restart keeps the IP.
+    expect(pod?.howItWorks[1]?.description).toMatch(/sandbox/i);
+    expect(pod?.howItWorks[1]?.description).toMatch(/IP/);
+    // Liveness and readiness answer different questions; confusing them is the outage.
+    expect(pod?.howItWorks[2]?.description).toMatch(/liveness/i);
+    expect(pod?.howItWorks[2]?.description).toMatch(/readiness/i);
+    // Where the model stops: the replacement is a different pod, so nothing
+    // durable and nothing addressable may live on this one.
+    expect(pod?.howItWorks[3]?.description).toMatch(/volume/i);
+    expect(pod?.howItWorks[3]?.description).toMatch(/Service/);
   });
 });

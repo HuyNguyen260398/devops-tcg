@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 278 220">
+  <g transform="translate(139 110) scale(0.88) translate(-139 -110)">
+  <!-- the sandbox is the whole card, so it takes the highlighter -->
+  <path d="M116 34 L236 34 L236 164 L116 164 Z" fill="#fff2c4" />
+
+  <g fill="#dbe7ff">
+    <!-- the one address the sandbox answers on -->
+    <path d="M124 42 L168 42 L168 54 L124 54 Z" />
+    <!-- the containers placed inside it -->
+    <path d="M122 70 L172 70 L172 116 L122 116 Z" />
+    <path d="M180 70 L230 70 L230 116 L180 116 Z" />
+  </g>
+
+  <!-- the pod that was deleted: its containers and its address went with it -->
+  <g fill="none" stroke="#1d1d1b" stroke-width="2.4" stroke-linejoin="round">
+    <path d="M42 62 L92 62 L92 134 L42 134 Z" stroke-dasharray="5 4" />
+    <path d="M50 74 L84 74 L84 92 L50 92 Z" />
+    <path d="M50 100 L84 100 L84 118 L50 118 Z" />
+  </g>
+  <g stroke="#1d1d1b" stroke-width="2.4" stroke-linecap="round">
+    <path d="M46 66 L88 130" />
+    <path d="M88 66 L46 130" />
+  </g>
+
+  <!-- nothing recovers it; another pod is created in its place -->
+  <g fill="none" stroke="#1d1d1b" stroke-width="2.4" stroke-linejoin="round">
+    <path d="M97 98 L108 98" />
+  </g>
+  <path d="M107 94 L114 98 L107 102 Z" fill="#1d1d1b" />
+
+  <g fill="none" stroke="#1d1d1b" stroke-width="2.4" stroke-linejoin="round">
+    <!-- the sandbox: one boundary, one node, one life -->
+    <path d="M116 34 L236 34 L236 164 L116 164 Z" stroke-width="4.2" />
+
+    <!-- a new name beside the new address -->
+    <path d="M124 42 L168 42 L168 54 L124 54 Z" />
+    <path d="M174 42 L228 42 L228 54 L174 54 Z" />
+
+    <!-- that address reaches both containers, so neither owns it -->
+    <path d="M146 54 L146 62 L206 62 L206 70" />
+    <path d="M146 62 L146 70" />
+
+    <!-- the containers, and the localhost between them -->
+    <path d="M122 70 L172 70 L172 116 L122 116 Z" />
+    <path d="M180 70 L230 70 L230 116 L180 116 Z" />
+    <path d="M172 95 L180 95" />
+
+    <!-- one volume, mounted into the sandbox rather than into either container -->
+    <path d="M146 116 L146 124" />
+    <path d="M206 116 L206 124" />
+    <path d="M122 124 L230 124 L230 144 L122 144 Z" />
+
+    <!-- the single node the scheduler picked, and never revisits -->
+    <path d="M146 164 L146 174" />
+    <path d="M206 164 L206 174" />
+    <path d="M112 174 L240 174 L240 194 L112 194 Z" />
+  </g>
+
+  <g fill="#1d1d1b">
+    <!-- what each container runs -->
+    <rect x="130" y="78" width="34" height="5" rx="2" />
+    <rect x="130" y="88" width="26" height="5" rx="2" />
+    <rect x="188" y="78" width="34" height="5" rx="2" />
+    <rect x="188" y="88" width="26" height="5" rx="2" />
+    <circle cx="172" cy="95" r="2.6" />
+    <circle cx="180" cy="95" r="2.6" />
+    <!-- the volume's contents, which outlive the pod above them -->
+    <rect x="130" y="131" width="22" height="6" rx="2" />
+    <rect x="158" y="131" width="22" height="6" rx="2" />
+    <rect x="186" y="131" width="22" height="6" rx="2" />
+    <!-- the node's other work -->
+    <rect x="120" y="181" width="24" height="6" rx="2" />
+    <rect x="150" y="181" width="24" height="6" rx="2" />
+    <rect x="180" y="181" width="24" height="6" rx="2" />
+    <rect x="210" y="181" width="22" height="6" rx="2" />
+  </g>
+  </g>
+</svg>

@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-DevOps TCG is a read-only concept study deck (twenty-three hardcoded cards) built
+DevOps TCG is a read-only concept study deck (twenty-four hardcoded cards) built
 as a Next.js 14 static export and served from a private S3 bucket behind
 CloudFront at https://tcg.nghuy.link. There is no backend, API, database, auth,
 cookie, or browser persistence — and adding one is out of scope by design (see
@@ -201,6 +201,23 @@ photograph plus a hand-authored `*-sketch.svg` line drawing at the same
 and CSS shows whichever the active `data-theme` calls for. Any new markup
 styles itself from the theme tokens, so it works in both themes without a
 second pass.
+
+The sketch drawing has to survive a crop in *both* directions. The artwork
+window fits with `cover` and changes aspect with the viewport, so a 320px card
+crops the sides of the `0 0 278 220` viewBox while a wider one crops the top and
+bottom — sizing for either alone clips the drawing on the other. Compose it
+portrait, keep the content inside roughly `x 38..240` and `y 19..201`, and scale
+the wrapper `<g>` down (0.88 on Terraform State, against ~0.94 on the cards
+drawn before both crops were measured) until nothing important sits near an
+edge. Screenshot the real card at 320px and at ~480px before committing; the
+Playwright suite asserts that the drawing loads, not that it is intact.
+
+The WebP crops too, but only sideways: the window keeps the full 1350px height
+at every width and takes a centred horizontal band of the 2400px frame —
+roughly `x 574..1826` at 320px, against `x 138..2262` from 480px up. What
+belongs in that middle half is the *subject*, not the composition's bounding
+box. Kubernetes Pod shifts its whole scene left for exactly that reason: the
+pod itself sits centred, and the discarded pod beside it is what a phone loses.
 
 The frontend ships only `next`, `react`, and `react-dom` as dependencies —
 icons are inline SVG, there is no state library, and no runtime asset is
