@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 278 220">
+  <g transform="translate(139 110) scale(0.88) translate(-139 -110)">
+  <!-- the server is the subject, so it takes the highlighter -->
+  <path d="M40 34 L150 34 L150 126 L40 126 Z" fill="#fff2c4" />
+
+  <!-- what it keeps: a name and its labels, one row per series -->
+  <g fill="#dbe7ff">
+    <path d="M48 44 L142 44 L142 64 L48 64 Z" />
+    <path d="M48 70 L142 70 L142 90 L48 90 Z" />
+    <path d="M48 96 L142 96 L142 116 L48 116 Z" />
+  </g>
+
+  <g fill="none" stroke="#1d1d1b" stroke-width="2.4" stroke-linejoin="round">
+    <!-- the one server, and everything it knows is inside it -->
+    <path d="M40 34 L150 34 L150 126 L40 126 Z" stroke-width="4.2" />
+
+    <path d="M48 44 L142 44 L142 64 L48 64 Z" />
+    <path d="M48 70 L142 70 L142 90 L48 90 Z" />
+    <path d="M48 96 L142 96 L142 116 L48 116 Z" />
+
+    <!-- the label set is what separates one series from the next -->
+    <path d="M78 44 L78 64" />
+    <path d="M78 70 L78 90" />
+    <path d="M78 96 L78 116" />
+    <path d="M110 44 L110 64" />
+    <path d="M110 70 L110 90" />
+    <path d="M110 96 L110 116" />
+  </g>
+
+  <!-- it scrapes on its own schedule: every arrow leaves the server -->
+  <g fill="none" stroke="#1d1d1b" stroke-width="2.4" stroke-linecap="round">
+    <path d="M150 80 L164 80" />
+    <path d="M164 53 L164 157" />
+    <path d="M164 53 L172 53" />
+    <path d="M164 105 L172 105" />
+    <path d="M164 157 L172 157" />
+  </g>
+  <g fill="#1d1d1b">
+    <path d="M171 49 L179 53 L171 57 Z" />
+    <path d="M171 101 L179 105 L171 109 Z" />
+    <path d="M171 153 L179 157 L171 161 Z" />
+  </g>
+
+  <!-- the targets only answer; the middle one needs an exporter to answer at all -->
+  <g fill="none" stroke="#1d1d1b" stroke-width="2.4" stroke-linejoin="round">
+    <path d="M180 36 L238 36 L238 70 L180 70 Z" />
+    <path d="M180 88 L238 88 L238 122 L180 122 Z" />
+    <path d="M180 140 L238 140 L238 174 L180 174 Z" />
+  </g>
+  <path d="M186 94 L206 94 L206 116 L186 116 Z" fill="#dbe7ff" />
+  <g fill="none" stroke="#1d1d1b" stroke-width="2.4" stroke-linejoin="round">
+    <path d="M186 94 L206 94 L206 116 L186 116 Z" />
+  </g>
+  <g fill="none" stroke="#1d1d1b" stroke-width="2.4" stroke-linecap="round">
+    <path d="M188 47 L226 47" />
+    <path d="M188 58 L212 58" />
+    <path d="M214 100 L230 100" />
+    <path d="M214 110 L230 110" />
+    <path d="M188 151 L226 151" />
+    <path d="M188 162 L212 162" />
+  </g>
+
+  <!-- the samples land on this one server's own disk, and its rules read them back -->
+  <g fill="none" stroke="#1d1d1b" stroke-width="2.4" stroke-linecap="round">
+    <path d="M78 126 L78 140" />
+    <path d="M112 144 L112 130" />
+  </g>
+  <g fill="#1d1d1b">
+    <path d="M74 139 L82 139 L78 147 Z" />
+    <path d="M108 131 L116 131 L112 123 Z" />
+  </g>
+  <g fill="none" stroke="#1d1d1b" stroke-width="2.4" stroke-linejoin="round">
+    <path d="M60 148 L130 148 L130 160 L60 160 Z" />
+    <path d="M60 165 L130 165 L130 177 L60 177 Z" />
+    <path d="M60 182 L130 182 L130 194 L60 194 Z" />
+  </g>
+  <g fill="#1d1d1b">
+    <circle cx="69" cy="154" r="2.6" />
+    <circle cx="69" cy="171" r="2.6" />
+    <circle cx="69" cy="188" r="2.6" />
+  </g>
+  </g>
+</svg>

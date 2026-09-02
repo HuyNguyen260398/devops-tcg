@@ -28,21 +28,22 @@ OpenAI image generation on 2026-08-15 and are stored locally:
 `kafka-thumbnail.webp` on 2026-08-26, `redis-thumbnail.webp` on 2026-08-27,
 `rbac-thumbnail.webp` on 2026-08-28, `redis-cluster-thumbnail.webp` on
 2026-08-29, `container-thumbnail.webp` on 2026-08-30,
-`terraform-state-thumbnail.webp` on 2026-08-31, and
-`kubernetes-pod-thumbnail.webp` on 2026-09-01, each as an isometric SVG scene
+`terraform-state-thumbnail.webp` on 2026-08-31,
+`kubernetes-pod-thumbnail.webp` on 2026-09-01, and
+`prometheus-thumbnail.webp` on 2026-09-02, each as an isometric SVG scene
 composed in-repo and rendered to WebP with headless Chromium. They contain no
 third-party artwork.
 
 ## Sketch-theme drawings
 
-The twenty-four `*-sketch.svg` files are original hand-authored SVG line drawings
+The twenty-five `*-sketch.svg` files are original hand-authored SVG line drawings
 made for DevOps TCG on 2026-08-19, on 2026-08-20 for the two certificate
 authority cards, on 2026-08-21 for JWT, on 2026-08-23 for AWS Lambda, on
 2026-08-24 for the two IAM cards, on 2026-08-25 for OIDC, on 2026-08-26 for
 Kafka, on 2026-08-27 for Redis, on 2026-08-28 for RBAC, on 2026-08-29 for
 Redis Cluster, on 2026-08-30 for Container, on 2026-08-31 for
-Terraform State, and on 2026-09-01 for Kubernetes Pod. Their line work is
-plain `<path>` geometry — no tracing of any third-party image, no generator, and
+Terraform State, on 2026-09-01 for Kubernetes Pod, and on 2026-09-02 for
+Prometheus. Their line work is plain `<path>` geometry — no tracing of any third-party image, no generator, and
 no external asset — and they are the artwork the sketch theme shows in place of
 the photographs above.
 Ink is `#1d1d1b`, the highlighter block is `#fff2c4`, and the subject block is

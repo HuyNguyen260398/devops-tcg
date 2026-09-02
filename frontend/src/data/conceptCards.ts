@@ -1358,4 +1358,60 @@ export const conceptCards = [
       },
     ],
   },
+  {
+    id: "prometheus",
+    cardNumber: "#025",
+    type: "PLATFORM",
+    title: "Prometheus",
+    image: {
+      src: "/images/prometheus-thumbnail.webp",
+      alt: "Isometric scene of one monitoring server reaching out to pull samples from three application targets, one of them answered by an exporter beside it, writing labelled series onto the disk under the server while a rule reads them back",
+      sketch: {
+        src: "/images/prometheus-sketch.svg",
+        alt: "Line drawing of a server pulling on arrows that run out to three targets and back, stacking rows of labelled samples on a disk beneath it",
+      },
+    },
+    definition:
+      "Prometheus is a monitoring server that pulls. On a schedule it scrapes numeric samples from HTTP endpoints the targets already expose, and stores each one as a time series identified by its metric name together with its labels. Nothing is pushed to it, and it keeps what it scrapes on its own disk rather than forwarding it \u2014 so a server knows exactly as much as it managed to reach, and no more.",
+    keywords: ["scrape", "time series", "label", "PromQL", "exporter"],
+    components: [
+      {
+        name: "Target and exporter",
+        description:
+          "A target is an HTTP endpoint exposing the current value of every metric its process holds, rebuilt on each request rather than queued up between them. Software that cannot expose one gets an exporter beside it, translating whatever it already publishes into the same text format. Either way the target never decides when it is read, which is why a target that is down produces no samples at all rather than a gap it reports itself.",
+      },
+      {
+        name: "Series and labels",
+        description:
+          "A sample is stored against a metric name plus its label set, and that pair is the identity \u2014 change one label value and it is not the same series wearing a new attribute, it is a different series with its own memory and its own index entry. Put something unbounded in a label, a user id or a request path or a container id that changes every deploy, and the count of series is unbounded too. That is how a healthy server becomes an unresponsive one without any single query being at fault.",
+      },
+      {
+        name: "Rules and PromQL",
+        description:
+          "PromQL queries the stored series. Recording rules run a query on a schedule and write the answer back as a new series, which is how an expensive dashboard becomes a cheap one; alerting rules run the same way and hand whatever is firing to Alertmanager, which owns the grouping, silencing and delivery. Prometheus decides that something is wrong \u2014 it never sends the notification itself.",
+      },
+    ],
+    howItWorks: [
+      {
+        step: 1,
+        description:
+          "Service discovery produces the target list \u2014 from a static file, or from Kubernetes, EC2, Consul and the rest \u2014 and it is re-read continuously, so targets appear and disappear without anyone editing configuration. What labels each target\u2019s samples will carry is decided here, by relabelling, before a single sample has been stored.",
+      },
+      {
+        step: 2,
+        description:
+          "At every scrape interval the server issues one HTTP GET per target and reads the whole exposition in a single response. Samples are stamped with the time of the scrape rather than any time the target claims, so the resolution of the data is the scrape interval and nothing finer: a spike shorter than that interval is not recorded faintly, it is not recorded at all.",
+      },
+      {
+        step: 3,
+        description:
+          "Samples are appended to a time-series database on that one server\u2019s local disk, compacted into blocks, and dropped once they fall outside the retention window. There is no clustering and no replication \u2014 the data is exactly as durable as the node beneath it, which is why keeping history longer means remote-writing it to a system built for that, never telling a second Prometheus to remember more.",
+      },
+      {
+        step: 4,
+        description:
+          "Rules evaluate on their own interval against what is stored. A target that stops answering does not fall silent: its series go stale and its `up` sample becomes 0, so absence is itself a value to alert on. That is the whole loop \u2014 and its limit is the limit of step 3, because one server can only answer for what it scraped itself.",
+      },
+    ],
+  },
 ] as const satisfies readonly ConceptCardData[];

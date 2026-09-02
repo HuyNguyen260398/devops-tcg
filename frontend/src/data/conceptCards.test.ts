@@ -61,6 +61,7 @@ const expectedCards = [
     "Kubernetes Pod",
     "/images/kubernetes-pod-thumbnail.webp",
   ],
+  ["prometheus", "#025", "Prometheus", "/images/prometheus-thumbnail.webp"],
 ] as const;
 
 describe("conceptCards", () => {
@@ -88,7 +89,7 @@ describe("conceptCards", () => {
     expect(conceptCards[0].howItWorks).toHaveLength(4);
   });
 
-  it("contains all twenty-four concepts in the approved order", () => {
+  it("contains all twenty-five concepts in the approved order", () => {
     expect(conceptCards).toHaveLength(expectedCards.length);
     expect(
       conceptCards.map(({ id, cardNumber, title, image }) => [
@@ -471,5 +472,27 @@ describe("conceptCards", () => {
     // durable and nothing addressable may live on this one.
     expect(pod?.howItWorks[3]?.description).toMatch(/volume/i);
     expect(pod?.howItWorks[3]?.description).toMatch(/Service/);
+  });
+
+  it("presents Prometheus as a server that pulls and keeps what it scraped", () => {
+    const prometheus = conceptCards.find(({ id }) => id === "prometheus");
+
+    // The direction of the arrow is the whole model, and the reason a target
+    // that is down leaves no data rather than reporting its own outage.
+    expect(prometheus?.definition).toMatch(/pulls/i);
+    expect(prometheus?.definition).toMatch(/nothing is pushed to it/i);
+    expect(prometheus?.keywords).toContain("time series");
+    expect(prometheus?.components[0]?.description).toMatch(/exporter/i);
+    // Identity is name plus labels, which is why an unbounded label value is
+    // not an extra attribute but an unbounded number of series.
+    expect(prometheus?.components[1]?.description).toMatch(/different series/i);
+    expect(prometheus?.components[1]?.description).toMatch(/unbounded/i);
+    // Prometheus evaluates alerting rules; Alertmanager is what notifies.
+    expect(prometheus?.components[2]?.description).toMatch(/Alertmanager/);
+    // Resolution is the scrape interval and nothing finer.
+    expect(prometheus?.howItWorks[1]?.description).toMatch(/scrape interval/i);
+    // Where the model stops, and what the federation card picks up.
+    expect(prometheus?.howItWorks[2]?.description).toMatch(/no clustering/i);
+    expect(prometheus?.howItWorks[3]?.description).toMatch(/stale/i);
   });
 });
