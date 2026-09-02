@@ -62,6 +62,12 @@ const expectedCards = [
     "/images/kubernetes-pod-thumbnail.webp",
   ],
   ["prometheus", "#025", "Prometheus", "/images/prometheus-thumbnail.webp"],
+  [
+    "prometheus-federation",
+    "#026",
+    "Prometheus Federation",
+    "/images/prometheus-federation-thumbnail.webp",
+  ],
 ] as const;
 
 describe("conceptCards", () => {
@@ -89,7 +95,7 @@ describe("conceptCards", () => {
     expect(conceptCards[0].howItWorks).toHaveLength(4);
   });
 
-  it("contains all twenty-five concepts in the approved order", () => {
+  it("contains all twenty-six concepts in the approved order", () => {
     expect(conceptCards).toHaveLength(expectedCards.length);
     expect(
       conceptCards.map(({ id, cardNumber, title, image }) => [
@@ -494,5 +500,30 @@ describe("conceptCards", () => {
     // Where the model stops, and what the federation card picks up.
     expect(prometheus?.howItWorks[2]?.description).toMatch(/no clustering/i);
     expect(prometheus?.howItWorks[3]?.description).toMatch(/stale/i);
+  });
+
+  it("presents federation as one Prometheus scraping another", () => {
+    const federation = conceptCards.find(
+      ({ id }) => id === "prometheus-federation",
+    );
+
+    // Nothing new is invented for it: the transport is the same pull.
+    expect(federation?.definition).toMatch(/one Prometheus scraping another/i);
+    expect(federation?.definition).toMatch(/\/federate/);
+    expect(federation?.keywords).toContain("match[]");
+    // A leaf is never told it has been federated, so the aggregate fails alone.
+    expect(federation?.components[0]?.description).toMatch(
+      /does not know the global exists/i,
+    );
+    // match[] is the whole control surface, and empty selects nothing.
+    expect(federation?.components[1]?.description).toMatch(/matches nothing/i);
+    expect(federation?.components[1]?.description).toMatch(/cardinality/i);
+    // Without honor_labels the global overwrites what the leaf said it was.
+    expect(federation?.components[2]?.description).toMatch(/honor_labels/);
+    expect(federation?.components[2]?.description).toMatch(/external_labels/);
+    // The copy lands at the global's resolution, so the detail stays on the leaf.
+    expect(federation?.howItWorks[2]?.description).toMatch(/resolution/i);
+    // Where it stops: federation is a summary, not long-term storage.
+    expect(federation?.howItWorks[3]?.description).toMatch(/remote write/i);
   });
 });

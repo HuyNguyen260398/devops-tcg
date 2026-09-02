@@ -101,6 +101,10 @@ const images = [
     "Isometric scene of one monitoring server reaching out to pull samples from three application targets, one of them answered by an exporter beside it, writing labelled series onto the disk under the server while a rule reads them back",
     "/images/prometheus-thumbnail.webp",
   ],
+  [
+    "Isometric scene of a global monitoring server pulling from two leaf servers below it through a selector box standing on each path, the leaves each holding five rows of series while only two of them arrive in the server above",
+    "/images/prometheus-federation-thumbnail.webp",
+  ],
 ] as const;
 
 const card = (page: import("@playwright/test").Page) =>
@@ -178,12 +182,12 @@ test("supports flip keys and looping directional arrow-key navigation", async ({
   await page.keyboard.press("Space");
   await expect(activeCard).toHaveAttribute("data-face", "front");
   await page.keyboard.press("ArrowLeft");
-  await expect(page.getByText("25 / 25")).toBeVisible();
+  await expect(page.getByText("26 / 26")).toBeVisible();
   expect(await activeTitle(page)).not.toBe(initialTitle);
   await expect(activeCard).toBeFocused();
 
   await page.keyboard.press("ArrowRight");
-  await expect(page.getByText("01 / 25")).toBeVisible();
+  await expect(page.getByText("01 / 26")).toBeVisible();
   expect(await activeTitle(page)).toBe(initialTitle);
   await expect(page.getByTestId("deck-track")).toHaveAttribute(
     "data-direction",
@@ -203,7 +207,7 @@ test("navigates the shipped deck infinitely with a live counter", async ({
   const next = page.getByRole("button", { name: "Next card" });
   const initialTitle = await activeTitle(page);
 
-  await expect(page.getByText("01 / 25")).toBeVisible();
+  await expect(page.getByText("01 / 26")).toBeVisible();
   await expect(previous).toBeEnabled();
   await expect(next).toBeEnabled();
 
@@ -211,7 +215,7 @@ test("navigates the shipped deck infinitely with a live counter", async ({
 
   for (let position = 1; position <= images.length; position += 1) {
     await expect(
-      page.getByText(`${position.toString().padStart(2, "0")} / 25`),
+      page.getByText(`${position.toString().padStart(2, "0")} / 26`),
     ).toBeVisible();
     seen.add(await activeTitle(page));
 
@@ -226,12 +230,12 @@ test("navigates the shipped deck infinitely with a live counter", async ({
   await expect(previous).toBeEnabled();
 
   await next.click();
-  await expect(page.getByText("01 / 25")).toBeVisible();
+  await expect(page.getByText("01 / 26")).toBeVisible();
   expect(await activeTitle(page)).toBe(initialTitle);
   await expect(next).toBeFocused();
 
   await previous.click();
-  await expect(page.getByText("25 / 25")).toBeVisible();
+  await expect(page.getByText("26 / 26")).toBeVisible();
   await expect(previous).toBeFocused();
   await expect(previous).toBeEnabled();
   await expect(next).toBeEnabled();
@@ -243,7 +247,7 @@ test("centers the stacked header and shows faded adjacent cards", async ({
   await page.goto("/");
 
   const title = page.getByRole("heading", { name: "DevOps TCG" });
-  const counter = page.getByLabel("Card 1 of 25");
+  const counter = page.getByLabel("Card 1 of 26");
   const [titleBounds, counterBounds, viewportWidth] = await Promise.all([
     title.boundingBox(),
     counter.boundingBox(),
@@ -732,7 +736,7 @@ test("keeps the arrows clear of the card at phone widths", async ({
 test("navigates the deck with a touch swipe", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== "mobile");
   await page.goto("/");
-  await expect(page.getByText("01 / 25")).toBeVisible();
+  await expect(page.getByText("01 / 26")).toBeVisible();
 
   const track = page.getByTestId("deck-track");
   const box = await track.boundingBox();
@@ -750,11 +754,11 @@ test("navigates the deck with a touch swipe", async ({ page }, testInfo) => {
     touch(box!.x + box!.width - 40, midY),
   );
   await track.dispatchEvent("pointerup", touch(box!.x + 40, midY));
-  await expect(page.getByText("02 / 25")).toBeVisible();
+  await expect(page.getByText("02 / 26")).toBeVisible();
 
   await track.dispatchEvent("pointerdown", touch(box!.x + 40, midY));
   await track.dispatchEvent("pointerup", touch(box!.x + box!.width - 40, midY));
-  await expect(page.getByText("01 / 25")).toBeVisible();
+  await expect(page.getByText("01 / 26")).toBeVisible();
 });
 
 test("trails the finger while a swipe is in progress", async ({
@@ -762,7 +766,7 @@ test("trails the finger while a swipe is in progress", async ({
 }, testInfo) => {
   test.skip(testInfo.project.name !== "mobile");
   await page.goto("/");
-  await expect(page.getByText("01 / 25")).toBeVisible();
+  await expect(page.getByText("01 / 26")).toBeVisible();
 
   const track = page.getByTestId("deck-track");
   const box = await track.boundingBox();
@@ -788,12 +792,12 @@ test("trails the finger while a swipe is in progress", async ({
   await expect(track).toHaveAttribute("data-dragging", "true");
   expect(await translateX()).toBeLessThanOrEqual(-80);
   // The card only commits on release, so the deck has not moved on yet.
-  await expect(page.getByText("01 / 25")).toBeVisible();
+  await expect(page.getByText("01 / 26")).toBeVisible();
 
   await track.dispatchEvent("pointerup", touch(startX - 90, midY));
 
   await expect(track).not.toHaveAttribute("data-dragging", "true");
-  await expect(page.getByText("02 / 25")).toBeVisible();
+  await expect(page.getByText("02 / 26")).toBeVisible();
   await expect.poll(translateX).toBe(0);
 });
 
@@ -839,15 +843,15 @@ const cardCentre = async (page: import("@playwright/test").Page) => {
 test("swipes with a finger on the card itself", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== "mobile");
   await page.goto("/");
-  await expect(page.getByText("01 / 25")).toBeVisible();
+  await expect(page.getByText("01 / 26")).toBeVisible();
 
   const from = await cardCentre(page);
 
   await drag(page, from, { dx: -120 });
-  await expect(page.getByText("02 / 25")).toBeVisible();
+  await expect(page.getByText("02 / 26")).toBeVisible();
 
   await drag(page, from, { dx: 120 });
-  await expect(page.getByText("01 / 25")).toBeVisible();
+  await expect(page.getByText("01 / 26")).toBeVisible();
 });
 
 test("still scrolls the card face under a vertical finger", async ({
@@ -866,7 +870,7 @@ test("still scrolls the card face under a vertical finger", async ({
     .poll(() => face.evaluate((node) => node.scrollTop))
     .toBeGreaterThan(0);
   // Scrolling the face is not a swipe, so the deck stays where it was.
-  await expect(page.getByText("01 / 25")).toBeVisible();
+  await expect(page.getByText("01 / 26")).toBeVisible();
 });
 
 test("keeps a vertical drag from dragging the deck sideways", async ({
@@ -894,7 +898,7 @@ test("keeps a vertical drag from dragging the deck sideways", async ({
     await track.evaluate((node: HTMLElement) => node.style.transform),
   ).toBe("translate3d(0px, 0px, 0px)");
   await expect(track).not.toHaveAttribute("data-dragging", "true");
-  await expect(page.getByText("01 / 25")).toBeVisible();
+  await expect(page.getByText("01 / 26")).toBeVisible();
 });
 
 test("does not overflow at 320 pixels", async ({ page }, testInfo) => {
@@ -1056,7 +1060,7 @@ test("leaves space under the last line when a face scrolls", async ({
 // is checked on the track itself rather than here: a backwards reel of the same
 // length would land on this very set, 09 through 12, so the counter alone
 // cannot tell the two apart.
-const LANDINGS = ["09 / 25", "10 / 25", "11 / 25", "12 / 25"];
+const LANDINGS = ["09 / 26", "10 / 26", "11 / 26", "12 / 26"];
 
 const landedAt = async (page: import("@playwright/test").Page) => {
   const counter = await page

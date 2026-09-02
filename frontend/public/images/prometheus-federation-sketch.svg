@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 278 220">
+  <g transform="translate(139 110) scale(0.88) translate(-139 -110)">
+  <!-- the global server is the subject, so it takes the highlighter -->
+  <path d="M70 22 L208 22 L208 80 L70 80 Z" fill="#fff2c4" />
+
+  <!-- only what the selectors admitted ever arrives up here -->
+  <g fill="#dbe7ff">
+    <path d="M80 34 L198 34 L198 47 L80 47 Z" />
+    <path d="M80 53 L198 53 L198 66 L80 66 Z" />
+  </g>
+
+  <g fill="none" stroke="#1d1d1b" stroke-width="2.4" stroke-linejoin="round">
+    <path d="M70 22 L208 22 L208 80 L70 80 Z" stroke-width="4.2" />
+    <path d="M80 34 L198 34 L198 47 L80 47 Z" />
+    <path d="M80 53 L198 53 L198 66 L80 66 Z" />
+  </g>
+  <g fill="none" stroke="#1d1d1b" stroke-width="2.4">
+    <path d="M118 34 L118 47" />
+    <path d="M158 34 L158 47" />
+    <path d="M118 53 L118 66" />
+    <path d="M158 53 L158 66" />
+  </g>
+
+  <!-- it reaches down on its own schedule; the leaves are never told -->
+  <g fill="none" stroke="#1d1d1b" stroke-width="2.4" stroke-linecap="round">
+    <path d="M85 82 L85 94" />
+    <path d="M193 82 L193 94" />
+    <path d="M85 122 L85 128" />
+    <path d="M193 122 L193 128" />
+  </g>
+  <g fill="#1d1d1b">
+    <path d="M81 93 L89 93 L85 100 Z" />
+    <path d="M189 93 L197 93 L193 100 Z" />
+    <path d="M81 127 L89 127 L85 134 Z" />
+    <path d="M189 127 L197 127 L193 134 Z" />
+  </g>
+
+  <!-- match[]: the whole control surface, and empty admits nothing -->
+  <g fill="none" stroke="#1d1d1b" stroke-width="2.4" stroke-linejoin="round">
+    <path d="M76 100 L94 100 L94 120 L76 120 Z" />
+    <path d="M184 100 L202 100 L202 120 L184 120 Z" />
+  </g>
+  <g fill="none" stroke="#1d1d1b" stroke-width="2.4" stroke-linecap="round">
+    <path d="M80 107 L90 107" />
+    <path d="M80 113 L86 113" />
+    <path d="M188 107 L198 107" />
+    <path d="M188 113 L194 113" />
+  </g>
+
+  <!-- each leaf holds the detail, and keeps holding it -->
+  <g fill="#dbe7ff">
+    <path d="M52 141 L118 141 L118 150 L52 150 Z" />
+    <path d="M52 163 L118 163 L118 172 L52 172 Z" />
+    <path d="M160 141 L226 141 L226 150 L160 150 Z" />
+    <path d="M160 163 L226 163 L226 172 L160 172 Z" />
+  </g>
+
+  <g fill="none" stroke="#1d1d1b" stroke-width="2.4" stroke-linejoin="round">
+    <path d="M44 134 L126 134 L126 200 L44 200 Z" />
+    <path d="M152 134 L234 134 L234 200 L152 200 Z" />
+  </g>
+  <g fill="none" stroke="#1d1d1b" stroke-width="2" stroke-linejoin="round">
+    <path d="M52 141 L118 141 L118 150 L52 150 Z" />
+    <path d="M52 152 L118 152 L118 161 L52 161 Z" />
+    <path d="M52 163 L118 163 L118 172 L52 172 Z" />
+    <path d="M52 174 L118 174 L118 183 L52 183 Z" />
+    <path d="M52 185 L118 185 L118 194 L52 194 Z" />
+
+    <path d="M160 141 L226 141 L226 150 L160 150 Z" />
+    <path d="M160 152 L226 152 L226 161 L160 161 Z" />
+    <path d="M160 163 L226 163 L226 172 L160 172 Z" />
+    <path d="M160 174 L226 174 L226 183 L160 183 Z" />
+    <path d="M160 185 L226 185 L226 194 L160 194 Z" />
+  </g>
+  <g fill="none" stroke="#1d1d1b" stroke-width="2">
+    <path d="M74 141 L74 150" /><path d="M96 141 L96 150" />
+    <path d="M74 152 L74 161" /><path d="M96 152 L96 161" />
+    <path d="M74 163 L74 172" /><path d="M96 163 L96 172" />
+    <path d="M74 174 L74 183" /><path d="M96 174 L96 183" />
+    <path d="M74 185 L74 194" /><path d="M96 185 L96 194" />
+
+    <path d="M182 141 L182 150" /><path d="M204 141 L204 150" />
+    <path d="M182 152 L182 161" /><path d="M204 152 L204 161" />
+    <path d="M182 163 L182 172" /><path d="M204 163 L204 172" />
+    <path d="M182 174 L182 183" /><path d="M204 174 L204 183" />
+    <path d="M182 185 L182 194" /><path d="M204 185 L204 194" />
+  </g>
+  </g>
+</svg>
