@@ -29,28 +29,30 @@ OpenAI image generation on 2026-08-15 and are stored locally:
 `rbac-thumbnail.webp` on 2026-08-28, `redis-cluster-thumbnail.webp` on
 2026-08-29, `container-thumbnail.webp` on 2026-08-30,
 `terraform-state-thumbnail.webp` on 2026-08-31,
-`kubernetes-pod-thumbnail.webp` on 2026-09-01, and `prometheus-thumbnail.webp`
-with `prometheus-federation-thumbnail.webp` on 2026-09-02, each as an isometric
-SVG scene composed in-repo and rendered to WebP with headless Chromium. They
-contain no third-party artwork.
+`kubernetes-pod-thumbnail.webp` on 2026-09-01, `prometheus-thumbnail.webp` with
+`prometheus-federation-thumbnail.webp` on 2026-09-02, and
+`aws-alb-thumbnail.webp` on 2026-09-03, each as an isometric SVG scene composed
+in-repo and rendered to WebP with headless Chromium. They contain no
+third-party artwork.
 
 ## Sketch-theme drawings
 
-The twenty-six `*-sketch.svg` files are original hand-authored SVG line drawings
-made for DevOps TCG on 2026-08-19, on 2026-08-20 for the two certificate
-authority cards, on 2026-08-21 for JWT, on 2026-08-23 for AWS Lambda, on
-2026-08-24 for the two IAM cards, on 2026-08-25 for OIDC, on 2026-08-26 for
-Kafka, on 2026-08-27 for Redis, on 2026-08-28 for RBAC, on 2026-08-29 for
-Redis Cluster, on 2026-08-30 for Container, on 2026-08-31 for
-Terraform State, on 2026-09-01 for Kubernetes Pod, and on 2026-09-02 for
-Prometheus and Prometheus Federation. Their line work is plain `<path>` geometry — no tracing of any third-party image, no generator, and
-no external asset — and they are the artwork the sketch theme shows in place of
-the photographs above.
+The twenty-seven `*-sketch.svg` files are original hand-authored SVG line
+drawings made for DevOps TCG on 2026-08-19, on 2026-08-20 for the two
+certificate authority cards, on 2026-08-21 for JWT, on 2026-08-23 for AWS
+Lambda, on 2026-08-24 for the two IAM cards, on 2026-08-25 for OIDC, on
+2026-08-26 for Kafka, on 2026-08-27 for Redis, on 2026-08-28 for RBAC, on
+2026-08-29 for Redis Cluster, on 2026-08-30 for Container, on 2026-08-31 for
+Terraform State, on 2026-09-01 for Kubernetes Pod, on 2026-09-02 for Prometheus
+and Prometheus Federation, and on 2026-09-03 for AWS ALB. Their line work is
+plain `<path>` geometry — no tracing of any third-party image, no generator,
+and no external asset — and they are the artwork the sketch theme shows in
+place of the photographs above.
 Ink is `#1d1d1b`, the highlighter block is `#fff2c4`, and the subject block is
 `#dbe7ff`, matching the sketch theme's tokens. `aws-lambda-sketch.svg`,
-`aws-iam-role-sketch.svg` and `aws-iam-policy-sketch.svg` are the exceptions to
-the own-geometry rule: each drawing is hand-authored, but the AWS mark inside
-it is an official AWS icon described below.
+`aws-iam-role-sketch.svg`, `aws-iam-policy-sketch.svg` and `aws-alb-sketch.svg`
+are the exceptions to the own-geometry rule: each drawing is hand-authored, but
+the AWS mark inside it is an official AWS icon described below.
 
 ## AWS Architecture Icons
 
@@ -77,10 +79,20 @@ the terms do not permit a dark-theme variant of an icon AWS does not ship one
 for. Everything around them in those four files was drawn for DevOps TCG on
 2026-08-24.
 
+`aws-alb-thumbnail.webp` and `aws-alb-sketch.svg` carry a third resource icon
+from that same `Resource-Icons_04302026` set,
+`Res_Elastic-Load-Balancing_Application-Load-Balancer_48`. It is the `#8C4FFF`
+line-art mark AWS publishes for light backgrounds, and it appears uniformly
+scaled, neither recoloured nor otherwise modified — which is why the neon
+theme seats it on a light plate rather than inverting it, exactly as the IAM
+icons above are handled. Everything around it in those two files was drawn for
+DevOps TCG on 2026-09-03.
+
 - Source: https://aws.amazon.com/architecture/icons/
 - Terms: https://aws.amazon.com/architecture/icons/ ("AWS Architecture Icons
   Terms of Use", linked from that page)
 
-AWS, AWS Lambda and AWS Identity and Access Management are trademarks of
+AWS, AWS Lambda, AWS Identity and Access Management and Elastic Load Balancing
+are trademarks of
 Amazon.com, Inc. or its affiliates. This deck is an independent study project
 and is not affiliated with, endorsed by, or sponsored by AWS.

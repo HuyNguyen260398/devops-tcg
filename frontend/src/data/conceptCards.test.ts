@@ -68,6 +68,7 @@ const expectedCards = [
     "Prometheus Federation",
     "/images/prometheus-federation-thumbnail.webp",
   ],
+  ["aws-alb", "#027", "AWS ALB", "/images/aws-alb-thumbnail.webp"],
 ] as const;
 
 describe("conceptCards", () => {
@@ -95,7 +96,7 @@ describe("conceptCards", () => {
     expect(conceptCards[0].howItWorks).toHaveLength(4);
   });
 
-  it("contains all twenty-six concepts in the approved order", () => {
+  it("contains all twenty-seven concepts in the approved order", () => {
     expect(conceptCards).toHaveLength(expectedCards.length);
     expect(
       conceptCards.map(({ id, cardNumber, title, image }) => [
@@ -525,5 +526,32 @@ describe("conceptCards", () => {
     expect(federation?.howItWorks[2]?.description).toMatch(/resolution/i);
     // Where it stops: federation is a summary, not long-term storage.
     expect(federation?.howItWorks[3]?.description).toMatch(/remote write/i);
+  });
+
+  it("presents the ALB as a balancer that reads the request", () => {
+    const alb = conceptCards.find(({ id }) => id === "aws-alb");
+
+    // Layer 7 is the whole card: it parses the request before choosing.
+    expect(alb?.definition).toMatch(/layer 7/i);
+    expect(alb?.definition).toMatch(/terminates/i);
+    expect(alb?.keywords).toContain("listener rule");
+    // Rules are ordered and the first match wins, so a broad rule above a
+    // narrow one silently swallows it.
+    expect(alb?.components[0]?.description).toMatch(/first/i);
+    expect(alb?.components[0]?.description).toMatch(/default action/i);
+    // A rule names a target group, and the group owns the health check.
+    expect(alb?.components[1]?.description).toMatch(/target group/i);
+    expect(alb?.components[1]?.description).toMatch(/503/);
+    // Two connections is why the caller survives only as a header.
+    expect(alb?.components[2]?.description).toMatch(/X-Forwarded-For/);
+    expect(alb?.components[2]?.description).toMatch(/trusting/i);
+    // Nothing can be chosen before the request has been read.
+    expect(alb?.howItWorks[0]?.description).toMatch(/TLS is terminated/i);
+    expect(alb?.howItWorks[1]?.description).toMatch(/priority order/i);
+    // The target is picked from the healthy members, not from the group.
+    expect(alb?.howItWorks[2]?.description).toMatch(/healthy/i);
+    // Where the model stops: no HTTP, nothing to match on.
+    expect(alb?.howItWorks[3]?.description).toMatch(/cannot parse/i);
+    expect(alb?.howItWorks[3]?.description).toMatch(/latency/i);
   });
 });
