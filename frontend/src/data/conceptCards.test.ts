@@ -69,6 +69,7 @@ const expectedCards = [
     "/images/prometheus-federation-thumbnail.webp",
   ],
   ["aws-alb", "#027", "AWS ALB", "/images/aws-alb-thumbnail.webp"],
+  ["aws-nlb", "#028", "AWS NLB", "/images/aws-nlb-thumbnail.webp"],
 ] as const;
 
 describe("conceptCards", () => {
@@ -96,7 +97,7 @@ describe("conceptCards", () => {
     expect(conceptCards[0].howItWorks).toHaveLength(4);
   });
 
-  it("contains all twenty-seven concepts in the approved order", () => {
+  it("contains all twenty-eight concepts in the approved order", () => {
     expect(conceptCards).toHaveLength(expectedCards.length);
     expect(
       conceptCards.map(({ id, cardNumber, title, image }) => [
@@ -553,5 +554,29 @@ describe("conceptCards", () => {
     // Where the model stops: no HTTP, nothing to match on.
     expect(alb?.howItWorks[3]?.description).toMatch(/cannot parse/i);
     expect(alb?.howItWorks[3]?.description).toMatch(/latency/i);
+  });
+
+  it("presents the NLB as a balancer that never opens the packet", () => {
+    const nlb = conceptCards.find(({ id }) => id === "aws-nlb");
+
+    // Layer 4 is the whole card: it forwards without reading.
+    expect(nlb?.definition).toMatch(/layer 4/i);
+    expect(nlb?.definition).toMatch(/without reading/i);
+    expect(nlb?.keywords).toContain("flow hash");
+    // A listener here is a port, and the absence of rules is the trade.
+    expect(nlb?.components[0]?.description).toMatch(/no rules/i);
+    expect(nlb?.components[1]?.description).toMatch(/hashing/i);
+    // Sticky means sticky to a flow, not to a client.
+    expect(nlb?.components[1]?.description).toMatch(/not to a client/i);
+    // Static addresses, and the source IP the target actually sees.
+    expect(nlb?.components[2]?.description).toMatch(/Elastic IP/);
+    expect(nlb?.components[2]?.description).toMatch(/source address/i);
+    // Nothing is terminated, so there is no handshake in the path.
+    expect(nlb?.howItWorks[0]?.description).toMatch(/nothing is terminated/i);
+    // The choice is made once per flow and then repeated for free.
+    expect(nlb?.howItWorks[1]?.description).toMatch(/once/i);
+    expect(nlb?.howItWorks[2]?.description).toMatch(/drained/i);
+    // Where the model stops: no header can be added to a packet nobody opened.
+    expect(nlb?.howItWorks[3]?.description).toMatch(/proxy protocol/i);
   });
 });

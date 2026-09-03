@@ -32,8 +32,8 @@ describe("ConceptDeck", () => {
     const header = heading.closest("header");
 
     expect(header).not.toBeNull();
-    expect(within(header!).getByLabelText("Card 1 of 27")).toHaveTextContent(
-      "01 / 27",
+    expect(within(header!).getByLabelText("Card 1 of 28")).toHaveTextContent(
+      "01 / 28",
     );
     expect(screen.queryByText("CONCEPT STUDY DECK")).not.toBeInTheDocument();
     const active = within(slot("proxy")!);
@@ -143,7 +143,7 @@ describe("ConceptDeck", () => {
     expect(
       screen.getByRole("button", { name: "CDN card, front shown" }),
     ).toHaveAttribute("data-face", "front");
-    expect(screen.getByText("02 / 27")).toBeInTheDocument();
+    expect(screen.getByText("02 / 28")).toBeInTheDocument();
   });
 
   // jsdom has no PointerEvent, and fireEvent's fallback drops the coordinates,
@@ -197,7 +197,7 @@ describe("ConceptDeck", () => {
     expect(track()).toHaveAttribute("data-dragging", "true");
     expect(dragOffset()).toBe("translate3d(-60px, 0px, 0px)");
     // The deck only commits on release, so the counter has not moved yet.
-    expect(screen.getByText("01 / 27")).toBeInTheDocument();
+    expect(screen.getByText("01 / 28")).toBeInTheDocument();
   });
 
   it("springs back when the drag stops short of the threshold", () => {
@@ -208,7 +208,7 @@ describe("ConceptDeck", () => {
 
     expect(track()).not.toHaveAttribute("data-dragging");
     expect(dragOffset()).toBe("translate3d(0px, 0px, 0px)");
-    expect(screen.getByText("01 / 27")).toBeInTheDocument();
+    expect(screen.getByText("01 / 28")).toBeInTheDocument();
   });
 
   it("settles onto the next card when the drag clears the threshold", () => {
@@ -219,7 +219,7 @@ describe("ConceptDeck", () => {
 
     expect(track()).not.toHaveAttribute("data-dragging");
     expect(dragOffset()).toBe("translate3d(0px, 0px, 0px)");
-    expect(screen.getByText("02 / 27")).toBeInTheDocument();
+    expect(screen.getByText("02 / 28")).toBeInTheDocument();
   });
 
   it("holds the deck still once a drag turns out to be a scroll", () => {
@@ -228,7 +228,7 @@ describe("ConceptDeck", () => {
     drag(-60, 140);
 
     expect(dragOffset()).toBe("translate3d(0px, 0px, 0px)");
-    expect(screen.getByText("01 / 27")).toBeInTheDocument();
+    expect(screen.getByText("01 / 28")).toBeInTheDocument();
   });
 
   it("keeps latching a scroll even if the finger drifts sideways", () => {
@@ -267,7 +267,7 @@ describe("ConceptDeck", () => {
 
     expect(track()).not.toHaveAttribute("data-dragging");
     expect(dragOffset()).toBe("translate3d(0px, 0px, 0px)");
-    expect(screen.getByText("01 / 27")).toBeInTheDocument();
+    expect(screen.getByText("01 / 28")).toBeInTheDocument();
   });
 
   it("still turns the card when the browser cancels a latched swipe", () => {
@@ -278,7 +278,7 @@ describe("ConceptDeck", () => {
 
     expect(track()).not.toHaveAttribute("data-dragging");
     expect(dragOffset()).toBe("translate3d(0px, 0px, 0px)");
-    expect(screen.getByText("02 / 27")).toBeInTheDocument();
+    expect(screen.getByText("02 / 28")).toBeInTheDocument();
   });
 
   it("turns the card on a flick too short to clear the drag threshold", () => {
@@ -287,7 +287,7 @@ describe("ConceptDeck", () => {
     drag(-26);
     fireEvent(track(), pointer("pointerup", 174, 300, "touch"));
 
-    expect(screen.getByText("02 / 27")).toBeInTheDocument();
+    expect(screen.getByText("02 / 28")).toBeInTheDocument();
   });
 
   it("keeps a swipe alive when the finger drifts vertically on the way out", () => {
@@ -301,7 +301,7 @@ describe("ConceptDeck", () => {
     fireEvent(surface, pointer("pointermove", 120, 380, "touch"));
     fireEvent(surface, pointer("pointerup", 110, 400, "touch"));
 
-    expect(screen.getByText("02 / 27")).toBeInTheDocument();
+    expect(screen.getByText("02 / 28")).toBeInTheDocument();
   });
 
   it("arms the flip guard for one gesture only", () => {
@@ -329,7 +329,7 @@ describe("ConceptDeck", () => {
     expect(
       screen.getByRole("button", { name: "CDN card, front shown" }),
     ).toBeInTheDocument();
-    expect(screen.getByText("02 / 27")).toBeInTheDocument();
+    expect(screen.getByText("02 / 28")).toBeInTheDocument();
   });
 
   it("goes back on a rightward swipe", () => {
@@ -339,10 +339,10 @@ describe("ConceptDeck", () => {
 
     expect(
       screen.getByRole("button", {
-        name: "AWS ALB card, front shown",
+        name: "AWS NLB card, front shown",
       }),
     ).toBeInTheDocument();
-    expect(screen.getByText("27 / 27")).toBeInTheDocument();
+    expect(screen.getByText("28 / 28")).toBeInTheDocument();
   });
 
   it("ignores a drag too short to be a swipe", () => {
@@ -350,7 +350,7 @@ describe("ConceptDeck", () => {
 
     swipe(-20);
 
-    expect(screen.getByText("01 / 27")).toBeInTheDocument();
+    expect(screen.getByText("01 / 28")).toBeInTheDocument();
   });
 
   it("ignores a mostly vertical drag so card faces stay scrollable", () => {
@@ -358,7 +358,7 @@ describe("ConceptDeck", () => {
 
     swipe(-60, 140);
 
-    expect(screen.getByText("01 / 27")).toBeInTheDocument();
+    expect(screen.getByText("01 / 28")).toBeInTheDocument();
   });
 
   it("leaves mouse drags alone so text stays selectable", () => {
@@ -366,7 +366,7 @@ describe("ConceptDeck", () => {
 
     swipe(-80, 0, "mouse");
 
-    expect(screen.getByText("01 / 27")).toBeInTheDocument();
+    expect(screen.getByText("01 / 28")).toBeInTheDocument();
   });
 
   it("does not flip the card on the click that follows a swipe", () => {
@@ -388,7 +388,7 @@ describe("ConceptDeck", () => {
 
     expect(slotOf("proxy")).toBe("0");
     expect(slotOf("cdn")).toBe("1");
-    expect(slotOf("aws-alb")).toBe("-1");
+    expect(slotOf("aws-nlb")).toBe("-1");
   });
 
   it("stages the rank beyond the spread so no card can pop in", () => {
@@ -396,7 +396,7 @@ describe("ConceptDeck", () => {
     render(<ConceptDeck cards={conceptCards} random={() => 0.999999} />);
 
     expect(slotOf("nginx")).toBe("2");
-    expect(slotOf("prometheus-federation")).toBe("-2");
+    expect(slotOf("aws-alb")).toBe("-2");
     expect(slot("nginx")).toHaveAttribute("data-staged", "true");
     expect(slot("cdn")).not.toHaveAttribute("data-staged");
     expect(slot("reverse-proxy")).toBeNull();
@@ -442,9 +442,9 @@ describe("ConceptDeck", () => {
 
     expect(depthAndSide("proxy")).toEqual(["0", "0"]);
     expect(depthAndSide("cdn")).toEqual(["1", "1"]);
-    expect(depthAndSide("aws-alb")).toEqual(["1", "-1"]);
+    expect(depthAndSide("aws-nlb")).toEqual(["1", "-1"]);
     expect(depthAndSide("nginx")).toEqual(["2", "1"]);
-    expect(depthAndSide("prometheus-federation")).toEqual(["2", "-1"]);
+    expect(depthAndSide("aws-alb")).toEqual(["2", "-1"]);
   });
 
   it("moves the same card element between slots instead of remounting it", async () => {
@@ -476,7 +476,7 @@ describe("ConceptDeck", () => {
   it("hides every off-centre slot from assistive technology and focus", () => {
     render(<ConceptDeck cards={conceptCards} random={() => 0.999999} />);
 
-    for (const id of ["cdn", "nginx", "aws-alb", "prometheus-federation"]) {
+    for (const id of ["cdn", "nginx", "aws-nlb", "aws-alb"]) {
       const card = slot(id)!.querySelector(".concept-card")!;
       expect(card).toHaveAttribute("aria-hidden", "true");
       expect(card).not.toHaveAttribute("tabindex");
@@ -564,14 +564,14 @@ describe("ConceptDeck", () => {
     expect(
       screen.getByRole("button", { name: "CDN card, front shown" }),
     ).toBeInTheDocument();
-    expect(screen.getByText("02 / 27")).toBeInTheDocument();
+    expect(screen.getByText("02 / 28")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Next card" })).toHaveFocus();
 
     await user.click(screen.getByRole("button", { name: "Previous card" }));
     expect(
       screen.getByRole("button", { name: "Proxy card, front shown" }),
     ).toBeInTheDocument();
-    expect(screen.getByText("01 / 27")).toBeInTheDocument();
+    expect(screen.getByText("01 / 28")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Previous card" })).toHaveFocus();
   });
 
@@ -585,16 +585,16 @@ describe("ConceptDeck", () => {
     await user.click(previous);
     expect(
       screen.getByRole("button", {
-        name: "AWS ALB card, front shown",
+        name: "AWS NLB card, front shown",
       }),
     ).toBeInTheDocument();
-    expect(screen.getByText("27 / 27")).toBeInTheDocument();
+    expect(screen.getByText("28 / 28")).toBeInTheDocument();
 
     await user.click(next);
     expect(
       screen.getByRole("button", { name: "Proxy card, front shown" }),
     ).toBeInTheDocument();
-    expect(screen.getByText("01 / 27")).toBeInTheDocument();
+    expect(screen.getByText("01 / 28")).toBeInTheDocument();
 
     for (let position = 1; position <= conceptCards.length; position += 1) {
       await user.click(next);
@@ -603,7 +603,7 @@ describe("ConceptDeck", () => {
     expect(
       screen.getByRole("button", { name: "Proxy card, front shown" }),
     ).toBeInTheDocument();
-    expect(screen.getByText("01 / 27")).toBeInTheDocument();
+    expect(screen.getByText("01 / 28")).toBeInTheDocument();
     expect(previous).toBeEnabled();
     expect(next).toBeEnabled();
   });
@@ -617,14 +617,14 @@ describe("ConceptDeck", () => {
 
     expect(
       screen.getByRole("button", {
-        name: "AWS ALB card, front shown",
+        name: "AWS NLB card, front shown",
       }),
     ).toHaveFocus();
     expect(screen.getByTestId("deck-track")).toHaveAttribute(
       "data-direction",
       "previous",
     );
-    expect(screen.getByText("27 / 27")).toBeInTheDocument();
+    expect(screen.getByText("28 / 28")).toBeInTheDocument();
 
     await user.keyboard("{ArrowRight}");
     expect(
@@ -634,7 +634,7 @@ describe("ConceptDeck", () => {
       "data-direction",
       "next",
     );
-    expect(screen.getByText("01 / 27")).toBeInTheDocument();
+    expect(screen.getByText("01 / 28")).toBeInTheDocument();
   });
 
   it("resets image failure state when navigation changes the card", async () => {
@@ -690,13 +690,13 @@ describe("ConceptDeck", () => {
       await screen.findByRole("button", { name: "CDN card, front shown" }),
     ).toBeInTheDocument();
     expect(screen.queryByText("CONCEPT STUDY DECK")).not.toBeInTheDocument();
-    expect(screen.getByText("01 / 27")).toBeInTheDocument();
+    expect(screen.getByText("01 / 28")).toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: "Next card" }));
     expect(
       screen.getByRole("button", { name: "NGINX card, front shown" }),
     ).toBeInTheDocument();
-    expect(screen.getByText("02 / 27")).toBeInTheDocument();
+    expect(screen.getByText("02 / 28")).toBeInTheDocument();
     expect(conceptCards[0].title).toBe("Proxy");
   });
   // The shuffle deals a new order and slides it past, right to left, over a
@@ -757,8 +757,8 @@ describe("ConceptDeck", () => {
           name: "Lambda Throttle card, front shown",
         }),
       ).toBeInTheDocument();
-      expect(screen.getByLabelText("Card 9 of 27")).toHaveTextContent(
-        "09 / 27",
+      expect(screen.getByLabelText("Card 9 of 28")).toHaveTextContent(
+        "09 / 28",
       );
     });
 
@@ -774,7 +774,7 @@ describe("ConceptDeck", () => {
       expect(
         screen.getByRole("button", { name: "Private CA card, front shown" }),
       ).toBeInTheDocument();
-      expect(screen.getByText("12 / 27")).toBeInTheDocument();
+      expect(screen.getByText("12 / 28")).toBeInTheDocument();
     });
 
     it("deals an order the deck did not already have", async () => {
@@ -847,7 +847,7 @@ describe("ConceptDeck", () => {
 
         expect(track()).not.toHaveAttribute("data-spinning");
         expect(activeTitle()).toBe("Lambda Throttle");
-        expect(screen.getByText("09 / 27")).toBeInTheDocument();
+        expect(screen.getByText("09 / 28")).toBeInTheDocument();
       } finally {
         vi.unstubAllGlobals();
       }
