@@ -157,13 +157,16 @@ never requires a component redesign.
 
 ### Worked examples
 
+Checked against the shipped twenty-eight:
+
 | Query | Chip | Result |
 | --- | --- | --- |
-| `tls` | All | TLS (title), plus any card listing a `tls` keyword |
-| `security` | All | Every SECURITY card, by type match |
-| `caching` | All | Proxy, CDN, Redis, by keyword match |
+| `tls` | All | Reverse Proxy, SSL, TLS, Private CA — one by title, the rest by keyword or definition |
+| `security` | All | All ten SECURITY cards, by type match |
+| `caching` | All | Proxy — a keyword on no other card |
+| `aws` | All | Lambda Throttle, AWS Lambda, AWS IAM Role, AWS IAM Policy, AWS ALB, AWS NLB |
 | `aws` | SECURITY | AWS IAM Role, AWS IAM Policy |
-| `reverse proxy` | All | Cards whose haystack holds both words |
+| `reverse proxy` | All | Proxy, NGINX, Reverse Proxy — every card holding both words |
 | `zzz` | All | Nothing; the empty state renders |
 
 ## Desktop grid
