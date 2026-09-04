@@ -65,6 +65,8 @@ app/page.tsx
 └─ ConceptExplorer               NEW  owns query, type, view mode, layout mode
    ├─ AppHeader                  NEW  <h1>, ThemeToggle, ViewToggle, search affordance
    ├─ SearchBar                  NEW  input + clear + chips + count (presentational)
+   │                                  rendered in the header when wide,
+   │                                  inside SearchSheet when narrow
    ├─ CardGrid                   NEW  grid view
    │  └─ CardTile                NEW  one tile per filtered card
    ├─ CardDialog                 NEW  Dialog + ConceptCard (reused)
@@ -257,8 +259,10 @@ would be a second thing to keep in sync for no gain.
 ## Empty results
 
 When the filter matches nothing, both views render `EmptyResults`: the query
-that matched nothing, and a button that clears the text and the chip together
-and returns focus to the search input. `ConceptDeck` is never handed an empty
+that matched nothing, and a button that clears the text and the chip together.
+Focus then goes to whichever search control is on screen — the header input on a
+wide viewport, and the header's magnifier button on a narrow one, since the
+sheet that holds the input may well be closed. `ConceptDeck` is never handed an empty
 array — the explorer renders the empty state instead — so its own "No concept
 cards available." message stays what it is today, a data-integrity fallback.
 
