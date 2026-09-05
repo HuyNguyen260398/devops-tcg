@@ -20,7 +20,7 @@ export function SearchTrigger({ isFilterActive, onOpen }: SearchTriggerProps) {
 
         if (event.detail > 0) event.currentTarget.blur();
       }}
-      className="relative mt-2 flex h-7 w-7 items-center justify-center rounded-full border border-control-border bg-control text-control-ink transition-colors duration-200 hover:border-[color:var(--control-hover-border)] hover:bg-[color:var(--control-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]"
+      className="relative flex h-7 w-7 items-center justify-center rounded-full border border-control-border bg-control text-control-ink transition-colors duration-200 hover:border-[color:var(--control-hover-border)] hover:bg-[color:var(--control-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]"
     >
       <svg
         viewBox="0 0 24 24"

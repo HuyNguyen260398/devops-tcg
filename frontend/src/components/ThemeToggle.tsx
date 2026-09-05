@@ -43,7 +43,7 @@ export function ThemeToggle() {
           event.currentTarget.blur();
         }
       }}
-      className="theme-toggle mt-2 flex h-7 items-center gap-1.5 rounded-full border border-control-border bg-control px-3 text-[0.6rem] font-bold uppercase tracking-[0.16em] text-control-ink transition-colors duration-200 hover:border-[color:var(--control-hover-border)] hover:bg-[color:var(--control-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--paper)]"
+      className="theme-toggle flex h-7 items-center gap-1.5 rounded-full border border-control-border bg-control px-3 text-[0.6rem] font-bold uppercase tracking-[0.16em] text-control-ink transition-colors duration-200 hover:border-[color:var(--control-hover-border)] hover:bg-[color:var(--control-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--paper)]"
     >
       <svg
         viewBox="0 0 24 24"
