@@ -117,8 +117,9 @@ Non-obvious mechanisms worth knowing before editing `ConceptDeck.tsx`:
   past its own `padding-bottom`, parking the last line on the card's bottom
   edge instead of leaving room under it.
 - **The shuffle is a reel, built from the slot travel itself.**
-  `ShuffleControl` sits in the deck's flow under the carousel (the fixed arrow
-  layer is for the arrows only). A click deals a new order, rotates it so the
+  `ShuffleControl` sits in the deck's flow under the carousel on a wide screen
+  (the fixed arrow layer is for the arrows only); below 1024px it and the
+  arrows are replaced by `DeckToolbar`. A click deals a new order, rotates it so the
   card already in hand keeps its index — otherwise the deck would cut to
   another card before the reel had moved a pixel — and then slides that order
   past, right to left, by advancing the active index one step at a time. Each
@@ -167,6 +168,19 @@ Non-obvious mechanisms worth knowing before editing `ConceptDeck.tsx`:
   so a space typed into the search box is a space and not a flip. `AppHeader`
   carries the title, the search slot, the view toggle and `ThemeToggle`, so the
   first tab stop is now the search control rather than the theme toggle.
+- **One control bar below 1024px.** `DeckToolbar` is the narrow layout's whole
+  chrome: five equal grid columns holding previous, `ThemeToggle`, shuffle, the
+  search button and next, each centred in its own cell so the middle one sits
+  on the deck's centre line at any width. It is an in-flow child of the deck's
+  column, not a fixed overlay, so it reserves its height and can never cover a
+  card face — and `DeckPlaceholder` renders it inert at the same height, or
+  hydration would shift the card. A control is switched off by being given no
+  handler, so no caller passes a no-op beside a flag. The deck owns navigation
+  and shuffle, so it renders the bar and takes the search button as a
+  `searchControl` slot from `ConceptExplorer`, which owns the filter; the
+  explorer renders the same bar itself in the empty-results state, where there
+  is no deck and the reader most needs the search button back. `AppHeader`
+  drops its own `ThemeToggle` there (`showThemeToggle`) rather than showing two.
 - **The faces are swapped by `visibility`, not by backface culling.** WebKit
   does not backface-cull a composited scrolling layer, and both faces scroll,
   so on iOS the turned-away face painted its mirrored text straight through the
@@ -181,7 +195,8 @@ Behavioral contracts the tests enforce (don't regress them silently):
 card click / Enter / Space all flip; arrow buttons are named `Previous card`
 and `Next card` with `aria-hidden` SVG chevrons; the `Shuffle` button is
 centred under the card, deals a new order, reels forwards eight to eleven cards
-and stops front-up on the card it dealt; every pair of adjacent cards in the
+and stops front-up on the card it dealt; below 1024px every control sits in one
+evenly spaced bar clear of the card, each target at least 44px; every pair of adjacent cards in the
 spread stands the same gap apart at any width; keyboard focus is restored to the active card after
 ArrowLeft/ArrowRight navigation but not after button clicks; the deck prints
 no counter, so which card is centred is read from the card's own name (or the

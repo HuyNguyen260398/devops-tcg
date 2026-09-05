@@ -238,6 +238,63 @@ describe("ConceptExplorer on a narrow viewport", () => {
     ).toBeInTheDocument();
   });
 
+  it("gathers every control into one bar under the card", async () => {
+    setViewportWidth(375);
+    mount();
+
+    await screen.findByRole("button", { name: /^Proxy card, front shown$/ });
+
+    const bar = screen.getByRole("navigation", { name: "Card controls" });
+
+    expect(
+      within(bar)
+        .getAllByRole("button")
+        .map((button) => button.getAttribute("aria-label")),
+    ).toEqual([
+      "Previous card",
+      expect.stringMatching(/^Switch to the .* theme$/),
+      "Shuffle",
+      "Search the deck",
+      "Next card",
+    ]);
+  });
+
+  it("leaves the theme toggle to the bar rather than the header", async () => {
+    setViewportWidth(375);
+    mount();
+
+    await screen.findByRole("button", { name: /^Proxy card, front shown$/ });
+
+    expect(
+      screen.getAllByRole("button", { name: /^Switch to the .* theme$/ }),
+    ).toHaveLength(1);
+  });
+
+  // Without this the search button would vanish at the one moment the reader
+  // most needs it: the filter matched nothing and there is no deck to hold it.
+  it("keeps the search button reachable when nothing matches", async () => {
+    const user = userEvent.setup();
+
+    setViewportWidth(375);
+    mount();
+
+    await screen.findByRole("button", { name: /^Proxy card, front shown$/ });
+    await user.click(screen.getByRole("button", { name: "Search the deck" }));
+    await user.type(await screen.findByRole("searchbox"), "zzz");
+    await user.click(screen.getByRole("button", { name: "Done" }));
+
+    expect(await screen.findByRole("status")).toHaveTextContent(
+      "No cards match",
+    );
+    expect(
+      screen.getByRole("button", { name: "Search the deck, filter active" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Previous card" }),
+    ).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Shuffle" })).toBeDisabled();
+  });
+
   it("lets a space be typed into the search field", async () => {
     const user = userEvent.setup();
 

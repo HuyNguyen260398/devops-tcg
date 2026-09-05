@@ -20,6 +20,7 @@ import { AppHeader } from "./AppHeader";
 import { CardDialog } from "./CardDialog";
 import { CardGrid } from "./CardGrid";
 import { ConceptDeck } from "./ConceptDeck";
+import { DeckToolbar } from "./DeckToolbar";
 import { EmptyResults } from "./EmptyResults";
 import { SearchBar } from "./SearchBar";
 import { SearchSheet } from "./SearchSheet";
@@ -98,6 +99,8 @@ export function ConceptExplorer({ cards, random }: ConceptExplorerProps) {
       ? -1
       : visibleCards.findIndex((card) => card.id === selectedId);
 
+  // On a narrow viewport the search button is not in the header at all: it is
+  // handed to the deck's control bar, which is where every control now lives.
   const searchSlot =
     isWide === true ? (
       <SearchBar
@@ -107,8 +110,12 @@ export function ConceptExplorer({ cards, random }: ConceptExplorerProps) {
         totalCount={cards.length}
         onFilterChange={setFilter}
       />
-    ) : isWide === false ? (
+    ) : undefined;
+
+  const searchControl =
+    isWide === false ? (
       <SearchTrigger
+        compact
         isFilterActive={isFilterActive}
         onOpen={() => setIsSearchOpen(true)}
       />
@@ -131,6 +138,7 @@ export function ConceptExplorer({ cards, random }: ConceptExplorerProps) {
         <AppHeader
           viewMode={viewMode}
           canChooseView={isWide === true}
+          showThemeToggle={isWide !== false}
           onViewModeChange={chooseView}
         >
           {searchSlot === undefined ? undefined : (
@@ -148,14 +156,24 @@ export function ConceptExplorer({ cards, random }: ConceptExplorerProps) {
             className="min-h-0 w-full flex-1"
           />
         ) : visibleCards.length === 0 ? (
-          <EmptyResults query={filter.query} onClear={clearFilter} />
+          <>
+            <EmptyResults query={filter.query} onClear={clearFilter} />
+            {/* There is no deck to carry the bar here, and this is the one
+                moment the reader most needs the search button back. */}
+            {isWide === false && <DeckToolbar searchControl={searchControl} />}
+          </>
         ) : showGrid ? (
           <CardGrid
             cards={visibleCards}
             onSelect={(card) => setSelectedId(card.id)}
           />
         ) : (
-          <ConceptDeck cards={visibleCards} random={random} />
+          <ConceptDeck
+            cards={visibleCards}
+            random={random}
+            compactControls={isWide === false}
+            searchControl={searchControl}
+          />
         )}
       </div>
 

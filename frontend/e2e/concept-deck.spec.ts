@@ -743,7 +743,7 @@ test("serves a card-themed tab icon", async ({ page }) => {
   expect(response.headers()["content-type"]).toContain("image/svg+xml");
 });
 
-test("keeps the arrows clear of the card at phone widths", async ({
+test("stands the control bar clear of the card at phone widths", async ({
   page,
 }, testInfo) => {
   test.skip(testInfo.project.name !== "mobile");
@@ -754,19 +754,70 @@ test("keeps the arrows clear of the card at phone widths", async ({
     await expect(card(page)).toBeVisible();
 
     const centre = await slot(page, 0).boundingBox();
+    const bar = await page.locator(".deck-toolbar").boundingBox();
+
     expect(centre).not.toBeNull();
+    expect(bar).not.toBeNull();
 
-    for (const name of ["Previous card", "Next card"]) {
-      const arrow = await page.getByRole("button", { name }).boundingBox();
-      expect(arrow).not.toBeNull();
+    // The bar reserves its own height under the card rather than floating over
+    // it, so clearance is vertical now — the arrows sit below, not beside.
+    expect(
+      bar!.y,
+      `the bar covers the card at ${width}px`,
+    ).toBeGreaterThanOrEqual(centre!.y + centre!.height - 1);
 
-      const overlaps =
-        arrow!.x < centre!.x + centre!.width &&
-        arrow!.x + arrow!.width > centre!.x;
-      expect(overlaps, `${name} covers the card at ${width}px`).toBe(false);
-      expect(arrow!.width).toBeGreaterThanOrEqual(44);
-      expect(arrow!.height).toBeGreaterThanOrEqual(44);
+    for (const name of [
+      "Previous card",
+      "Shuffle",
+      "Search the deck",
+      "Next card",
+    ]) {
+      const control = await page.getByRole("button", { name }).boundingBox();
+
+      expect(control, `${name} is missing at ${width}px`).not.toBeNull();
+      expect(control!.width).toBeGreaterThanOrEqual(44);
+      expect(control!.height).toBeGreaterThanOrEqual(44);
     }
+  }
+});
+
+test("spaces the control bar evenly and centres it", async ({
+  page,
+}, testInfo) => {
+  test.skip(testInfo.project.name !== "mobile");
+
+  for (const width of [320, 375, 412]) {
+    await page.setViewportSize({ width, height: 700 });
+    await page.goto("/");
+    await expect(card(page)).toBeVisible();
+
+    const centres: number[] = [];
+
+    for (const name of [
+      /^Previous card$/,
+      /^Switch to the .* theme$/,
+      /^Shuffle$/,
+      /^Search the deck/,
+      /^Next card$/,
+    ]) {
+      const box = await page.getByRole("button", { name }).boundingBox();
+
+      expect(box, `${name} is missing at ${width}px`).not.toBeNull();
+      centres.push(box!.x + box!.width / 2);
+    }
+
+    const gaps = centres.slice(1).map((centre, i) => centre - centres[i]);
+
+    // Even spacing: every gap the same, give or take a rounded pixel.
+    for (const gap of gaps) {
+      expect(
+        Math.abs(gap - gaps[0]),
+        `uneven at ${width}px`,
+      ).toBeLessThanOrEqual(1);
+    }
+
+    // And the row is centred, so the middle control sits on the screen's axis.
+    expect(Math.abs(centres[2] - width / 2)).toBeLessThanOrEqual(1);
   }
 });
 
@@ -958,7 +1009,7 @@ test("does not overflow at 320 pixels", async ({ page }, testInfo) => {
 
 test("keeps the complete deck navigation inside the viewport", async ({
   page,
-}) => {
+}, testInfo) => {
   await page.goto("/");
 
   const dimensions = await page.evaluate(() => ({
@@ -976,6 +1027,10 @@ test("keeps the complete deck navigation inside the viewport", async ({
   expect(activeCardBounds).not.toBeNull();
   expect(activeContentBounds).not.toBeNull();
 
+  // Narrow viewports gather the arrows into the bar under the card; only the
+  // desktop layout still flanks the card with them.
+  const flanksTheCard = testInfo.project.name !== "mobile";
+
   for (const name of ["Previous card", "Next card"]) {
     const arrow = page.getByRole("button", { name });
     await expect(arrow).toBeInViewport({ ratio: 1 });
@@ -984,6 +1039,13 @@ test("keeps the complete deck navigation inside the viewport", async ({
     expect(bounds).not.toBeNull();
     expect(bounds!.width).toBeGreaterThanOrEqual(44);
     expect(bounds!.height).toBeGreaterThanOrEqual(44);
+
+    if (!flanksTheCard) {
+      expect(bounds!.y).toBeGreaterThanOrEqual(
+        activeCardBounds!.y + activeCardBounds!.height - 1,
+      );
+      continue;
+    }
 
     if (name === "Previous card") {
       expect(bounds!.x).toBeLessThanOrEqual(16);

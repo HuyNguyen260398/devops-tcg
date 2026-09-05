@@ -1,15 +1,28 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import { shuffleCards, type RandomSource } from "@/lib/shuffle";
 import type { ConceptCardData } from "@/types/concept";
 import { ConceptCard } from "./ConceptCard";
 import { DeckControls } from "./DeckControls";
+import { DeckToolbar } from "./DeckToolbar";
 import { ShuffleControl } from "./ShuffleControl";
 
 interface ConceptDeckProps {
   readonly cards: readonly ConceptCardData[];
   readonly random?: RandomSource;
+  // Narrow viewports gather every control into one bar under the card instead
+  // of floating arrows beside it and standing the shuffle on its own row.
+  readonly compactControls?: boolean;
+  // Passed straight through to the bar: the search button belongs to whoever
+  // owns the filter, which is never the deck.
+  readonly searchControl?: ReactNode;
 }
 
 const wrapIndex = (index: number, length: number) =>
@@ -131,7 +144,15 @@ interface SwipeGesture {
   axis: "undecided" | "horizontal" | "vertical";
 }
 
-function DeckPlaceholder({ total }: { readonly total: number }) {
+function DeckPlaceholder({
+  total,
+  compactControls,
+  searchControl,
+}: {
+  readonly total: number;
+  readonly compactControls: boolean;
+  readonly searchControl?: ReactNode;
+}) {
   return (
     <section
       aria-label="Concept card deck"
@@ -150,7 +171,11 @@ function DeckPlaceholder({ total }: { readonly total: number }) {
       {/* Rendered inert rather than omitted: the deck is a locked 100dvh
           column, so a control that only appeared after mount would take its
           height out of the card and shift the whole layout at hydration. */}
-      <ShuffleControl disabled />
+      {compactControls ? (
+        <DeckToolbar searchControl={searchControl} />
+      ) : (
+        <ShuffleControl disabled />
+      )}
     </section>
   );
 }
@@ -161,7 +186,12 @@ interface DeckOrder {
   readonly cards: readonly ConceptCardData[];
 }
 
-export function ConceptDeck({ cards, random = Math.random }: ConceptDeckProps) {
+export function ConceptDeck({
+  cards,
+  random = Math.random,
+  compactControls = false,
+  searchControl,
+}: ConceptDeckProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [deckOrder, setDeckOrder] = useState<DeckOrder | null>(null);
   const [direction, setDirection] = useState<NavigationDirection | null>(null);
@@ -341,7 +371,13 @@ export function ConceptDeck({ cards, random = Math.random }: ConceptDeckProps) {
     deckOrder.sourceCards !== cards ||
     deckOrder.random !== random
   ) {
-    return <DeckPlaceholder total={cards.length} />;
+    return (
+      <DeckPlaceholder
+        total={cards.length}
+        compactControls={compactControls}
+        searchControl={searchControl}
+      />
+    );
   }
 
   const shuffledCards = deckOrder.cards;
@@ -558,14 +594,25 @@ export function ConceptDeck({ cards, random = Math.random }: ConceptDeckProps) {
         </div>
       </div>
 
-      <ShuffleControl disabled={!hasMultipleCards} onShuffle={shuffle} />
+      {compactControls ? (
+        <DeckToolbar
+          onPrevious={hasMultipleCards ? () => navigate("previous") : undefined}
+          onNext={hasMultipleCards ? () => navigate("next") : undefined}
+          onShuffle={hasMultipleCards ? shuffle : undefined}
+          searchControl={searchControl}
+        />
+      ) : (
+        <>
+          <ShuffleControl disabled={!hasMultipleCards} onShuffle={shuffle} />
 
-      <DeckControls
-        canGoPrevious={hasMultipleCards}
-        canGoNext={hasMultipleCards}
-        onPrevious={() => navigate("previous")}
-        onNext={() => navigate("next")}
-      />
+          <DeckControls
+            canGoPrevious={hasMultipleCards}
+            canGoNext={hasMultipleCards}
+            onPrevious={() => navigate("previous")}
+            onNext={() => navigate("next")}
+          />
+        </>
+      )}
     </section>
   );
 }

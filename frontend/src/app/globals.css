@@ -752,6 +752,73 @@ button,
   min-width: 0;
 }
 
+/* The narrow layout's control bar. Five equal columns rather than a flex row
+   with gaps: every control is centred in its own cell, so the buttons stay
+   evenly spaced and the middle one stays on the deck's centre line whatever
+   the width. */
+.deck-toolbar {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  align-items: center;
+  padding-top: clamp(0.5rem, 1.5vh, 0.875rem);
+}
+
+.deck-toolbar-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+}
+
+/* 46px, matching the arrows this bar replaces and clearing the 44px touch
+   target floor. */
+.deck-toolbar-button {
+  display: flex;
+  height: 46px;
+  width: 46px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  border: 1px solid var(--control-border);
+  background: var(--control);
+  color: var(--control-ink);
+  box-shadow: var(--control-shadow);
+  transition:
+    border-color 200ms,
+    background-color 200ms,
+    transform 200ms,
+    opacity 200ms;
+}
+
+.deck-toolbar-button:hover:not(:disabled) {
+  border-color: var(--control-hover-border);
+  background: var(--control-hover);
+}
+
+.deck-toolbar-button:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.deck-toolbar-button:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.deck-toolbar-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.35;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .deck-toolbar-button {
+    transition: none;
+  }
+
+  .deck-toolbar-button:active:not(:disabled) {
+    transform: none;
+  }
+}
+
 @media (min-width: 640px) {
   .concept-card {
     max-height: 680px;

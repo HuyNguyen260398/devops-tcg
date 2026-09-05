@@ -10,6 +10,9 @@ interface AppHeaderProps {
   // so on a phone the control is absent rather than disabled.
   readonly canChooseView: boolean;
   readonly onViewModeChange: (mode: ViewMode) => void;
+  // Narrow viewports move the theme toggle into the deck's control bar, so the
+  // header must be able to stand down rather than render it twice.
+  readonly showThemeToggle?: boolean;
   // The search slot: a full SearchBar on a wide screen, a SearchTrigger on a
   // narrow one. The header does not care which.
   readonly children?: ReactNode;
@@ -19,6 +22,7 @@ export function AppHeader({
   viewMode,
   canChooseView,
   onViewModeChange,
+  showThemeToggle = true,
   children,
 }: AppHeaderProps) {
   const target: ViewMode = viewMode === "grid" ? "deck" : "grid";
@@ -77,7 +81,7 @@ export function AppHeader({
             {target}
           </button>
         )}
-        <ThemeToggle />
+        {showThemeToggle && <ThemeToggle />}
       </div>
     </header>
   );
