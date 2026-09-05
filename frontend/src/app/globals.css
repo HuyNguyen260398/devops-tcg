@@ -733,6 +733,17 @@ button,
   }
 }
 
+/* The dialog gives the card the same kind of stage a deck slot does: a flex
+   column with a height, so `.concept-card` can fill it and both faces can
+   scroll. */
+.card-dialog {
+  height: min(680px, 100%);
+}
+
+.card-dialog-stage {
+  min-width: 0;
+}
+
 @media (min-width: 640px) {
   .concept-card {
     max-height: 680px;
