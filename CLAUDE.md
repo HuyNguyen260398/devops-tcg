@@ -60,9 +60,11 @@ they need no AWS credentials. CI pins Terraform 1.15.5.
 
 Data flows one way: `src/data/conceptCards.ts` (a typed literal array
 satisfying `ConceptCardData` from `src/types/concept.ts`) → `app/page.tsx` →
-`ConceptDeck` → `ConceptCard` → `CardFront`/`CardBack`, with `DeckControls`
-rendering the side arrows. Deck bounds, counter, and navigation all derive from
-`cards.length`, so adding a card is a data change plus tests — never a component
+`ConceptExplorer`, which filters it and hands the result to either `CardGrid`
+(viewports ≥1024px in grid view) or `ConceptDeck` → `ConceptCard` →
+`CardFront`/`CardBack`, with `DeckControls` rendering the side arrows. Deck
+bounds, counter, and navigation all derive from the length of the array the
+deck is given, so adding a card is a data change plus tests — never a component
 redesign.
 
 Non-obvious mechanisms worth knowing before editing `ConceptDeck.tsx`:
@@ -141,8 +143,30 @@ Non-obvious mechanisms worth knowing before editing `ConceptDeck.tsx`:
   is the only component that knows a theme exists: it stamps `data-theme` on
   the document element and writes the `devops-tcg-theme` key, and an inline
   script in `layout.tsx` replays that key before first paint so a stored sketch
-  choice never flashes neon. It also takes the first tab stop, ahead of the
-  card. Adding a theme is a third token block, not a component change.
+  choice never flashes neon. Adding a theme is a third token block, not a
+  component change.
+- **Two layouts, one filtered array.** `ConceptExplorer` is the shell: it owns
+  the search filter, the stored view preference (`devops-tcg-view`, a second
+  key alongside the theme's) and a mount-time `matchMedia("(min-width:
+  1024px)")` measurement, and renders nothing that depends on the viewport
+  until that measurement lands — the same placeholder beat the deck already
+  takes for its shuffle, which is why the view preference needs no pre-paint
+  script the way the theme does. Matching lives in `src/lib/filterCards.ts`:
+  every whitespace-separated token must appear in the card's title, type,
+  keywords or definition, ANDed with the category chip, and the chips are
+  derived from the data so a card in a fifth category needs no code change. The
+  filtered array must stay memoised — `ConceptDeck` re-deals its order whenever
+  its `cards` prop changes identity, so a fresh array per render would reshuffle
+  the deck on every keystroke, and `filterCards` returns the very array it was
+  given when nothing is filtered for the same reason. Above 1024px the reader
+  chooses between the grid and the carousel, so `RANK_BREAKPOINTS` stays whole;
+  below it the carousel is the only layout and the toggle is absent rather than
+  disabled. Every modal — the grid's card dialog and the phone's search sheet —
+  renders through one `Dialog`, and the deck's document-level Enter/Space/Arrow
+  shortcuts stand aside for any text field or anything inside a `[role="dialog"]`
+  so a space typed into the search box is a space and not a flip. `AppHeader`
+  carries the title, the search slot, the view toggle and `ThemeToggle`, so the
+  first tab stop is now the search control rather than the theme toggle.
 - **The faces are swapped by `visibility`, not by backface culling.** WebKit
   does not backface-cull a composited scrolling layer, and both faces scroll,
   so on iOS the turned-away face painted its mirrored text straight through the
@@ -160,7 +184,12 @@ centred under the card, deals a new order, reels forwards eight to eleven cards
 and stops front-up on the card it dealt; every pair of adjacent cards in the
 spread stands the same gap apart at any width; keyboard focus is restored to the active card after
 ArrowLeft/ArrowRight navigation but not after button clicks; the position counter is a polite live region; no horizontal document
-overflow at 320px; images failing to load keep the definition readable.
+overflow at 320px; images failing to load keep the definition readable;
+typing in the search bar filters both layouts on every keystroke and the count
+is a polite live region; a grid tile opens a dialog whose Escape returns focus
+to that tile; the dialog's Previous/Next wrap through the filtered results only;
+a dismissed search sheet keeps its filter and marks the header trigger; the grid
+scrolls inside the locked shell rather than scrolling the document.
 
 ## Infrastructure
 
