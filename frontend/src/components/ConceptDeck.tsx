@@ -1,20 +1,29 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import { shuffleCards, type RandomSource } from "@/lib/shuffle";
 import type { ConceptCardData } from "@/types/concept";
 import { ConceptCard } from "./ConceptCard";
 import { DeckControls } from "./DeckControls";
+import { DeckToolbar } from "./DeckToolbar";
 import { ShuffleControl } from "./ShuffleControl";
-import { ThemeToggle } from "./ThemeToggle";
 
 interface ConceptDeckProps {
   readonly cards: readonly ConceptCardData[];
   readonly random?: RandomSource;
+  // Narrow viewports gather every control into one bar under the card instead
+  // of floating arrows beside it and standing the shuffle on its own row.
+  readonly compactControls?: boolean;
+  // Passed straight through to the bar: the search button belongs to whoever
+  // owns the filter, which is never the deck.
+  readonly searchControl?: ReactNode;
 }
-
-const formatPosition = (position: number) =>
-  position.toString().padStart(2, "0");
 
 const wrapIndex = (index: number, length: number) =>
   ((index % length) + length) % length;
@@ -106,6 +115,17 @@ const slotOffset = (index: number, activeIndex: number, length: number) => {
   return offset;
 };
 
+// The deck's shortcuts listen on the document, so they must stand aside for
+// anything that owns its own keys: a space typed into the search field is a
+// space, not a flip, and an arrow key inside a dialog belongs to that dialog.
+const ownsItsOwnKeys = (element: HTMLElement | null): boolean =>
+  element !== null &&
+  (element.isContentEditable ||
+    element.tagName === "INPUT" ||
+    element.tagName === "TEXTAREA" ||
+    element.tagName === "SELECT" ||
+    element.closest('[role="dialog"]') !== null);
+
 type NavigationDirection = "previous" | "next";
 
 // Which way the card rotates about its Y axis. Both land the same face and
@@ -124,39 +144,20 @@ interface SwipeGesture {
   axis: "undecided" | "horizontal" | "vertical";
 }
 
-interface DeckHeaderProps {
-  readonly position: number | null;
+function DeckPlaceholder({
+  total,
+  compactControls,
+  searchControl,
+}: {
   readonly total: number;
-}
-
-function DeckHeader({ position, total }: DeckHeaderProps) {
-  const ready = position !== null;
-
-  return (
-    <header className="concept-deck-header mx-auto flex w-full max-w-[350px] shrink-0 flex-col items-center border-b border-rule text-center">
-      <h1 className="font-display text-2xl font-black uppercase tracking-[0.12em] text-ink sm:text-3xl">
-        DevOps TCG
-      </h1>
-      <p
-        aria-label={ready ? `Card ${position} of ${total}` : undefined}
-        aria-live={ready ? "polite" : undefined}
-        aria-hidden={ready ? undefined : true}
-        className="mt-1 font-mono text-xs font-semibold tracking-[0.18em] text-ink-muted"
-      >
-        {ready ? formatPosition(position) : "--"} / {formatPosition(total)}
-      </p>
-      <ThemeToggle />
-    </header>
-  );
-}
-
-function DeckPlaceholder({ total }: { readonly total: number }) {
+  readonly compactControls: boolean;
+  readonly searchControl?: ReactNode;
+}) {
   return (
     <section
       aria-label="Concept card deck"
       className="concept-deck flex min-h-0 w-full flex-1 flex-col"
     >
-      <DeckHeader position={null} total={total} />
       <div
         role="status"
         aria-busy="true"
@@ -170,7 +171,11 @@ function DeckPlaceholder({ total }: { readonly total: number }) {
       {/* Rendered inert rather than omitted: the deck is a locked 100dvh
           column, so a control that only appeared after mount would take its
           height out of the card and shift the whole layout at hydration. */}
-      <ShuffleControl disabled />
+      {compactControls ? (
+        <DeckToolbar searchControl={searchControl} />
+      ) : (
+        <ShuffleControl disabled />
+      )}
     </section>
   );
 }
@@ -181,7 +186,12 @@ interface DeckOrder {
   readonly cards: readonly ConceptCardData[];
 }
 
-export function ConceptDeck({ cards, random = Math.random }: ConceptDeckProps) {
+export function ConceptDeck({
+  cards,
+  random = Math.random,
+  compactControls = false,
+  searchControl,
+}: ConceptDeckProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [deckOrder, setDeckOrder] = useState<DeckOrder | null>(null);
   const [direction, setDirection] = useState<NavigationDirection | null>(null);
@@ -328,6 +338,8 @@ export function ConceptDeck({ cards, random = Math.random }: ConceptDeckProps) {
 
       const target = event.target as HTMLElement | null;
 
+      if (ownsItsOwnKeys(target)) return;
+
       if (event.key === "Enter" || event.key === " ") {
         // A focused control keeps Enter and Space for its own activation.
         if (target?.closest("button")) return;
@@ -359,7 +371,13 @@ export function ConceptDeck({ cards, random = Math.random }: ConceptDeckProps) {
     deckOrder.sourceCards !== cards ||
     deckOrder.random !== random
   ) {
-    return <DeckPlaceholder total={cards.length} />;
+    return (
+      <DeckPlaceholder
+        total={cards.length}
+        compactControls={compactControls}
+        searchControl={searchControl}
+      />
+    );
   }
 
   const shuffledCards = deckOrder.cards;
@@ -486,8 +504,6 @@ export function ConceptDeck({ cards, random = Math.random }: ConceptDeckProps) {
       aria-label="Concept card deck"
       className="concept-deck flex min-h-0 w-full flex-1 flex-col"
     >
-      <DeckHeader position={activeIndex + 1} total={shuffledCards.length} />
-
       <div
         className="deck-carousel relative flex min-h-0 w-full flex-1"
         onPointerDown={(event) => {
@@ -527,11 +543,14 @@ export function ConceptDeck({ cards, random = Math.random }: ConceptDeckProps) {
           setDrag(null);
         }}
       >
+        {/* data-position carries what the counter used to print: invisible to a
+            reader, but it is what lets a test say how far a reel travelled. */}
         <div
           ref={trackRef}
           data-testid="deck-track"
           data-direction={direction ?? undefined}
           data-spinning={isSpinning ? "true" : undefined}
+          data-position={activeIndex + 1}
           className="deck-track relative min-h-0 w-full flex-1"
         >
           {shuffledCards.map((deckCard, index) => {
@@ -575,14 +594,25 @@ export function ConceptDeck({ cards, random = Math.random }: ConceptDeckProps) {
         </div>
       </div>
 
-      <ShuffleControl disabled={!hasMultipleCards} onShuffle={shuffle} />
+      {compactControls ? (
+        <DeckToolbar
+          onPrevious={hasMultipleCards ? () => navigate("previous") : undefined}
+          onNext={hasMultipleCards ? () => navigate("next") : undefined}
+          onShuffle={hasMultipleCards ? shuffle : undefined}
+          searchControl={searchControl}
+        />
+      ) : (
+        <>
+          <ShuffleControl disabled={!hasMultipleCards} onShuffle={shuffle} />
 
-      <DeckControls
-        canGoPrevious={hasMultipleCards}
-        canGoNext={hasMultipleCards}
-        onPrevious={() => navigate("previous")}
-        onNext={() => navigate("next")}
-      />
+          <DeckControls
+            canGoPrevious={hasMultipleCards}
+            canGoNext={hasMultipleCards}
+            onPrevious={() => navigate("previous")}
+            onNext={() => navigate("next")}
+          />
+        </>
+      )}
     </section>
   );
 }

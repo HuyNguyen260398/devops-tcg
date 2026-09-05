@@ -1,18 +1,26 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import Home from "./page";
 
 describe("Home", () => {
-  it("renders the shuffled deck without helper text", async () => {
+  // jsdom opens at 1024, which is the grid boundary.
+  it("renders the searchable grid without helper text", async () => {
     render(<Home />);
 
     expect(
       screen.getByRole("heading", { name: "DevOps TCG" }),
     ).toBeInTheDocument();
+
+    await waitFor(() =>
+      expect(
+        screen.getAllByRole("button", { name: /^Open the .* card$/ }),
+      ).toHaveLength(28),
+    );
+
+    expect(screen.getByText("28 / 28")).toBeInTheDocument();
     expect(
-      await screen.findByRole("button", { name: /card, front shown$/ }),
+      screen.getByRole("searchbox", { name: "Search cards" }),
     ).toBeInTheDocument();
-    expect(screen.getByText("01 / 28")).toBeInTheDocument();
     expect(
       screen.queryByText(/click the card or use enter or space/i),
     ).not.toBeInTheDocument();

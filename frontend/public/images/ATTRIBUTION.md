@@ -1,10 +1,7 @@
 # Image attribution
 
-`proxy-thumbnail.webp` is derived from “Ethernet cables connected to the back
-of a network device” by Manuel Luikenga.
-
-- Source: https://unsplash.com/photos/ethernet-cables-connected-to-the-back-of-a-network-device-y4GHs9GEFdM
-- License: https://unsplash.com/license
+Every thumbnail in the deck is either project-generated or project-drawn. No
+third-party artwork remains.
 
 ## Project-generated illustrations
 
@@ -31,10 +28,14 @@ OpenAI image generation on 2026-08-15 and are stored locally:
 `terraform-state-thumbnail.webp` on 2026-08-31,
 `kubernetes-pod-thumbnail.webp` on 2026-09-01, `prometheus-thumbnail.webp` with
 `prometheus-federation-thumbnail.webp` on 2026-09-02, and
-`aws-alb-thumbnail.webp` with `aws-nlb-thumbnail.webp` on 2026-09-03, each as
+`aws-alb-thumbnail.webp` with `aws-nlb-thumbnail.webp` on 2026-09-03, and
+`proxy-thumbnail.webp` on 2026-09-05, each as
 an isometric SVG scene composed in-repo and rendered to WebP with headless
 Chromium. They contain no
 third-party artwork.
+
+`proxy-thumbnail.webp` replaced an Unsplash photograph, which was the one
+thumbnail in the deck that was neither drawn for it nor 16:9.
 
 ## Sketch-theme drawings
 

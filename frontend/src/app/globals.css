@@ -29,6 +29,10 @@
      many ranks fit a viewport from the same numbers, so widening the spread is
      a change here and nowhere else. */
   --slot-gap: 2rem;
+  /* One height for both ends of the narrow layout — the header above the card
+     and the control bar below it. Equal chrome top and bottom, inside equal
+     shell padding, is what leaves the card centred on the screen. */
+  --mobile-chrome: calc(46px + clamp(0.5rem, 1.5vh, 0.875rem));
   --slot-scale-step: 0.1;
   --slot-tilt-base: 1deg;
   --slot-tilt-step: 1.5deg;
@@ -37,6 +41,7 @@
 
   /* Ground */
   --paper: #050714;
+  --scrim: rgb(3 4 12 / 0.78);
   --stage-image:
     radial-gradient(
       circle at 50% -10%,
@@ -159,6 +164,7 @@
   color-scheme: light;
 
   --paper: #ece7db;
+  --scrim: rgb(29 29 27 / 0.55);
   --stage-image:
     radial-gradient(
       circle at 50% -10%,
@@ -276,14 +282,6 @@ body {
 
 .app-stage {
   height: 100%;
-}
-
-/* The theme toggle sits in this header's flow, so the padding gives back most
-   of the height it takes: the layout is a locked 100dvh with no page scroll,
-   and card height is the scarce resource at 320x700. */
-.concept-deck-header {
-  margin-bottom: clamp(0.5rem, 1.5vh, 1rem);
-  padding-bottom: clamp(0.375rem, 1vh, 0.75rem);
 }
 
 .deck-controls {
@@ -415,6 +413,11 @@ button,
   bottom: 0;
   left: 50%;
   display: flex;
+  /* A card that hits its max-height leaves slack in the slot; centring splits
+     that slack above and below instead of letting it all fall underneath. The
+     card is sized by the rule below rather than by stretching, because a
+     stretched item cannot also be centred. */
+  align-items: center;
   width: var(--deck-card-width);
   max-width: 350px;
   transition:
@@ -427,6 +430,13 @@ button,
    alongside the travel, which re-rasterises four full card layers on every
    frame of every move. Their own veil and opacity already read as "set back",
    so the filter buys nothing it costs. */
+/* Centring a flex item stops it stretching, so the card would fall back to its
+   content height and overflow a short screen. It fills the slot and stops at
+   its own max-height, which is exactly what leaves the slack to centre. */
+.deck-slot .concept-card {
+  height: 100%;
+}
+
 .deck-slot:not([data-slot="0"]) {
   pointer-events: none;
 }
@@ -665,6 +675,176 @@ button,
 
 .card-thumbnail-fallback {
   background-image: var(--thumb-fallback);
+}
+
+/* One modal for the whole application: the card dialog and the mobile search
+   sheet are the same box with different contents. */
+.app-dialog-backdrop {
+  background: var(--scrim);
+  animation: dialog-fade var(--travel) var(--travel-ease);
+}
+
+.app-dialog-surface {
+  animation: dialog-rise var(--travel) var(--travel-ease);
+}
+
+@keyframes dialog-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes dialog-rise {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 12px, 0);
+  }
+}
+
+/* The chip strip scrolls sideways on a phone; a visible scrollbar under four
+   chips reads as a broken layout rather than as an affordance. */
+.search-chips {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.search-chips::-webkit-scrollbar {
+  display: none;
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
+  /* A fixed row, and rows packed to the top rather than stretched to fill: a
+     filter that leaves one row must not deal taller cards than a filter that
+     leaves six, and a title that wraps must not deal a taller row than one
+     that does not. Every tile is this height at every width and every
+     filter. */
+  grid-auto-rows: 14.5rem;
+  align-content: start;
+  gap: 1rem;
+  margin: 0;
+  padding: 0 0 1.5rem;
+  list-style: none;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* Two lines is the most a title gets; the row height is built around it. */
+.card-tile-title {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
+
+.card-tile {
+  box-shadow: var(--card-shadow-flat);
+}
+
+.card-tile:hover {
+  border-color: var(--control-hover-border);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card-tile {
+    transition: none;
+  }
+
+  .card-tile:hover {
+    transform: none;
+  }
+}
+
+/* The dialog gives the card the same kind of stage a deck slot does: a flex
+   column with a height, so `.concept-card` can fill it and both faces can
+   scroll. */
+.card-dialog {
+  height: min(680px, 100%);
+}
+
+.card-dialog-stage {
+  min-width: 0;
+}
+
+/* The narrow layout's control bar. Five equal columns rather than a flex row
+   with gaps: every control is centred in its own cell, so the buttons stay
+   evenly spaced and the middle one stays on the deck's centre line whatever
+   the width. */
+.deck-toolbar {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  align-items: center;
+  height: var(--mobile-chrome);
+  padding-top: clamp(0.5rem, 1.5vh, 0.875rem);
+}
+
+/* Below the grid boundary the header carries only the title, so it is given the
+   control bar's height rather than the title's. The two ends of the layout then
+   match and the card between them is centred on the screen. */
+@media (max-width: 1023px) {
+  .app-header {
+    min-height: var(--mobile-chrome);
+    justify-content: center;
+    padding-bottom: 0;
+  }
+}
+
+.deck-toolbar-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+}
+
+/* 46px, matching the arrows this bar replaces and clearing the 44px touch
+   target floor. */
+.deck-toolbar-button {
+  display: flex;
+  height: 46px;
+  width: 46px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  border: 1px solid var(--control-border);
+  background: var(--control);
+  color: var(--control-ink);
+  box-shadow: var(--control-shadow);
+  transition:
+    border-color 200ms,
+    background-color 200ms,
+    transform 200ms,
+    opacity 200ms;
+}
+
+.deck-toolbar-button:hover:not(:disabled) {
+  border-color: var(--control-hover-border);
+  background: var(--control-hover);
+}
+
+.deck-toolbar-button:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.deck-toolbar-button:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.deck-toolbar-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.35;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .deck-toolbar-button {
+    transition: none;
+  }
+
+  .deck-toolbar-button:active:not(:disabled) {
+    transform: none;
+  }
 }
 
 @media (min-width: 640px) {

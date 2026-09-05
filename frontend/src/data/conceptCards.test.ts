@@ -81,7 +81,7 @@ describe("conceptCards", () => {
       title: "Proxy",
       image: {
         src: "/images/proxy-thumbnail.webp",
-        alt: "Ethernet cables connected to network equipment",
+        alt: "Three clients sending requests into a proxy, which forwards one on to a destination server",
       },
       definition:
         "A proxy receives a request from one system and forwards it to another on the requester’s behalf.",

@@ -8,7 +8,7 @@ export const conceptCards = [
     title: "Proxy",
     image: {
       src: "/images/proxy-thumbnail.webp",
-      alt: "Ethernet cables connected to network equipment",
+      alt: "Three clients sending requests into a proxy, which forwards one on to a destination server",
       sketch: {
         src: "/images/proxy-sketch.svg",
         alt: "Line drawing of a client, a proxy, and a destination server joined by arrows",

@@ -31,4 +31,31 @@ if (typeof window !== "undefined" && !window.localStorage) {
   });
 }
 
+// jsdom ships no matchMedia, and the explorer measures the viewport with one.
+// The stub answers `(min-width: Npx)` from `window.innerWidth`, so a test
+// changes layout the same way it changes the deck's spread — by setting the
+// width — and every other query (reduced motion included) stays unmatched.
+if (typeof window !== "undefined" && !window.matchMedia) {
+  Object.defineProperty(window, "matchMedia", {
+    configurable: true,
+    writable: true,
+    value: (query: string): MediaQueryList => {
+      const minWidth = /\(min-width:\s*(\d+)px\)/.exec(query);
+
+      return {
+        media: query,
+        get matches() {
+          return minWidth !== null && window.innerWidth >= Number(minWidth[1]);
+        },
+        onchange: null,
+        addEventListener: () => {},
+        removeEventListener: () => {},
+        addListener: () => {},
+        removeListener: () => {},
+        dispatchEvent: () => false,
+      } as MediaQueryList;
+    },
+  });
+}
+
 afterEach(cleanup);

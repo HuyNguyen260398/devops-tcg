@@ -1,4 +1,4 @@
-import { ConceptDeck } from "@/components/ConceptDeck";
+import { ConceptExplorer } from "@/components/ConceptExplorer";
 import { conceptCards } from "@/data/conceptCards";
 
 export default function Home() {
@@ -7,9 +7,8 @@ export default function Home() {
       <div className="stage-orb stage-orb-cyan" aria-hidden="true" />
       <div className="stage-orb stage-orb-violet" aria-hidden="true" />
 
-      <div className="app-stage relative z-10 mx-auto flex min-h-0 w-full max-w-5xl flex-col items-center">
-        <ConceptDeck cards={conceptCards} />
-      </div>
+      {/* The stage's width now depends on the layout, so the explorer owns it. */}
+      <ConceptExplorer cards={conceptCards} />
     </main>
   );
 }
