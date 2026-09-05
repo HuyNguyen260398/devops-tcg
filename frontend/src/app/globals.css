@@ -693,6 +693,17 @@ button,
   }
 }
 
+/* The chip strip scrolls sideways on a phone; a visible scrollbar under four
+   chips reads as a broken layout rather than as an affordance. */
+.search-chips {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.search-chips::-webkit-scrollbar {
+  display: none;
+}
+
 @media (min-width: 640px) {
   .concept-card {
     max-height: 680px;
