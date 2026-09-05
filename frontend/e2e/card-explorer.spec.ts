@@ -148,7 +148,7 @@ test("walks the filtered results from inside the dialog", async ({
 
   const dialog = page.getByRole("dialog", { name: "Redis card" });
 
-  await expect(dialog.getByLabel("Card 1 of 2")).toBeVisible();
+  await expect(dialog).toBeVisible();
 
   await dialog.getByRole("button", { name: "Next card" }).click();
 

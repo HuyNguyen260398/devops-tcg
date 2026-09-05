@@ -123,8 +123,6 @@ describe("ConceptExplorer on a wide viewport", () => {
 
     const dialog = await screen.findByRole("dialog", { name: "Redis card" });
 
-    expect(within(dialog).getByLabelText("Card 1 of 2")).toBeInTheDocument();
-
     await user.click(within(dialog).getByRole("button", { name: "Next card" }));
 
     expect(

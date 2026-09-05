@@ -189,7 +189,8 @@ track's `data-position`); no horizontal document
 overflow at 320px; images failing to load keep the definition readable;
 typing in the search bar filters both layouts on every keystroke and the count
 is a polite live region; a grid tile opens a dialog whose Escape returns focus
-to that tile; the dialog's Previous/Next wrap through the filtered results only;
+to that tile, Escape being its only announced way out; the dialog's
+Previous/Next wrap through the filtered results only;
 a dismissed search sheet keeps its filter and marks the header trigger; the grid
 scrolls inside the locked shell rather than scrolling the document.
 

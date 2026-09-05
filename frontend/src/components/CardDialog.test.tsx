@@ -77,12 +77,6 @@ describe("CardDialog", () => {
     ).toBeInTheDocument();
   });
 
-  it("counts its position against the filtered deck", () => {
-    setup(1);
-
-    expect(screen.getByLabelText("Card 2 of 3")).toHaveTextContent("02 / 03");
-  });
-
   it("steps forward with the Next button", async () => {
     const user = userEvent.setup();
     const { onIndexChange } = setup(0);
@@ -156,11 +150,18 @@ describe("CardDialog", () => {
     ).toBeInTheDocument();
   });
 
-  it("closes from its close button", async () => {
+  it("carries nothing under the card but the card", async () => {
+    setup(1);
+
+    expect(screen.queryByRole("button", { name: "Close the card" })).toBeNull();
+    expect(screen.queryByLabelText("Card 2 of 3")).toBeNull();
+  });
+
+  it("closes on Escape, which is the way out now the button is gone", async () => {
     const user = userEvent.setup();
     const { onClose } = setup();
 
-    await user.click(screen.getByRole("button", { name: "Close the card" }));
+    await user.keyboard("{Escape}");
 
     expect(onClose).toHaveBeenCalledTimes(1);
   });

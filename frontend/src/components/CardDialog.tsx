@@ -15,9 +15,6 @@ interface CardDialogProps {
   readonly onClose: () => void;
 }
 
-const formatPosition = (position: number) =>
-  position.toString().padStart(2, "0");
-
 const wrapIndex = (index: number, length: number) =>
   ((index % length) + length) % length;
 
@@ -53,7 +50,7 @@ export function CardDialog({
   return (
     <Dialog
       label={`${card.title} card`}
-      className="card-dialog max-w-[420px] items-center gap-3"
+      className="card-dialog max-w-[420px] items-center"
       onClose={onClose}
     >
       {/* min-h-0 is what makes every card the same size: without it this row
@@ -158,24 +155,6 @@ export function CardDialog({
             </button>
           </div>
         )}
-      </div>
-
-      <div className="flex w-full shrink-0 items-center justify-between gap-3">
-        <p
-          aria-label={`Card ${index + 1} of ${cards.length}`}
-          aria-live="polite"
-          className="font-mono text-xs font-semibold tracking-[0.18em] text-ink-muted"
-        >
-          {formatPosition(index + 1)} / {formatPosition(cards.length)}
-        </p>
-        <button
-          type="button"
-          aria-label="Close the card"
-          onClick={onClose}
-          className="flex h-9 items-center rounded-full border border-control-border bg-control px-4 text-[0.6rem] font-bold uppercase tracking-[0.16em] text-control-ink transition-colors duration-200 hover:border-[color:var(--control-hover-border)] hover:bg-[color:var(--control-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]"
-        >
-          Close
-        </button>
       </div>
     </Dialog>
   );
