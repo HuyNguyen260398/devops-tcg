@@ -117,11 +117,14 @@ export function SearchBar({
         ))}
       </div>
 
+      {/* Shown as a score line, spoken as a sentence — the same pairing the
+          deck counter uses, so "28 / 28" is never read out as a date. */}
       <p
+        aria-label={`${resultCount} of ${totalCount} cards`}
         aria-live="polite"
-        className="font-mono text-xs font-semibold tracking-[0.14em] text-ink-muted"
+        className="text-center font-mono text-xs font-semibold tracking-[0.14em] text-ink-muted"
       >
-        {resultCount} of {totalCount} cards
+        {resultCount} / {totalCount}
       </p>
     </div>
   );

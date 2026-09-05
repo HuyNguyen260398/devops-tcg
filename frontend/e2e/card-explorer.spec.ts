@@ -15,7 +15,7 @@ test("opens on a grid of every card", async ({ page }, testInfo) => {
   await page.goto("/");
 
   await expect(tiles(page)).toHaveCount(28);
-  await expect(page.getByText("28 of 28 cards")).toBeVisible();
+  await expect(page.getByText("28 / 28")).toBeVisible();
 });
 
 test("filters the grid on every keystroke", async ({ page }, testInfo) => {
@@ -37,7 +37,7 @@ test("filters the grid on every keystroke", async ({ page }, testInfo) => {
   await expect(
     page.getByRole("button", { name: "Open the Kafka card" }),
   ).toBeVisible();
-  await expect(page.getByText("1 of 28 cards")).toBeVisible();
+  await expect(page.getByText("1 / 28")).toBeVisible();
 
   await field.fill("");
   await expect(tiles(page)).toHaveCount(28);
@@ -174,7 +174,7 @@ test("filters the deck from the sheet and keeps the filter after Done", async ({
   const field = page.getByRole("searchbox", { name: "Search cards" });
 
   await field.pressSequentially("redis");
-  await expect(page.getByText("2 of 28 cards")).toBeVisible();
+  await expect(page.getByText("2 / 28")).toBeVisible();
 
   await page.getByRole("button", { name: "Done" }).click();
 

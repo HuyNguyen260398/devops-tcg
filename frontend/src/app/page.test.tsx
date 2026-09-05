@@ -17,7 +17,7 @@ describe("Home", () => {
       ).toHaveLength(28),
     );
 
-    expect(screen.getByText("28 of 28 cards")).toBeInTheDocument();
+    expect(screen.getByText("28 / 28")).toBeInTheDocument();
     expect(
       screen.getByRole("searchbox", { name: "Search cards" }),
     ).toBeInTheDocument();

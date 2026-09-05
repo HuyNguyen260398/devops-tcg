@@ -117,14 +117,14 @@ describe("SearchBar", () => {
   it("counts the results in a polite live region", () => {
     setup(EMPTY_FILTER, 12);
 
-    const count = screen.getByText("12 of 28 cards");
+    const count = screen.getByText("12 / 28");
 
     expect(count).toHaveAttribute("aria-live", "polite");
   });
 
-  it("says one card rather than 1 cards", () => {
+  it("spells the count out for a screen reader", () => {
     setup(EMPTY_FILTER, 1);
 
-    expect(screen.getByText("1 of 28 cards")).toBeInTheDocument();
+    expect(screen.getByLabelText("1 of 28 cards")).toHaveTextContent("1 / 28");
   });
 });

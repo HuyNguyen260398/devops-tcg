@@ -31,7 +31,7 @@ describe("ConceptExplorer on a wide viewport", () => {
     mount();
 
     await waitFor(() => expect(tiles()).toHaveLength(28));
-    expect(screen.getByText("28 of 28 cards")).toBeInTheDocument();
+    expect(screen.getByText("28 / 28")).toBeInTheDocument();
   });
 
   it("narrows the grid on every keystroke", async () => {
@@ -43,7 +43,7 @@ describe("ConceptExplorer on a wide viewport", () => {
     await user.type(screen.getByRole("searchbox"), "redis");
 
     await waitFor(() => expect(tiles()).toHaveLength(2));
-    expect(screen.getByText("2 of 28 cards")).toBeInTheDocument();
+    expect(screen.getByText("2 / 28")).toBeInTheDocument();
   });
 
   it("ands a category chip with the typed text", async () => {
@@ -225,7 +225,7 @@ describe("ConceptExplorer on a narrow viewport", () => {
     await user.click(screen.getByRole("button", { name: "Search the deck" }));
 
     await user.type(await screen.findByRole("searchbox"), "redis");
-    expect(screen.getByText("2 of 28 cards")).toBeInTheDocument();
+    expect(screen.getByText("2 / 28")).toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: "Done" }));
 
