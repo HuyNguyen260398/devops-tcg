@@ -6,7 +6,6 @@ import type { ConceptCardData } from "@/types/concept";
 import { ConceptCard } from "./ConceptCard";
 import { DeckControls } from "./DeckControls";
 import { ShuffleControl } from "./ShuffleControl";
-import { ThemeToggle } from "./ThemeToggle";
 
 interface ConceptDeckProps {
   readonly cards: readonly ConceptCardData[];
@@ -140,23 +139,22 @@ interface DeckHeaderProps {
   readonly total: number;
 }
 
+// The title, the theme toggle and the search now live in AppHeader; the deck
+// keeps only the counter, which is deck state. It still sits directly under the
+// application header, so the layout reads exactly as it did before the split.
 function DeckHeader({ position, total }: DeckHeaderProps) {
   const ready = position !== null;
 
   return (
-    <header className="concept-deck-header mx-auto flex w-full max-w-[350px] shrink-0 flex-col items-center border-b border-rule text-center">
-      <h1 className="font-display text-2xl font-black uppercase tracking-[0.12em] text-ink sm:text-3xl">
-        DevOps TCG
-      </h1>
+    <header className="concept-deck-header mx-auto flex w-full max-w-[350px] shrink-0 flex-col items-center text-center">
       <p
         aria-label={ready ? `Card ${position} of ${total}` : undefined}
         aria-live={ready ? "polite" : undefined}
         aria-hidden={ready ? undefined : true}
-        className="mt-1 font-mono text-xs font-semibold tracking-[0.18em] text-ink-muted"
+        className="font-mono text-xs font-semibold tracking-[0.18em] text-ink-muted"
       >
         {ready ? formatPosition(position) : "--"} / {formatPosition(total)}
       </p>
-      <ThemeToggle />
     </header>
   );
 }

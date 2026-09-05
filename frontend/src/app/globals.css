@@ -280,12 +280,10 @@ body {
   height: 100%;
 }
 
-/* The theme toggle sits in this header's flow, so the padding gives back most
-   of the height it takes: the layout is a locked 100dvh with no page scroll,
-   and card height is the scarce resource at 320x700. */
+/* The application header carries the rule and the toggles now; the deck header
+   is one line of counter, so it only needs the gap beneath it. */
 .concept-deck-header {
   margin-bottom: clamp(0.5rem, 1.5vh, 1rem);
-  padding-bottom: clamp(0.375rem, 1vh, 0.75rem);
 }
 
 .deck-controls {

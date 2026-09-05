@@ -25,16 +25,11 @@ const setViewportWidth = (width: number) => {
 afterEach(() => setViewportWidth(1024));
 
 describe("ConceptDeck", () => {
-  it("renders the title above its counter with enabled carousel controls", () => {
+  it("renders its counter above an enabled carousel", () => {
     render(<ConceptDeck cards={conceptCards} random={() => 0.999999} />);
 
-    const heading = screen.getByRole("heading", { name: "DevOps TCG" });
-    const header = heading.closest("header");
-
-    expect(header).not.toBeNull();
-    expect(within(header!).getByLabelText("Card 1 of 28")).toHaveTextContent(
-      "01 / 28",
-    );
+    expect(screen.queryByRole("heading", { name: "DevOps TCG" })).toBeNull();
+    expect(screen.getByLabelText("Card 1 of 28")).toHaveTextContent("01 / 28");
     expect(screen.queryByText("CONCEPT STUDY DECK")).not.toBeInTheDocument();
     const active = within(slot("proxy")!);
     expect(active.getByText(conceptCards[0].definition)).toBeInTheDocument();
