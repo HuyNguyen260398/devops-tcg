@@ -37,6 +37,7 @@
 
   /* Ground */
   --paper: #050714;
+  --scrim: rgb(3 4 12 / 0.78);
   --stage-image:
     radial-gradient(
       circle at 50% -10%,
@@ -159,6 +160,7 @@
   color-scheme: light;
 
   --paper: #ece7db;
+  --scrim: rgb(29 29 27 / 0.55);
   --stage-image:
     radial-gradient(
       circle at 50% -10%,
@@ -665,6 +667,30 @@ button,
 
 .card-thumbnail-fallback {
   background-image: var(--thumb-fallback);
+}
+
+/* One modal for the whole application: the card dialog and the mobile search
+   sheet are the same box with different contents. */
+.app-dialog-backdrop {
+  background: var(--scrim);
+  animation: dialog-fade var(--travel) var(--travel-ease);
+}
+
+.app-dialog-surface {
+  animation: dialog-rise var(--travel) var(--travel-ease);
+}
+
+@keyframes dialog-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes dialog-rise {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 12px, 0);
+  }
 }
 
 @media (min-width: 640px) {

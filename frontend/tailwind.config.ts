@@ -10,6 +10,7 @@ export default {
     extend: {
       colors: {
         paper: "var(--paper)",
+        scrim: "var(--scrim)",
         ink: "var(--ink)",
         "ink-muted": "var(--ink-muted)",
         "ink-faint": "var(--ink-faint)",
