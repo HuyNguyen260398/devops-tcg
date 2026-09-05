@@ -24,7 +24,7 @@ export function AppHeader({
   const target: ViewMode = viewMode === "grid" ? "deck" : "grid";
 
   return (
-    <header className="app-header flex w-full shrink-0 flex-col items-center gap-2 border-b border-rule pb-2 lg:flex-row lg:items-center lg:justify-between lg:gap-4">
+    <header className="app-header flex w-full shrink-0 flex-col items-center gap-2 pb-2 lg:flex-row lg:items-center lg:justify-between lg:gap-4">
       <h1 className="font-display text-2xl font-black uppercase tracking-[0.12em] text-ink sm:text-3xl">
         DevOps TCG
       </h1>
