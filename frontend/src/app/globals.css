@@ -699,12 +699,28 @@ button,
 .card-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
+  /* A fixed row, and rows packed to the top rather than stretched to fill: a
+     filter that leaves one row must not deal taller cards than a filter that
+     leaves six, and a title that wraps must not deal a taller row than one
+     that does not. Every tile is this height at every width and every
+     filter. */
+  grid-auto-rows: 14.5rem;
+  align-content: start;
   gap: 1rem;
   margin: 0;
   padding: 0 0 1.5rem;
   list-style: none;
   overflow-y: auto;
   overscroll-behavior: contain;
+}
+
+/* Two lines is the most a title gets; the row height is built around it. */
+.card-tile-title {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
 }
 
 .card-tile {

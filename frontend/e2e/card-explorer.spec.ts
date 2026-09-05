@@ -65,6 +65,35 @@ test("finds a card by its category and by a keyword", async ({
   await expect(tiles(page)).toHaveCount(4);
 });
 
+test("deals every tile the same height, whatever the filter", async ({
+  page,
+}, testInfo) => {
+  wideOnly(testInfo);
+
+  await page.goto("/");
+  await expect(tiles(page)).toHaveCount(28);
+
+  const heights = () =>
+    page.$$eval("button[aria-label^='Open the']", (els) => [
+      ...new Set(
+        els.map((el) => Math.round(el.getBoundingClientRect().height)),
+      ),
+    ]);
+
+  // One height across the whole deck: no title wraps its tile taller than its
+  // neighbour's.
+  expect(await heights()).toHaveLength(1);
+  const [unfiltered] = await heights();
+
+  // And the same height when a filter leaves too few rows to fill the grid,
+  // which is what used to stretch them.
+  for (const query of ["aws", "redis", "terraform state"]) {
+    await page.getByRole("searchbox", { name: "Search cards" }).fill(query);
+    await expect(tiles(page)).not.toHaveCount(28);
+    expect(await heights()).toEqual([unfiltered]);
+  }
+});
+
 test("offers a way back when nothing matches", async ({ page }, testInfo) => {
   wideOnly(testInfo);
 

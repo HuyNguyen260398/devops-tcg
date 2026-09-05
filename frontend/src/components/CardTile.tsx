@@ -66,7 +66,7 @@ export function CardTile({ card, onSelect }: CardTileProps) {
         </span>
 
         <span className="flex flex-1 items-center px-3 py-3 font-display text-sm font-black uppercase tracking-[0.08em] text-ink">
-          {card.title}
+          <span className="card-tile-title">{card.title}</span>
         </span>
       </button>
     </li>
