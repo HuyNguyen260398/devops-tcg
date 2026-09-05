@@ -13,7 +13,7 @@ test.beforeEach(async ({ page }) => {
 
 const images = [
   [
-    "Ethernet cables connected to network equipment",
+    "Three clients sending requests into a proxy, which forwards one on to a destination server",
     "/images/proxy-thumbnail.webp",
   ],
   [
