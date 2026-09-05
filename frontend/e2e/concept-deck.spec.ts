@@ -381,6 +381,10 @@ test("leaves the same gap between every pair of adjacent cards", async ({
   page,
 }) => {
   await page.goto("/");
+  // page.evaluate does not wait for anything, and the deck holds a
+  // slot-less placeholder until its shuffle runs after mount, so the read
+  // below has to be gated on the dealt deck or it can measure nothing at all.
+  await expect(card(page)).toBeVisible();
 
   // Measured off the real layout rather than the geometry: a slot's rect grows
   // with its tilt, so the card's own edges come from its layout width times the
@@ -1033,6 +1037,9 @@ test("keeps a vertical drag from dragging the deck sideways", async ({
 test("does not overflow at 320 pixels", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== "mobile");
   await page.goto("/");
+  // Gated for the same reason: the pre-shuffle placeholder is layout-stable, so
+  // measuring it would pass without ever testing the deck it stands in for.
+  await expect(card(page)).toBeVisible();
 
   const size = await page.evaluate(() => ({
     viewport: document.documentElement.clientWidth,
