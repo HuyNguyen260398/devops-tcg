@@ -10,6 +10,15 @@ const card = (page: import("@playwright/test").Page) =>
   page.locator(".concept-card[data-face]");
 
 test.describe("theme switching", () => {
+  // Three of these tests read the carousel's centred card, which a wide
+  // viewport no longer opens on. Seeded for the same reason concept-deck.spec
+  // seeds it: the theme is what is under test, not which layout showed it.
+  test.beforeEach(async ({ page }) => {
+    await page.addInitScript(() =>
+      window.localStorage.setItem("devops-tcg-view", "deck"),
+    );
+  });
+
   test("starts on neon and switches to sketch", async ({ page }) => {
     await page.goto("/");
 

@@ -1,5 +1,16 @@
 import { expect, test } from "@playwright/test";
 
+// A wide viewport now opens on the grid, so this suite asks for the carousel
+// before the page loads. Seeding the preference rather than clicking the toggle
+// keeps every test in the file at one `page.goto("/")`, and it means the
+// chromium project still exercises the multi-rank spread that only exists above
+// 1110px.
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() =>
+    window.localStorage.setItem("devops-tcg-view", "deck"),
+  );
+});
+
 const images = [
   [
     "Ethernet cables connected to network equipment",
@@ -249,30 +260,21 @@ test("navigates the shipped deck infinitely with a live counter", async ({
   await expect(next).toBeEnabled();
 });
 
-test("centers the stacked header and shows faded adjacent cards", async ({
+test("centers the deck counter and shows faded adjacent cards", async ({
   page,
 }) => {
   await page.goto("/");
 
-  const title = page.getByRole("heading", { name: "DevOps TCG" });
   const counter = page.getByLabel("Card 1 of 28");
-  const [titleBounds, counterBounds, viewportWidth] = await Promise.all([
-    title.boundingBox(),
+  const [counterBounds, viewportWidth] = await Promise.all([
     counter.boundingBox(),
     page.evaluate(() => document.documentElement.clientWidth),
   ]);
 
-  expect(titleBounds).not.toBeNull();
   expect(counterBounds).not.toBeNull();
-  expect(
-    Math.abs(titleBounds!.x + titleBounds!.width / 2 - viewportWidth / 2),
-  ).toBeLessThanOrEqual(1);
   expect(
     Math.abs(counterBounds!.x + counterBounds!.width / 2 - viewportWidth / 2),
   ).toBeLessThanOrEqual(1);
-  expect(counterBounds!.y).toBeGreaterThanOrEqual(
-    titleBounds!.y + titleBounds!.height,
-  );
 
   for (const offset of [-1, 1]) {
     const neighbour = slot(page, offset);
@@ -300,6 +302,31 @@ test("centers the stacked header and shows faded adjacent cards", async ({
       await node.evaluate((slot) => Number(getComputedStyle(slot).opacity)),
     ).toBe(0);
   }
+});
+
+test("stacks a centred title above the counter on a phone", async ({
+  page,
+}, testInfo) => {
+  test.skip(testInfo.project.name !== "mobile");
+
+  await page.goto("/");
+
+  const title = page.getByRole("heading", { name: "DevOps TCG" });
+  const counter = page.getByLabel("Card 1 of 28");
+  const [titleBounds, counterBounds, viewportWidth] = await Promise.all([
+    title.boundingBox(),
+    counter.boundingBox(),
+    page.evaluate(() => document.documentElement.clientWidth),
+  ]);
+
+  expect(titleBounds).not.toBeNull();
+  expect(counterBounds).not.toBeNull();
+  expect(
+    Math.abs(titleBounds!.x + titleBounds!.width / 2 - viewportWidth / 2),
+  ).toBeLessThanOrEqual(1);
+  expect(counterBounds!.y).toBeGreaterThanOrEqual(
+    titleBounds!.y + titleBounds!.height,
+  );
 });
 
 test("spreads the deck across the width it is given", async ({
@@ -392,13 +419,13 @@ test("shows keyboard focus on the card edge, not as a panel around it", async ({
   const active = card(page);
   await expect(active).toBeVisible(); // The card only exists after hydration.
 
-  // The theme toggle sits in the header, so it takes the first tab stop and the
-  // card takes the second.
-  await page.keyboard.press("Tab");
-  await expect(
-    page.getByRole("button", { name: /^Switch to the .* theme$/ }),
-  ).toBeFocused();
-  await page.keyboard.press("Tab");
+  // The application header's search and toggles stand between the document
+  // start and the card, and how many of them there are depends on the viewport,
+  // so this walks the tab order to the card rather than pinning a count.
+  for (let stop = 0; stop < 12; stop += 1) {
+    await page.keyboard.press("Tab");
+    if (await active.evaluate((node) => node.matches(":focus-visible"))) break;
+  }
 
   await expect
     .poll(() => active.evaluate((node) => node.matches(":focus-visible")))
