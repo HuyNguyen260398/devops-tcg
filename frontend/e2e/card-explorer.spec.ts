@@ -157,6 +157,42 @@ test("walks the filtered results from inside the dialog", async ({
   ).toBeVisible();
 });
 
+test("keeps the opened card the same size as it walks the deck", async ({
+  page,
+}, testInfo) => {
+  wideOnly(testInfo);
+
+  await page.goto("/");
+  await page.getByRole("button", { name: "Open the Proxy card" }).click();
+
+  const opened = page.locator("[role=dialog] .concept-card[data-face]");
+
+  await expect(opened).toBeVisible();
+  // The dialog rises 12px on entry, so the first read waits for it to land.
+  await expect
+    .poll(async () => (await opened.boundingBox())?.height)
+    .toBeGreaterThan(0);
+  await page.waitForTimeout(500);
+
+  const seen = new Set<string>();
+
+  for (let step = 0; step < 8; step += 1) {
+    const box = await opened.boundingBox();
+
+    expect(box).not.toBeNull();
+    seen.add(`${Math.round(box!.width)}x${Math.round(box!.height)}`);
+
+    await page
+      .getByRole("dialog")
+      .getByRole("button", { name: "Next card" })
+      .click();
+    await page.waitForTimeout(200);
+  }
+
+  // One size for every card: content length must not resize the card.
+  expect([...seen]).toHaveLength(1);
+});
+
 test("switches to the carousel and remembers it across a reload", async ({
   page,
 }, testInfo) => {

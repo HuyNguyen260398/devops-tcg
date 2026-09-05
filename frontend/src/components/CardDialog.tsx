@@ -56,8 +56,11 @@ export function CardDialog({
       className="card-dialog max-w-[420px] items-center gap-3"
       onClose={onClose}
     >
+      {/* min-h-0 is what makes every card the same size: without it this row
+          keeps min-height:auto, so a card whose content is taller pushes the
+          row past its flex basis and arrives bigger than the one before it. */}
       <div
-        className="flex w-full flex-1 items-stretch gap-2"
+        className="flex w-full min-h-0 flex-1 items-stretch gap-2"
         onKeyDown={(event) => {
           if (
             event.altKey ||
