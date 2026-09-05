@@ -47,29 +47,45 @@ describe("SearchSheet", () => {
     expect(onClose).not.toHaveBeenCalled();
   });
 
-  it("closes from its Done button", async () => {
+  it("carries nothing but the search bar", () => {
+    setup({ query: "aws", type: "NETWORK" });
+
+    expect(screen.queryByRole("button", { name: "Done" })).toBeNull();
+    expect(
+      screen.queryByRole("button", { name: "Clear all filters" }),
+    ).toBeNull();
+  });
+
+  // With no Done button, dismissal is a press outside the sheet — the gesture a
+  // phone actually has, since it has no Escape key either.
+  it("closes when the sheet is pressed away", async () => {
     const user = userEvent.setup();
     const { onClose } = setup();
 
-    await user.click(screen.getByRole("button", { name: "Done" }));
+    await user.click(screen.getByTestId("dialog-backdrop"));
 
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
-  it("clears both filters at once", async () => {
+  it("closes on Escape where there is a keyboard", async () => {
+    const user = userEvent.setup();
+    const { onClose } = setup();
+
+    await user.keyboard("{Escape}");
+
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it("still clears both filters from the bar's own controls", async () => {
     const user = userEvent.setup();
     const { onFilterChange } = setup({ query: "aws", type: "NETWORK" });
 
-    await user.click(screen.getByRole("button", { name: "Clear all filters" }));
+    await user.click(
+      screen.getByRole("button", { name: "Clear the search text" }),
+    );
+    expect(onFilterChange).toHaveBeenCalledWith({ query: "", type: "NETWORK" });
 
-    expect(onFilterChange).toHaveBeenCalledWith({ query: "", type: null });
-  });
-
-  it("offers nothing to clear when no filter is set", () => {
-    setup();
-
-    expect(
-      screen.queryByRole("button", { name: "Clear all filters" }),
-    ).toBeNull();
+    await user.click(screen.getByRole("button", { name: "All categories" }));
+    expect(onFilterChange).toHaveBeenCalledWith({ query: "aws", type: null });
   });
 });

@@ -226,7 +226,7 @@ test("keeps the phone layout on the carousel with a search button", async ({
   ).toBeVisible();
 });
 
-test("filters the deck from the sheet and keeps the filter after Done", async ({
+test("filters the deck from the sheet and keeps the filter once dismissed", async ({
   page,
 }, testInfo) => {
   phoneOnly(testInfo);
@@ -241,7 +241,7 @@ test("filters the deck from the sheet and keeps the filter after Done", async ({
   await field.pressSequentially("redis");
   await expect(page.getByText("2 / 28")).toBeVisible();
 
-  await page.getByRole("button", { name: "Done" }).click();
+  await page.getByTestId("dialog-backdrop").click();
 
   await expect(page.getByRole("dialog")).toHaveCount(0);
   // The deck prints no counter, so the filtered pair shows as the card it deals.

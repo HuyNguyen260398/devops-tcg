@@ -227,7 +227,8 @@ describe("ConceptExplorer on a narrow viewport", () => {
     await user.type(await screen.findByRole("searchbox"), "redis");
     expect(screen.getByText("2 / 28")).toBeInTheDocument();
 
-    await user.click(screen.getByRole("button", { name: "Done" }));
+    // A phone dismisses the sheet by pressing away from it.
+    await user.click(screen.getByTestId("dialog-backdrop"));
 
     await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
     expect(
@@ -281,7 +282,8 @@ describe("ConceptExplorer on a narrow viewport", () => {
     await screen.findByRole("button", { name: /^Proxy card, front shown$/ });
     await user.click(screen.getByRole("button", { name: "Search the deck" }));
     await user.type(await screen.findByRole("searchbox"), "zzz");
-    await user.click(screen.getByRole("button", { name: "Done" }));
+    // A phone dismisses the sheet by pressing away from it.
+    await user.click(screen.getByTestId("dialog-backdrop"));
 
     expect(await screen.findByRole("status")).toHaveTextContent(
       "No cards match",
