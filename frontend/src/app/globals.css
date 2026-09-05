@@ -704,6 +704,35 @@ button,
   display: none;
 }
 
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
+  gap: 1rem;
+  margin: 0;
+  padding: 0 0 1.5rem;
+  list-style: none;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.card-tile {
+  box-shadow: var(--card-shadow-flat);
+}
+
+.card-tile:hover {
+  border-color: var(--control-hover-border);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card-tile {
+    transition: none;
+  }
+
+  .card-tile:hover {
+    transform: none;
+  }
+}
+
 @media (min-width: 640px) {
   .concept-card {
     max-height: 680px;
