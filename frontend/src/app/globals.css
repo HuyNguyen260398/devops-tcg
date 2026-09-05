@@ -280,12 +280,6 @@ body {
   height: 100%;
 }
 
-/* The application header carries the rule and the toggles now; the deck header
-   is one line of counter, so it only needs the gap beneath it. */
-.concept-deck-header {
-  margin-bottom: clamp(0.5rem, 1.5vh, 1rem);
-}
-
 .deck-controls {
   position: fixed;
   inset: 0;

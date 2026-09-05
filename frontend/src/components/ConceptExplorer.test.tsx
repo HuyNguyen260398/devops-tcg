@@ -161,7 +161,9 @@ describe("ConceptExplorer on a wide viewport", () => {
 
     await user.type(screen.getByRole("searchbox"), "redis");
 
-    expect(await screen.findByText("01 / 02")).toBeInTheDocument();
+    expect(
+      await screen.findByRole("button", { name: /^Redis card, front shown$/ }),
+    ).toBeInTheDocument();
   });
 });
 
@@ -230,7 +232,9 @@ describe("ConceptExplorer on a narrow viewport", () => {
     await user.click(screen.getByRole("button", { name: "Done" }));
 
     await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
-    expect(await screen.findByText("01 / 02")).toBeInTheDocument();
+    expect(
+      await screen.findByRole("button", { name: /^Redis card, front shown$/ }),
+    ).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: "Search the deck, filter active" }),
     ).toBeInTheDocument();

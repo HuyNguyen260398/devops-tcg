@@ -179,7 +179,11 @@ test("filters the deck from the sheet and keeps the filter after Done", async ({
   await page.getByRole("button", { name: "Done" }).click();
 
   await expect(page.getByRole("dialog")).toHaveCount(0);
-  await expect(page.getByLabel("Card 1 of 2")).toBeVisible();
+  // The deck prints no counter, so the filtered pair shows as the card it deals.
+  await expect(page.locator(".concept-card[data-face]")).toHaveAttribute(
+    "aria-label",
+    /^Redis( Cluster)? card, front shown$/,
+  );
   await expect(
     page.getByRole("button", { name: "Search the deck, filter active" }),
   ).toBeVisible();

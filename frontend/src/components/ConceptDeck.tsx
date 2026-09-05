@@ -12,9 +12,6 @@ interface ConceptDeckProps {
   readonly random?: RandomSource;
 }
 
-const formatPosition = (position: number) =>
-  position.toString().padStart(2, "0");
-
 const wrapIndex = (index: number, length: number) =>
   ((index % length) + length) % length;
 
@@ -134,38 +131,12 @@ interface SwipeGesture {
   axis: "undecided" | "horizontal" | "vertical";
 }
 
-interface DeckHeaderProps {
-  readonly position: number | null;
-  readonly total: number;
-}
-
-// The title, the theme toggle and the search now live in AppHeader; the deck
-// keeps only the counter, which is deck state. It still sits directly under the
-// application header, so the layout reads exactly as it did before the split.
-function DeckHeader({ position, total }: DeckHeaderProps) {
-  const ready = position !== null;
-
-  return (
-    <header className="concept-deck-header mx-auto flex w-full max-w-[350px] shrink-0 flex-col items-center text-center">
-      <p
-        aria-label={ready ? `Card ${position} of ${total}` : undefined}
-        aria-live={ready ? "polite" : undefined}
-        aria-hidden={ready ? undefined : true}
-        className="font-mono text-xs font-semibold tracking-[0.18em] text-ink-muted"
-      >
-        {ready ? formatPosition(position) : "--"} / {formatPosition(total)}
-      </p>
-    </header>
-  );
-}
-
 function DeckPlaceholder({ total }: { readonly total: number }) {
   return (
     <section
       aria-label="Concept card deck"
       className="concept-deck flex min-h-0 w-full flex-1 flex-col"
     >
-      <DeckHeader position={null} total={total} />
       <div
         role="status"
         aria-busy="true"
@@ -497,8 +468,6 @@ export function ConceptDeck({ cards, random = Math.random }: ConceptDeckProps) {
       aria-label="Concept card deck"
       className="concept-deck flex min-h-0 w-full flex-1 flex-col"
     >
-      <DeckHeader position={activeIndex + 1} total={shuffledCards.length} />
-
       <div
         className="deck-carousel relative flex min-h-0 w-full flex-1"
         onPointerDown={(event) => {
@@ -538,11 +507,14 @@ export function ConceptDeck({ cards, random = Math.random }: ConceptDeckProps) {
           setDrag(null);
         }}
       >
+        {/* data-position carries what the counter used to print: invisible to a
+            reader, but it is what lets a test say how far a reel travelled. */}
         <div
           ref={trackRef}
           data-testid="deck-track"
           data-direction={direction ?? undefined}
           data-spinning={isSpinning ? "true" : undefined}
+          data-position={activeIndex + 1}
           className="deck-track relative min-h-0 w-full flex-1"
         >
           {shuffledCards.map((deckCard, index) => {

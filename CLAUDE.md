@@ -183,7 +183,9 @@ and `Next card` with `aria-hidden` SVG chevrons; the `Shuffle` button is
 centred under the card, deals a new order, reels forwards eight to eleven cards
 and stops front-up on the card it dealt; every pair of adjacent cards in the
 spread stands the same gap apart at any width; keyboard focus is restored to the active card after
-ArrowLeft/ArrowRight navigation but not after button clicks; the position counter is a polite live region; no horizontal document
+ArrowLeft/ArrowRight navigation but not after button clicks; the deck prints
+no counter, so which card is centred is read from the card's own name (or the
+track's `data-position`); no horizontal document
 overflow at 320px; images failing to load keep the definition readable;
 typing in the search bar filters both layouts on every keystroke and the count
 is a polite live region; a grid tile opens a dialog whose Escape returns focus
