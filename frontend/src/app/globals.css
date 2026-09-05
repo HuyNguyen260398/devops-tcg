@@ -29,6 +29,10 @@
      many ranks fit a viewport from the same numbers, so widening the spread is
      a change here and nowhere else. */
   --slot-gap: 2rem;
+  /* One height for both ends of the narrow layout — the header above the card
+     and the control bar below it. Equal chrome top and bottom, inside equal
+     shell padding, is what leaves the card centred on the screen. */
+  --mobile-chrome: calc(46px + clamp(0.5rem, 1.5vh, 0.875rem));
   --slot-scale-step: 0.1;
   --slot-tilt-base: 1deg;
   --slot-tilt-step: 1.5deg;
@@ -409,6 +413,11 @@ button,
   bottom: 0;
   left: 50%;
   display: flex;
+  /* A card that hits its max-height leaves slack in the slot; centring splits
+     that slack above and below instead of letting it all fall underneath. The
+     card is sized by the rule below rather than by stretching, because a
+     stretched item cannot also be centred. */
+  align-items: center;
   width: var(--deck-card-width);
   max-width: 350px;
   transition:
@@ -421,6 +430,13 @@ button,
    alongside the travel, which re-rasterises four full card layers on every
    frame of every move. Their own veil and opacity already read as "set back",
    so the filter buys nothing it costs. */
+/* Centring a flex item stops it stretching, so the card would fall back to its
+   content height and overflow a short screen. It fills the slot and stops at
+   its own max-height, which is exactly what leaves the slack to centre. */
+.deck-slot .concept-card {
+  height: 100%;
+}
+
 .deck-slot:not([data-slot="0"]) {
   pointer-events: none;
 }
@@ -760,7 +776,19 @@ button,
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   align-items: center;
+  height: var(--mobile-chrome);
   padding-top: clamp(0.5rem, 1.5vh, 0.875rem);
+}
+
+/* Below the grid boundary the header carries only the title, so it is given the
+   control bar's height rather than the title's. The two ends of the layout then
+   match and the card between them is centred on the screen. */
+@media (max-width: 1023px) {
+  .app-header {
+    min-height: var(--mobile-chrome);
+    justify-content: center;
+    padding-bottom: 0;
+  }
 }
 
 .deck-toolbar-cell {

@@ -781,6 +781,41 @@ test("stands the control bar clear of the card at phone widths", async ({
   }
 });
 
+test("centres the card vertically on a phone screen", async ({
+  page,
+}, testInfo) => {
+  test.skip(testInfo.project.name !== "mobile");
+
+  for (const [width, height] of [
+    [320, 700],
+    [360, 640],
+    [390, 844],
+    [412, 915],
+  ]) {
+    await page.setViewportSize({ width, height });
+    await page.goto("/");
+    await expect(card(page)).toBeVisible();
+
+    const bounds = await card(page).boundingBox();
+    const viewportHeight = await page.evaluate(
+      () => document.documentElement.clientHeight,
+    );
+
+    expect(bounds).not.toBeNull();
+
+    const above = bounds!.y;
+    const below = viewportHeight - (bounds!.y + bounds!.height);
+
+    // The gap over the card and the gap under it are the same, so the card is
+    // centred on the screen rather than merely between the header and the bar.
+    expect(
+      Math.abs(above - below),
+      `card sits ${above} from the top and ${below} from the bottom at ${width}x${height}`,
+    ).toBeLessThanOrEqual(1);
+    expect(above).toBeGreaterThan(0);
+  }
+});
+
 test("spaces the control bar evenly and centres it", async ({
   page,
 }, testInfo) => {
