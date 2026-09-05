@@ -703,6 +703,46 @@ describe("ConceptDeck", () => {
   // stepped sequence of real timers, so these let the clock run and assert
   // where the reel stops. Fake timers are not an option: user-event's own
   // waits deadlock under them.
+  it("leaves keystrokes typed into a text field alone", async () => {
+    const user = userEvent.setup();
+
+    render(
+      <>
+        <input aria-label="Search cards" />
+        <ConceptDeck cards={conceptCards} random={() => 0.999999} />
+      </>,
+    );
+
+    const field = screen.getByLabelText("Search cards");
+
+    field.focus();
+    await user.keyboard("a b{ArrowLeft}");
+
+    expect(field).toHaveValue("a b");
+    expect(slotOf("proxy")).toBe("0");
+    expect(
+      screen.getByRole("button", { name: /^Proxy card, front shown$/ }),
+    ).toBeInTheDocument();
+  });
+
+  it("leaves keystrokes inside a dialog to that dialog", async () => {
+    const user = userEvent.setup();
+
+    render(
+      <>
+        <div role="dialog" aria-label="Search the deck">
+          <button type="button">Done</button>
+        </div>
+        <ConceptDeck cards={conceptCards} random={() => 0.999999} />
+      </>,
+    );
+
+    screen.getByRole("button", { name: "Done" }).focus();
+    await user.keyboard("{ArrowRight}");
+
+    expect(slotOf("proxy")).toBe("0");
+  });
+
   describe("shuffle control", () => {
     const shuffleButton = () => screen.getByRole("button", { name: "Shuffle" });
 

@@ -106,6 +106,17 @@ const slotOffset = (index: number, activeIndex: number, length: number) => {
   return offset;
 };
 
+// The deck's shortcuts listen on the document, so they must stand aside for
+// anything that owns its own keys: a space typed into the search field is a
+// space, not a flip, and an arrow key inside a dialog belongs to that dialog.
+const ownsItsOwnKeys = (element: HTMLElement | null): boolean =>
+  element !== null &&
+  (element.isContentEditable ||
+    element.tagName === "INPUT" ||
+    element.tagName === "TEXTAREA" ||
+    element.tagName === "SELECT" ||
+    element.closest('[role="dialog"]') !== null);
+
 type NavigationDirection = "previous" | "next";
 
 // Which way the card rotates about its Y axis. Both land the same face and
@@ -327,6 +338,8 @@ export function ConceptDeck({ cards, random = Math.random }: ConceptDeckProps) {
       }
 
       const target = event.target as HTMLElement | null;
+
+      if (ownsItsOwnKeys(target)) return;
 
       if (event.key === "Enter" || event.key === " ") {
         // A focused control keeps Enter and Space for its own activation.
