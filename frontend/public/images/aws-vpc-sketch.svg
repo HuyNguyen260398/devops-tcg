@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 278 220">
+  <g transform="translate(139 110) scale(0.88) translate(-139 -110)">
+  <!-- the route tables are the subject, so they take the highlighter -->
+  <path d="M52 115 L128 115 L128 157 L52 157 Z" fill="#fff2c4" />
+  <path d="M150 115 L226 115 L226 157 L150 157 Z" fill="#fff2c4" />
+
+  <g fill="#dbe7ff">
+    <path d="M66 75 L82 75 L82 91 L66 91 Z" />
+    <path d="M98 75 L114 75 L114 91 L98 91 Z" />
+    <path d="M164 75 L180 75 L180 91 L164 91 Z" />
+    <path d="M196 75 L212 75 L212 91 L196 91 Z" />
+    <path d="M64 143 L80 143 L80 149 L64 149 Z" />
+    <path d="M96 143 L112 143 L112 149 L96 149 Z" />
+    <path d="M125 170 L153 170 L153 190 L125 190 Z" />
+  </g>
+
+  <g fill="none" stroke="#1d1d1b" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+    <!-- one VPC: one region, one address range, everything else inside it -->
+    <path d="M44 50 L234 50 L234 180 L44 180 Z" />
+
+    <!-- two subnets, drawn the same because they are the same -->
+    <path d="M52 62 L128 62 L128 104 L52 104 Z" />
+    <path d="M66 75 L82 75 L82 91 L66 91 Z" />
+    <path d="M98 75 L114 75 L114 91 L98 91 Z" />
+    <path d="M150 62 L226 62 L226 104 L150 104 Z" />
+    <path d="M164 75 L180 75 L180 91 L164 91 Z" />
+    <path d="M196 75 L212 75 L212 91 L196 91 Z" />
+
+    <!-- the local route: each subnet reaches the other with nothing configured -->
+    <path d="M130 83 L148 83 M136 78 L130 83 L136 88 M142 78 L148 83 L142 88" />
+
+    <!-- a packet leaving an interface is matched against its subnet's table -->
+    <path d="M90 104 L90 113 M86 109 L90 114 L94 109" />
+    <path d="M188 104 L188 113 M184 109 L188 114 L192 109" />
+  </g>
+
+  <g fill="none" stroke="#1d1d1b" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M52 115 L128 115 L128 157 L52 157 Z" />
+    <path d="M150 115 L226 115 L226 157 L150 157 Z" />
+  </g>
+
+  <g fill="none" stroke="#1d1d1b" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+    <!-- the row both tables carry, unasked for and identical -->
+    <path d="M58 122 L122 122 L122 136 L58 136 Z" />
+    <path d="M64 126 L80 126 L80 132 L64 132 Z" />
+    <path d="M86 129 L92 129 M89 126 L92 129 L89 132" />
+    <path d="M96 126 L112 126 L112 132 L96 132 Z" />
+    <path d="M156 122 L220 122 L220 136 L156 136 Z" />
+    <path d="M162 126 L178 126 L178 132 L162 132 Z" />
+    <path d="M184 129 L190 129 M187 126 L190 129 L187 132" />
+    <path d="M194 126 L210 126 L210 132 L194 132 Z" />
+
+    <!-- the one row that differs, and the only reason either subnet differs -->
+    <path d="M58 139 L122 139 L122 153 L58 153 Z" />
+    <path d="M64 143 L80 143 L80 149 L64 149 Z" />
+    <path d="M86 146 L92 146 M89 143 L92 146 L89 149" />
+    <path d="M96 143 L112 143 L112 149 L96 149 Z" />
+
+    <!-- the gateway the route names, sitting on the boundary it crosses -->
+    <path d="M125 170 L153 170 L153 190 L125 190 Z" />
+    <path d="M90 157 L90 165 L139 165 L139 170" />
+    <path d="M139 190 L139 197 M134 191 L139 198 L144 191" />
+  </g>
+
+  <!-- the other table has no such row, so the packet has nowhere to go -->
+  <path d="M188 157 L188 161" fill="none" stroke="#1d1d1b" stroke-width="2.4" stroke-linecap="round" stroke-dasharray="3 3" />
+  <path d="M156 139 L220 139 L220 153 L156 153 Z" fill="none" stroke="#1d1d1b" stroke-width="2.4" stroke-linejoin="round" stroke-dasharray="4 4" />
+  <path d="M181 163 L195 175 M195 163 L181 175" fill="none" stroke="#1d1d1b" stroke-width="2.4" stroke-linecap="round" />
+
+  <!--
+    The official Amazon VPC resource icon
+    (Res_Amazon-VPC_Virtual-private-cloud-VPC_48) from the AWS Architecture
+    Icons package, embedded exactly as shipped: #8C4FFF line art, uniformly
+    scaled, not recoloured and not otherwise altered, so the sketch theme shows
+    the real product mark rather than a hand-drawn imitation of one.
+  -->
+  <g transform="translate(127 20) scale(0.5)"><path d="M40,25.976844 L36.499,24.507844 L36.499,38.877844 C39.906,38.147844 39.998,34.179844 40,33.994844 L40,25.976844 Z M34.499,38.922844 L34.499,24.507844 L31,25.976844 L31,34.003844 C31.008,34.465844 31.183,38.338844 34.499,38.922844 L34.499,38.922844 Z M35.112,22.081844 C35.358,21.976844 35.638,21.977844 35.886,22.080844 L41.387,24.389844 C41.759,24.545844 42,24.908844 42,25.311844 L42,34.003844 C41.978,36.430844 40.562,41.003844 35.37,41.003844 C30.393,41.003844 29.026,36.431844 29,34.014844 L29,25.311844 C29,24.908844 29.241,24.545844 29.613,24.389844 L35.112,22.081844 Z M44,22.791844 L35.492,19.091844 L26.9998912,22.667844 L26.9998912,33.024844 C26.999,33.089844 26.963,38.008844 29.807,40.893844 C31.187,42.293844 33.059,43.003844 35.37,43.003844 C43.808,43.003844 43.996,33.424844 44,33.017844 L44,22.791844 Z M46,22.135844 L46,33.024844 C45.973,37.172844 43.716,45.003844 35.37,45.003844 C32.498,45.003844 30.145,44.089844 28.373,42.287844 C24.941,38.796844 24.996,33.242844 25,33.007844 L25,22.003844 C25,21.601844 25.241,21.237844 25.612,21.081844 L35.111,17.081844 C35.363,16.975844 35.647,16.977844 35.897,17.086844 L45.398,21.218844 C45.764,21.377844 46,21.737844 46,22.135844 L46,22.135844 Z M11,30.003844 L22,30.003844 L22,32.003844 L11,32.003844 C6.216,32.003844 2.271,28.482844 2.02,23.987844 C2.002,23.812844 2,23.598844 2,23.384844 C2,18.085844 5.654,16.037844 7.919,15.277844 C7.902,15.062844 7.891,14.842844 7.891,14.625844 C7.891,10.038844 10.658,5.70084404 14.621,4.07884404 C19.58,2.04984404 25.235,2.93684404 28.695,6.28484404 C29.718,7.28184404 30.604,8.59584404 31.343,10.205844 C32.299,9.42184404 33.392,9.00384404 34.523,9.00384404 C37.234,9.00384404 40.281,11.295844 40.9,15.061844 C43.069,15.343844 44.936,16.638844 45.896,18.581844 L44.104,19.468844 C43.34,17.924844 41.806,17.003844 40,17.003844 C39.471,17.003844 39.033,16.590844 39.002,16.062844 C38.807,12.761844 36.275,11.003844 34.523,11.003844 C33.55,11.003844 32.582,11.573844 31.797,12.607844 C31.575,12.898844 31.217,13.049844 30.852,12.992844 C30.49,12.937844 30.187,12.690844 30.062,12.347844 C29.327,10.345844 28.398,8.78884404 27.302,7.71984404 C24.407,4.91684404 19.614,4.19584404 15.379,5.92984404 C11.775,7.40484404 9.891,11.420844 9.891,14.625844 C9.891,15.025844 9.947,15.502844 9.993,15.885844 C10.053,16.385844 9.73,16.852844 9.24,16.974844 C7.283,17.458844 4,18.936844 4,23.384844 C4,23.534844 3.998,23.684844 4.013,23.835844 C4.209,27.311844 7.276,30.003844 11,30.003844 L11,30.003844 Z" fill="#8C4FFF"/></g>
+  </g>
+</svg>

@@ -1600,4 +1600,66 @@ export const conceptCards = [
       },
     ],
   },
+  {
+    id: "aws-vpc",
+    cardNumber: "#029",
+    type: "NETWORK",
+    title: "AWS VPC",
+    image: {
+      src: "/images/aws-vpc-thumbnail.webp",
+      alt: "Isometric scene of one boundary holding two identical subnets that reach each other directly, each standing over its own route table, the two tables alike in every row but one \u2014 the table carrying that second row sends its traffic out through a gateway on the boundary, and the packet from the table without it is crossed out where the row would have been",
+      sketch: {
+        src: "/images/aws-vpc-sketch.svg",
+        alt: "Line drawing of two matching subnets inside one boundary, each over a route table, one table\u2019s second row filled and leading out through a gateway on the boundary while the other\u2019s is an empty dashed slot whose path ends in a cross",
+      },
+    },
+    definition:
+      "A VPC is a private IPv4 range you define in one region and cut into subnets, one to an Availability Zone. Nothing about a subnet makes it public or private \u2014 the route table associated with it does. That is the single fact the rest of the card follows from, and the one most often got backwards.",
+    keywords: [
+      "CIDR block",
+      "subnet",
+      "route table",
+      "internet gateway",
+      "security group",
+    ],
+    components: [
+      {
+        name: "CIDR block and its subnets",
+        description:
+          "The range is chosen once, at creation, and every address the VPC ever hands out comes from it. A subnet is a slice of that range pinned to exactly one Availability Zone, so spreading across zones is a matter of how many subnets you cut rather than of anything you switch on. AWS keeps five addresses out of every subnet \u2014 the network and broadcast addresses plus three reserved for the router, DNS and future use \u2014 which is why a /28 offers eleven usable addresses and not sixteen.",
+      },
+      {
+        name: "Route table and what it points at",
+        description:
+          "A subnet is associated with exactly one route table, and a table is matched by longest prefix rather than in any order you control. The local route covering the whole VPC range sits in every table and cannot be removed, which is what lets any subnet reach any other with nothing configured. Everything else is what differs: a 0.0.0.0/0 row naming an internet gateway is the entire definition of a public subnet, and one naming a NAT gateway is the entire definition of a private subnet with egress. Delete the row and the subnet is unchanged \u2014 only its reach is gone.",
+      },
+      {
+        name: "Security group and network ACL",
+        description:
+          "Two filters stand in the path and they are not alternatives. A security group is attached to a network interface, holds allow rules only, and is stateful: the reply to a flow it let out comes back without a rule of its own. A network ACL is attached to a subnet, holds numbered allow and deny rules read in order until one matches, and is stateless \u2014 the reply needs its own rule, on the ephemeral port range, or a connection that was correctly permitted outbound simply hangs. Most of the unexplained timeouts in a hand-built VPC are that missing return rule.",
+      },
+    ],
+    howItWorks: [
+      {
+        step: 1,
+        description:
+          "You pick the CIDR when the VPC is created and cut subnets out of it, each one in a single Availability Zone. Nothing has yet decided what any of them can reach: at this point a subnet holds a range of addresses and the name of a zone, and that is all it holds. Anything you put in the VPC \u2014 an instance, a load balancer node, a Lambda function attached to it \u2014 gets an elastic network interface in one subnet and takes its address from that subnet\u2019s slice.",
+      },
+      {
+        step: 2,
+        description:
+          "A packet leaving that interface is matched against the route table associated with its subnet, longest prefix first. The local route wins for every destination inside the VPC, which is why the subnets talk to one another before anybody configures anything, and why private never meant isolated from the rest of the VPC. It means nothing more than the absence of one row.",
+      },
+      {
+        step: 3,
+        description:
+          "For any destination outside the range the packet needs that row, and the row is the whole decision. 0.0.0.0/0 to an internet gateway makes the subnet public, though a reply still has nowhere to return to unless the interface also carries a public address. 0.0.0.0/0 to a NAT gateway gives outbound and nothing inbound. Nothing matching at all and the packet is discarded for lack of a route \u2014 not refused by a filter, just undeliverable, which is why the symptom is a timeout rather than a rejection.",
+      },
+      {
+        step: 4,
+        description:
+          "Only then do the two filters apply, and they disagree by design: the stateful security group on the interface lets the answer back because it let the question out, while the stateless network ACL on the subnet judges each direction alone and needs a rule for the return traffic on ports 1024 to 65535. Where the model stops is at the edges of the region: a VPC does not span one, a subnet does not span a zone, and reaching another VPC is a peering connection or a Transit Gateway \u2014 which is to say another row, in another table.",
+      },
+    ],
+  },
 ] as const satisfies readonly ConceptCardData[];

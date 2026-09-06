@@ -124,6 +124,10 @@ const images = [
     "Isometric scene of three flows running straight down through a load balancer without stopping, each keeping its own colour from the sealed client above to the sealed target below, pinned by a node where it crosses, with one fixed address plate standing at each end of the balancer",
     "/images/aws-nlb-thumbnail.webp",
   ],
+  [
+    "Isometric scene of one boundary holding two identical subnets that reach each other directly, each standing over its own route table, the two tables alike in every row but one \u2014 the table carrying that second row sends its traffic out through a gateway on the boundary, and the packet from the table without it is crossed out where the row would have been",
+    "/images/aws-vpc-thumbnail.webp",
+  ],
 ] as const;
 
 const card = (page: import("@playwright/test").Page) =>

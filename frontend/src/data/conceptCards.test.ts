@@ -70,6 +70,7 @@ const expectedCards = [
   ],
   ["aws-alb", "#027", "AWS ALB", "/images/aws-alb-thumbnail.webp"],
   ["aws-nlb", "#028", "AWS NLB", "/images/aws-nlb-thumbnail.webp"],
+  ["aws-vpc", "#029", "AWS VPC", "/images/aws-vpc-thumbnail.webp"],
 ] as const;
 
 describe("conceptCards", () => {
@@ -97,7 +98,7 @@ describe("conceptCards", () => {
     expect(conceptCards[0].howItWorks).toHaveLength(4);
   });
 
-  it("contains all twenty-eight concepts in the approved order", () => {
+  it("contains all twenty-nine concepts in the approved order", () => {
     expect(conceptCards).toHaveLength(expectedCards.length);
     expect(
       conceptCards.map(({ id, cardNumber, title, image }) => [
@@ -578,5 +579,25 @@ describe("conceptCards", () => {
     expect(nlb?.howItWorks[2]?.description).toMatch(/drained/i);
     // Where the model stops: no header can be added to a packet nobody opened.
     expect(nlb?.howItWorks[3]?.description).toMatch(/proxy protocol/i);
+  });
+
+  it("makes the route table, not the subnet, decide what a VPC reaches", () => {
+    const vpc = conceptCards.find(({ id }) => id === "aws-vpc");
+
+    // The card exists to kill one misconception: that "public subnet" is a
+    // property a subnet has, rather than a row in the table beside it.
+    expect(vpc?.definition).toMatch(/nothing about a subnet makes it public/i);
+    expect(vpc?.definition).toMatch(/route table/i);
+    expect(vpc?.keywords).toContain("route table");
+    // The local route is why "private" never meant isolated from the VPC.
+    expect(vpc?.components[1]?.description).toMatch(/cannot be removed/i);
+    expect(vpc?.howItWorks[1]?.description).toMatch(/never meant isolated/i);
+    // No matching row is not a firewall decision, and saying so is the point.
+    expect(vpc?.howItWorks[2]?.description).toMatch(/lack of a route/i);
+    // Stateful against stateless is where a correct outbound rule still fails.
+    expect(vpc?.components[2]?.description).toMatch(/stateless/i);
+    expect(vpc?.howItWorks[3]?.description).toMatch(/stateful/i);
+    // Where the model stops: a VPC is one region and a subnet is one zone.
+    expect(vpc?.howItWorks[3]?.description).toMatch(/peering/i);
   });
 });
