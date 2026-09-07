@@ -128,6 +128,10 @@ const images = [
     "Isometric scene of one boundary holding two identical subnets that reach each other directly, each standing over its own route table, the two tables alike in every row but one \u2014 the table carrying that second row sends its traffic out through a gateway on the boundary, and the packet from the table without it is crossed out where the row would have been",
     "/images/aws-vpc-thumbnail.webp",
   ],
+  [
+    "Isometric scene of three interfaces inside one boundary, each standing over an address slot of its own — the machine in the private subnet routing across into a NAT gateway that stands inside the public subnet, whose slot is lit and whose path runs on down through the internet gateway on the boundary and out, while a second machine in that same public subnet has an empty dashed slot and its path is crossed out before it reaches the gateway",
+    "/images/aws-subnet-thumbnail.webp",
+  ],
 ] as const;
 
 const card = (page: import("@playwright/test").Page) =>

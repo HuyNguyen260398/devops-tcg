@@ -29,8 +29,8 @@ OpenAI image generation on 2026-08-15 and are stored locally:
 `kubernetes-pod-thumbnail.webp` on 2026-09-01, `prometheus-thumbnail.webp` with
 `prometheus-federation-thumbnail.webp` on 2026-09-02,
 `aws-alb-thumbnail.webp` with `aws-nlb-thumbnail.webp` on 2026-09-03,
-`proxy-thumbnail.webp` on 2026-09-05, and `aws-vpc-thumbnail.webp` on
-2026-09-06, each as
+`proxy-thumbnail.webp` on 2026-09-05, `aws-vpc-thumbnail.webp` on
+2026-09-06, and `aws-subnet-thumbnail.webp` on 2026-09-07, each as
 an isometric SVG scene composed in-repo and rendered to WebP with headless
 Chromium. They contain no
 third-party artwork.
@@ -40,24 +40,24 @@ thumbnail in the deck that was neither drawn for it nor 16:9.
 
 ## Sketch-theme drawings
 
-The twenty-nine `*-sketch.svg` files are original hand-authored SVG line
+The thirty `*-sketch.svg` files are original hand-authored SVG line
 drawings made for DevOps TCG on 2026-08-19, on 2026-08-20 for the two
 certificate authority cards, on 2026-08-21 for JWT, on 2026-08-23 for AWS
 Lambda, on 2026-08-24 for the two IAM cards, on 2026-08-25 for OIDC, on
 2026-08-26 for Kafka, on 2026-08-27 for Redis, on 2026-08-28 for RBAC, on
 2026-08-29 for Redis Cluster, on 2026-08-30 for Container, on 2026-08-31 for
 Terraform State, on 2026-09-01 for Kubernetes Pod, on 2026-09-02 for Prometheus
-and Prometheus Federation, on 2026-09-03 for AWS ALB and AWS NLB, and on
-2026-09-06 for AWS VPC. Their line work is
+and Prometheus Federation, on 2026-09-03 for AWS ALB and AWS NLB, on
+2026-09-06 for AWS VPC, and on 2026-09-07 for AWS Subnet. Their line work is
 plain `<path>` geometry — no tracing of any third-party image, no generator,
 and no external asset — and they are the artwork the sketch theme shows in
 place of the photographs above.
 Ink is `#1d1d1b`, the highlighter block is `#fff2c4`, and the subject block is
 `#dbe7ff`, matching the sketch theme's tokens. `aws-lambda-sketch.svg`,
 `aws-iam-role-sketch.svg`, `aws-iam-policy-sketch.svg`, `aws-alb-sketch.svg`,
-`aws-nlb-sketch.svg` and `aws-vpc-sketch.svg` are the exceptions to the
-own-geometry rule: each
-drawing is hand-authored, but the AWS mark inside it is an official AWS icon
+`aws-nlb-sketch.svg`, `aws-vpc-sketch.svg` and `aws-subnet-sketch.svg` are the
+exceptions to the own-geometry rule: each
+drawing is hand-authored, but the AWS marks inside it are official AWS icons
 described below.
 
 ## AWS Architecture Icons
@@ -107,6 +107,15 @@ neon theme. It comes from a later download of the package than the icons above,
 out of its `Resource-Icons_07312026` set, because that is the release AWS was
 publishing on the day the card was drawn. Everything around it in those two
 files was drawn for DevOps TCG on 2026-09-06.
+
+`aws-subnet-thumbnail.webp` and `aws-subnet-sketch.svg` are the one pair
+carrying two marks, because the card's subject is the chain between them:
+`Res_Amazon-VPC_NAT-Gateway_48` and `Res_Amazon-VPC_Internet-Gateway_48`, both
+from the `Resource-Icons_04302026` set. They are the same `#8C4FFF` line-art
+marks for light backgrounds, handled exactly as the icons above are —
+uniformly scaled, neither recoloured nor otherwise modified, and each seated on
+its own light plate in the neon theme rather than inverted. Everything around
+them in those two files was drawn for DevOps TCG on 2026-09-07.
 
 - Source: https://aws.amazon.com/architecture/icons/
 - Terms: https://aws.amazon.com/architecture/icons/ ("AWS Architecture Icons

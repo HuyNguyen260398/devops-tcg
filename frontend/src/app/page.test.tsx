@@ -14,10 +14,10 @@ describe("Home", () => {
     await waitFor(() =>
       expect(
         screen.getAllByRole("button", { name: /^Open the .* card$/ }),
-      ).toHaveLength(29),
+      ).toHaveLength(30),
     );
 
-    expect(screen.getByText("29 / 29")).toBeInTheDocument();
+    expect(screen.getByText("30 / 30")).toBeInTheDocument();
     expect(
       screen.getByRole("searchbox", { name: "Search cards" }),
     ).toBeInTheDocument();

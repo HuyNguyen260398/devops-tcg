@@ -71,6 +71,7 @@ const expectedCards = [
   ["aws-alb", "#027", "AWS ALB", "/images/aws-alb-thumbnail.webp"],
   ["aws-nlb", "#028", "AWS NLB", "/images/aws-nlb-thumbnail.webp"],
   ["aws-vpc", "#029", "AWS VPC", "/images/aws-vpc-thumbnail.webp"],
+  ["aws-subnet", "#030", "AWS Subnet", "/images/aws-subnet-thumbnail.webp"],
 ] as const;
 
 describe("conceptCards", () => {
@@ -98,7 +99,7 @@ describe("conceptCards", () => {
     expect(conceptCards[0].howItWorks).toHaveLength(4);
   });
 
-  it("contains all twenty-nine concepts in the approved order", () => {
+  it("contains all thirty concepts in the approved order", () => {
     expect(conceptCards).toHaveLength(expectedCards.length);
     expect(
       conceptCards.map(({ id, cardNumber, title, image }) => [
@@ -599,5 +600,30 @@ describe("conceptCards", () => {
     expect(vpc?.howItWorks[3]?.description).toMatch(/stateful/i);
     // Where the model stops: a VPC is one region and a subnet is one zone.
     expect(vpc?.howItWorks[3]?.description).toMatch(/peering/i);
+  });
+  it("makes a subnet public by two separate things, not by a setting", () => {
+    const subnet = conceptCards.find(({ id }) => id === "aws-subnet");
+
+    // The card exists to finish what the VPC card starts: there is no flag,
+    // and the route alone is only half of what "public" means.
+    expect(subnet?.definition).toMatch(/no public or private setting/i);
+    expect(subnet?.definition).toMatch(/neither one works alone/i);
+    expect(subnet?.keywords).toContain("main route table");
+    // A subnet nobody associated is still governed by a table.
+    expect(subnet?.components[0]?.description).toMatch(/main route table/i);
+    expect(subnet?.components[0]?.description).toMatch(/never explicitly/i);
+    // The address and the route are each useless without the other.
+    expect(subnet?.components[1]?.description).toMatch(/one-to-one NAT/i);
+    expect(subnet?.components[1]?.description).toMatch(/equally unreachable/i);
+    expect(subnet?.howItWorks[1]?.description).toMatch(/never mentions/i);
+    // The one hop everybody draws is really two subnets and two tables.
+    expect(subnet?.components[2]?.description).toMatch(
+      /stands in a public subnet/i,
+    );
+    expect(subnet?.howItWorks[2]?.description).toMatch(/cross-zone/i);
+    // Where the model stops: no route at all, and IPv6 with no NAT to speak of.
+    expect(subnet?.components[2]?.description).toMatch(/egress-only/i);
+    expect(subnet?.howItWorks[3]?.description).toMatch(/no route at all/i);
+    expect(subnet?.howItWorks[3]?.description).toMatch(/IPv6/);
   });
 });
