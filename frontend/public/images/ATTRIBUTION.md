@@ -117,6 +117,15 @@ uniformly scaled, neither recoloured nor otherwise modified, and each seated on
 its own light plate in the neon theme rather than inverted. Everything around
 them in those two files was drawn for DevOps TCG on 2026-09-07.
 
+`aws-cidr-sketch.svg` carries `Res_Amazon-VPC_Virtual-private-cloud-VPC_48`,
+the same mark the AWS VPC pair above uses and out of the same
+`Resource-Icons_07312026` set, because the card argues about the ranges those
+VPCs are cut from. It is embedded exactly as shipped — `#8C4FFF` line art for
+light backgrounds, uniformly scaled, neither recoloured nor otherwise modified,
+and seated on a light plate in the neon theme rather than inverted. Everything
+around it in that file, and the whole of `aws-cidr-thumbnail.webp`, was drawn
+for DevOps TCG on 2026-09-08.
+
 - Source: https://aws.amazon.com/architecture/icons/
 - Terms: https://aws.amazon.com/architecture/icons/ ("AWS Architecture Icons
   Terms of Use", linked from that page)

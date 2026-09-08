@@ -334,10 +334,10 @@ describe("ConceptDeck", () => {
 
     expect(
       screen.getByRole("button", {
-        name: "AWS Subnet card, front shown",
+        name: "AWS CIDR card, front shown",
       }),
     ).toBeInTheDocument();
-    expect(slotOf("aws-subnet")).toBe("0");
+    expect(slotOf("aws-cidr")).toBe("0");
   });
 
   it("ignores a drag too short to be a swipe", () => {
@@ -383,7 +383,7 @@ describe("ConceptDeck", () => {
 
     expect(slotOf("proxy")).toBe("0");
     expect(slotOf("cdn")).toBe("1");
-    expect(slotOf("aws-subnet")).toBe("-1");
+    expect(slotOf("aws-cidr")).toBe("-1");
   });
 
   it("stages the rank beyond the spread so no card can pop in", () => {
@@ -391,7 +391,7 @@ describe("ConceptDeck", () => {
     render(<ConceptDeck cards={conceptCards} random={() => 0.999999} />);
 
     expect(slotOf("nginx")).toBe("2");
-    expect(slotOf("aws-vpc")).toBe("-2");
+    expect(slotOf("aws-subnet")).toBe("-2");
     expect(slot("nginx")).toHaveAttribute("data-staged", "true");
     expect(slot("cdn")).not.toHaveAttribute("data-staged");
     expect(slot("reverse-proxy")).toBeNull();
@@ -437,9 +437,9 @@ describe("ConceptDeck", () => {
 
     expect(depthAndSide("proxy")).toEqual(["0", "0"]);
     expect(depthAndSide("cdn")).toEqual(["1", "1"]);
-    expect(depthAndSide("aws-subnet")).toEqual(["1", "-1"]);
+    expect(depthAndSide("aws-cidr")).toEqual(["1", "-1"]);
     expect(depthAndSide("nginx")).toEqual(["2", "1"]);
-    expect(depthAndSide("aws-vpc")).toEqual(["2", "-1"]);
+    expect(depthAndSide("aws-subnet")).toEqual(["2", "-1"]);
   });
 
   it("moves the same card element between slots instead of remounting it", async () => {
@@ -471,7 +471,7 @@ describe("ConceptDeck", () => {
   it("hides every off-centre slot from assistive technology and focus", () => {
     render(<ConceptDeck cards={conceptCards} random={() => 0.999999} />);
 
-    for (const id of ["cdn", "nginx", "aws-subnet", "aws-vpc"]) {
+    for (const id of ["cdn", "nginx", "aws-cidr", "aws-subnet"]) {
       const card = slot(id)!.querySelector(".concept-card")!;
       expect(card).toHaveAttribute("aria-hidden", "true");
       expect(card).not.toHaveAttribute("tabindex");
@@ -580,10 +580,10 @@ describe("ConceptDeck", () => {
     await user.click(previous);
     expect(
       screen.getByRole("button", {
-        name: "AWS Subnet card, front shown",
+        name: "AWS CIDR card, front shown",
       }),
     ).toBeInTheDocument();
-    expect(slotOf("aws-subnet")).toBe("0");
+    expect(slotOf("aws-cidr")).toBe("0");
 
     await user.click(next);
     expect(
@@ -612,14 +612,14 @@ describe("ConceptDeck", () => {
 
     expect(
       screen.getByRole("button", {
-        name: "AWS Subnet card, front shown",
+        name: "AWS CIDR card, front shown",
       }),
     ).toHaveFocus();
     expect(screen.getByTestId("deck-track")).toHaveAttribute(
       "data-direction",
       "previous",
     );
-    expect(slotOf("aws-subnet")).toBe("0");
+    expect(slotOf("aws-cidr")).toBe("0");
 
     await user.keyboard("{ArrowRight}");
     expect(

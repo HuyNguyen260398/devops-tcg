@@ -132,6 +132,10 @@ const images = [
     "Isometric scene of three interfaces inside one boundary, each standing over an address slot of its own — the machine in the private subnet routing across into a NAT gateway that stands inside the public subnet, whose slot is lit and whose path runs on down through the internet gateway on the boundary and out, while a second machine in that same public subnet has an empty dashed slot and its path is crossed out before it reaches the gateway",
     "/images/aws-subnet-thumbnail.webp",
   ],
+  [
+    "Isometric scene of one sealed address range whose edge is solid where every other line is open, already cut into subnets and each subnet showing five of its slots taken before any machine stands in one, a second range set apart to the side rather than widening it, and below the whole thing two ranges facing each other carrying the very same numbers, the path between them crossed out",
+    "/images/aws-cidr-thumbnail.webp",
+  ],
 ] as const;
 
 const card = (page: import("@playwright/test").Page) =>

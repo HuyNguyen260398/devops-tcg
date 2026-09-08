@@ -72,6 +72,7 @@ const expectedCards = [
   ["aws-nlb", "#028", "AWS NLB", "/images/aws-nlb-thumbnail.webp"],
   ["aws-vpc", "#029", "AWS VPC", "/images/aws-vpc-thumbnail.webp"],
   ["aws-subnet", "#030", "AWS Subnet", "/images/aws-subnet-thumbnail.webp"],
+  ["aws-cidr", "#031", "AWS CIDR", "/images/aws-cidr-thumbnail.webp"],
 ] as const;
 
 describe("conceptCards", () => {
@@ -99,7 +100,7 @@ describe("conceptCards", () => {
     expect(conceptCards[0].howItWorks).toHaveLength(4);
   });
 
-  it("contains all thirty concepts in the approved order", () => {
+  it("contains all thirty-one concepts in the approved order", () => {
     expect(conceptCards).toHaveLength(expectedCards.length);
     expect(
       conceptCards.map(({ id, cardNumber, title, image }) => [
@@ -625,5 +626,30 @@ describe("conceptCards", () => {
     expect(subnet?.components[2]?.description).toMatch(/egress-only/i);
     expect(subnet?.howItWorks[3]?.description).toMatch(/no route at all/i);
     expect(subnet?.howItWorks[3]?.description).toMatch(/IPv6/);
+  });
+
+  it("makes the CIDR block the one decision a VPC cannot take back", () => {
+    const cidr = conceptCards.find(({ id }) => id === "aws-cidr");
+
+    // Every other card in this run is a row you edit. This one exists to say
+    // that the range underneath them all is chosen once and never again.
+    expect(cidr?.definition).toMatch(/cannot be taken back/i);
+    expect(cidr?.keywords).toContain("secondary CIDR block");
+    // The arithmetic nobody does: five addresses gone from every subnet.
+    expect(cidr?.components[0]?.description).toMatch(/eleven/i);
+    expect(cidr?.components[0]?.description).toMatch(/bits/i);
+    expect(cidr?.howItWorks[0]?.description).toMatch(/reserves five/i);
+    // A secondary block adds space beside the mistake; it does not repair it.
+    expect(cidr?.components[1]?.description).toMatch(/beside/i);
+    expect(cidr?.components[1]?.description).toMatch(/cannot be resized/i);
+    expect(cidr?.howItWorks[1]?.description).toMatch(/immutable/i);
+    // What the range really decides is every network you may later connect to.
+    expect(cidr?.components[2]?.description).toMatch(/overlap/i);
+    expect(cidr?.components[2]?.description).toMatch(/peer/i);
+    expect(cidr?.howItWorks[2]?.description).toMatch(/on-premises/i);
+    // Where the model stops: IPv6 deletes the problem by deleting the choice.
+    expect(cidr?.howItWorks[3]?.description).toMatch(/\/56/);
+    expect(cidr?.howItWorks[3]?.description).toMatch(/\/64/);
+    expect(cidr?.howItWorks[3]?.description).toMatch(/never yours to pick/i);
   });
 });

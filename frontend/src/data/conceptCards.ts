@@ -1724,4 +1724,66 @@ export const conceptCards = [
       },
     ],
   },
+  {
+    id: "aws-cidr",
+    cardNumber: "#031",
+    type: "NETWORK",
+    title: "AWS CIDR",
+    image: {
+      src: "/images/aws-cidr-thumbnail.webp",
+      alt: "Isometric scene of one sealed address range whose edge is solid where every other line is open, already cut into subnets and each subnet showing five of its slots taken before any machine stands in one, a second range set apart to the side rather than widening it, and below the whole thing two ranges facing each other carrying the very same numbers, the path between them crossed out",
+      sketch: {
+        src: "/images/aws-cidr-sketch.svg",
+        alt: "Line drawing of a fixed range cut into subnets with five slots struck out of each, a separate block set beside it rather than extending its edge, and a facing range of the same numbers whose connecting path ends in a cross",
+      },
+    },
+    definition:
+      "Everything else in a VPC is a row you edit. The CIDR block underneath all of it is chosen once and cannot be taken back \u2014 and the count you sized it by is not the count you get, because AWS takes five addresses out of every subnet before anything of yours stands in one.",
+    keywords: [
+      "prefix length",
+      "reserved addresses",
+      "secondary CIDR block",
+      "overlapping ranges",
+      "RFC 1918",
+    ],
+    components: [
+      {
+        name: "What the slash actually fixes",
+        description:
+          "The number after the slash counts bits of network, not addresses of anything: a /24 pins the first 24 bits and leaves eight to vary, which is 256 numbers rather than 256 machines. AWS then takes five out of every subnet \u2014 the network address, the VPC router at .1, the DNS resolver at .2, one held for a use it has not yet announced, and the broadcast address it does not even implement \u2014 so a /28, the smallest subnet it will let you cut, carries eleven usable addresses rather than sixteen. Those five are not bookkeeping. The .2 answering is why a name resolves inside the VPC at all, and .1 is the address the local row in every route table eventually means.",
+      },
+      {
+        name: "Nothing here is an edit",
+        description:
+          "A VPC\u2019s primary block is immutable for the life of the VPC, and a subnet cannot be resized at all \u2014 there is no widen, no renumber, no operation that turns the range you cut into a different range. What AWS offers instead is the secondary CIDR block: up to four more ranges associated alongside the first, each obliged to fall outside every range already associated and outside the routes the VPC already carries. It adds room beside the mistake rather than repairing it, which is why a VPC that outgrew its first range ends up holding subnets in two unrelated blocks and route tables that have to name both.",
+      },
+      {
+        name: "What overlap costs, and when",
+        description:
+          "The range you picked alone on day one is a decision about every network you will later be asked to reach. Two VPCs whose ranges overlap cannot be peered, cannot both be given a useful route on one Transit Gateway route table, and cannot both meet the same private network on the far end of a VPN \u2014 refused at the API in the first case and simply unroutable in the others, because no router holds two rows for the same destination and means different places by them. RFC 1918 is not free real estate: 10.0.0.0/16 is the range everyone defaults to, and therefore the range most likely to be waiting on the other side of the connection you are asked for. A good range is not the roomy one, it is the one unlikely to be somebody else\u2019s.",
+      },
+    ],
+    howItWorks: [
+      {
+        step: 1,
+        description:
+          "You write a range and a prefix length, and both ends are bounded \u2014 /16 to /28 for a VPC, and the same for every subnet inside it. Cut a subnet and AWS reserves five addresses in it before anything launches, so what you can actually fill is two to the power of the host bits, minus five. That is where a plan first goes wrong, at a scale small enough to stay invisible: six /27 subnets lose thirty addresses to reservations, and the /28 that read as a tidy sixteen is eleven.",
+      },
+      {
+        step: 2,
+        description:
+          "From that moment the primary block is immutable. You may associate a secondary block, and disassociate one you no longer use, but nothing edits the range the VPC was created with and nothing edits a subnet\u2019s range at all. The only way to change either is to build its replacement beside it and move the workloads across \u2014 which for a subnet means new interfaces on new addresses, and everything that wrote one of the old ones down following behind.",
+      },
+      {
+        step: 3,
+        description:
+          "The bill for the choice arrives later and never from inside the VPC. It arrives when a peering connection is refused outright because the two ranges overlap, when a Transit Gateway cannot route to a second attachment because another one already claims those numbers, or when the on-premises network reached over a VPN turns out to have taken 10.0.0.0/16 for exactly the reason you did. None of them is fixable by editing the VPC. Each is fixed by renumbering something, which is the migration the immutability had already promised.",
+      },
+      {
+        step: 4,
+        description:
+          "Where the model stops is IPv6, which deletes the problem by deleting the choice. AWS hands the VPC a /56 out of its own pool and every subnet in it is a /64, always \u2014 no prefix to size, no exhaustion to plan around, no overlap to negotiate, because a globally unique address was never yours to pick in the first place. The reservation survives: AWS still takes the first four addresses of every IPv6 subnet. Out of a /64 that is a rounding error rather than a constraint, and that difference in scale is the whole reason IPv4 in a VPC needs a plan and IPv6 does not.",
+      },
+    ],
+  },
 ] as const satisfies readonly ConceptCardData[];
