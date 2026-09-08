@@ -1731,7 +1731,7 @@ export const conceptCards = [
     title: "AWS CIDR",
     image: {
       src: "/images/aws-cidr-thumbnail.webp",
-      alt: "Isometric scene of one sealed address range whose edge is solid where every other line is open, already cut into subnets and each subnet showing five of its slots taken before any machine stands in one, a second range set apart to the side rather than widening it, and below the whole thing two ranges facing each other carrying the very same numbers, the path between them crossed out",
+      alt: "Isometric scene of one address range held inside a single heavy boundary, cut into two subnets whose rows of address slots each have five already taken and only three left lit, a smaller range standing apart to the side with a gap marked between them rather than joined on, and below both of them two ranges carrying the very same slots with the path between them crossed out",
       sketch: {
         src: "/images/aws-cidr-sketch.svg",
         alt: "Line drawing of a fixed range cut into subnets with five slots struck out of each, a separate block set beside it rather than extending its edge, and a facing range of the same numbers whose connecting path ends in a cross",

@@ -133,7 +133,7 @@ const images = [
     "/images/aws-subnet-thumbnail.webp",
   ],
   [
-    "Isometric scene of one sealed address range whose edge is solid where every other line is open, already cut into subnets and each subnet showing five of its slots taken before any machine stands in one, a second range set apart to the side rather than widening it, and below the whole thing two ranges facing each other carrying the very same numbers, the path between them crossed out",
+    "Isometric scene of one address range held inside a single heavy boundary, cut into two subnets whose rows of address slots each have five already taken and only three left lit, a smaller range standing apart to the side with a gap marked between them rather than joined on, and below both of them two ranges carrying the very same slots with the path between them crossed out",
     "/images/aws-cidr-thumbnail.webp",
   ],
 ] as const;
