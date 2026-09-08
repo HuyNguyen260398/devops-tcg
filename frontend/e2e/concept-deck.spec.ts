@@ -136,6 +136,10 @@ const images = [
     "Isometric scene of one address range held inside a single heavy boundary, cut into two subnets whose rows of address slots each have five already taken and only three left lit, a smaller range standing apart to the side with a gap marked between them rather than joined on, and below both of them two ranges carrying the very same slots with the path between them crossed out",
     "/images/aws-cidr-thumbnail.webp",
   ],
+  [
+    "Isometric scene of one packet meeting a table where three rows match it at once \u2014 the narrowest row lit and carrying the packet away, the catch-all row beneath it left dark although it matches too, a third row marked as having arrived from elsewhere, and a fourth greyed out with its target gone \u2014 while off to the side a further table hangs from the gateway on the boundary rather than from any subnet",
+    "/images/aws-route-table-thumbnail.webp",
+  ],
 ] as const;
 
 const card = (page: import("@playwright/test").Page) =>

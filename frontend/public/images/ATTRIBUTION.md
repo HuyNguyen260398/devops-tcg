@@ -126,6 +126,16 @@ and seated on a light plate in the neon theme rather than inverted. Everything
 around it in that file, and the whole of `aws-cidr-thumbnail.webp`, was drawn
 for DevOps TCG on 2026-09-08.
 
+`aws-route-table-thumbnail.webp` and `aws-route-table-sketch.svg` carry
+`Res_Amazon-VPC_Internet-Gateway_48`, the same mark the AWS Subnet pair above
+uses and out of the same `Resource-Icons_04302026` set, because the card ends
+on a table associated with a gateway rather than with a subnet. It is the same
+`#8C4FFF` line-art mark for light backgrounds, embedded exactly as shipped —
+uniformly scaled, neither recoloured nor otherwise modified, and seated on a
+light plate in the neon theme rather than inverted. The rows, the packet and
+the tables around it were drawn for DevOps TCG on 2026-09-08. There is no
+official Route Table mark in this repository, so none is claimed here.
+
 - Source: https://aws.amazon.com/architecture/icons/
 - Terms: https://aws.amazon.com/architecture/icons/ ("AWS Architecture Icons
   Terms of Use", linked from that page)

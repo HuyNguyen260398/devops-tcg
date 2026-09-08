@@ -73,6 +73,12 @@ const expectedCards = [
   ["aws-vpc", "#029", "AWS VPC", "/images/aws-vpc-thumbnail.webp"],
   ["aws-subnet", "#030", "AWS Subnet", "/images/aws-subnet-thumbnail.webp"],
   ["aws-cidr", "#031", "AWS CIDR", "/images/aws-cidr-thumbnail.webp"],
+  [
+    "aws-route-table",
+    "#032",
+    "AWS Route Table",
+    "/images/aws-route-table-thumbnail.webp",
+  ],
 ] as const;
 
 describe("conceptCards", () => {
@@ -100,7 +106,7 @@ describe("conceptCards", () => {
     expect(conceptCards[0].howItWorks).toHaveLength(4);
   });
 
-  it("contains all thirty-one concepts in the approved order", () => {
+  it("contains all thirty-two concepts in the approved order", () => {
     expect(conceptCards).toHaveLength(expectedCards.length);
     expect(
       conceptCards.map(({ id, cardNumber, title, image }) => [
@@ -651,5 +657,32 @@ describe("conceptCards", () => {
     expect(cidr?.howItWorks[3]?.description).toMatch(/\/56/);
     expect(cidr?.howItWorks[3]?.description).toMatch(/\/64/);
     expect(cidr?.howItWorks[3]?.description).toMatch(/never yours to pick/i);
+  });
+
+  it("makes the route table a lookup rather than a list", () => {
+    const table = conceptCards.find(({ id }) => id === "aws-route-table");
+
+    // The card exists to replace "the rows are checked in order" with the rule
+    // that actually decides, and with the two places that rule is not enough.
+    expect(table?.definition).toMatch(/not a list/i);
+    expect(table?.definition).toMatch(/most specific/i);
+    expect(table?.keywords).toContain("longest prefix match");
+    // The local route beats a propagated route that is more specific than it.
+    expect(table?.components[0]?.description).toMatch(/even when/i);
+    expect(table?.components[0]?.description).toMatch(/propagated/i);
+    expect(table?.howItWorks[1]?.description).toMatch(/static beats/i);
+    // A row nobody wrote, and a row whose target left without it.
+    expect(table?.components[1]?.description).toMatch(/blackhole/i);
+    expect(table?.components[1]?.description).toMatch(/somebody else/i);
+    expect(table?.howItWorks[2]?.description).toMatch(/looks like a firewall/i);
+    // A table associated with a gateway is how ingress is inspected at all.
+    expect(table?.components[2]?.description).toMatch(/gateway route table/i);
+    // Undeletable and unbeatable turn out to be different words.
+    expect(table?.components[2]?.description).toMatch(/undeletable/i);
+    expect(table?.components[2]?.description).toMatch(
+      /Gateway Load Balancer endpoint/i,
+    );
+    // Where the model stops: the other kind of route table entirely.
+    expect(table?.howItWorks[3]?.description).toMatch(/Transit Gateway/i);
   });
 });
