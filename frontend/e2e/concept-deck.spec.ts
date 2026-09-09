@@ -140,6 +140,10 @@ const images = [
     "Isometric scene of one packet meeting a table where three rows match it at once \u2014 the narrowest row lit and carrying the packet away, the catch-all row beneath it left dark although it matches too, a third row marked as having arrived from elsewhere, and a fourth greyed out with its target gone \u2014 while off to the side a further table hangs from the gateway on the boundary rather than from any subnet",
     "/images/aws-route-table-thumbnail.webp",
   ],
+  [
+    "Isometric scene of several connections leaving through one gateway that stamps each with its own address and a port taken from a finite strip beneath it \u2014 the strip aimed at a single destination almost entirely used up while the strips beside it stand nearly empty \u2014 with a meter running on the gateway itself, and off to the side a second gateway of the same shape carrying no public address and turned inward rather than out",
+    "/images/aws-nat-gateway-thumbnail.webp",
+  ],
 ] as const;
 
 const card = (page: import("@playwright/test").Page) =>

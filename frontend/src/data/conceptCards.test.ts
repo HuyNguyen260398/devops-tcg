@@ -79,6 +79,12 @@ const expectedCards = [
     "AWS Route Table",
     "/images/aws-route-table-thumbnail.webp",
   ],
+  [
+    "aws-nat-gateway",
+    "#033",
+    "AWS NAT Gateway",
+    "/images/aws-nat-gateway-thumbnail.webp",
+  ],
 ] as const;
 
 describe("conceptCards", () => {
@@ -106,7 +112,7 @@ describe("conceptCards", () => {
     expect(conceptCards[0].howItWorks).toHaveLength(4);
   });
 
-  it("contains all thirty-two concepts in the approved order", () => {
+  it("contains all thirty-three concepts in the approved order", () => {
     expect(conceptCards).toHaveLength(expectedCards.length);
     expect(
       conceptCards.map(({ id, cardNumber, title, image }) => [
@@ -684,5 +690,34 @@ describe("conceptCards", () => {
     );
     // Where the model stops: the other kind of route table entirely.
     expect(table?.howItWorks[3]?.description).toMatch(/Transit Gateway/i);
+  });
+
+  it("meters the NAT gateway and caps it by ports rather than bandwidth", () => {
+    const nat = conceptCards.find(({ id }) => id === "aws-nat-gateway");
+
+    // #030 already stands it in a public subnet. This card is about what it
+    // costs, what it runs out of, and the one that never sees the internet.
+    expect(nat?.definition).toMatch(/per gigabyte/i);
+    expect(nat?.keywords).toContain("port allocation");
+    // The bill's usual surprise is traffic that should never have been on it.
+    expect(nat?.components[0]?.description).toMatch(/gateway endpoint/i);
+    expect(nat?.components[0]?.description).toMatch(/free/i);
+    // Bandwidth scales itself; the ceiling is per destination, not per gateway.
+    expect(nat?.components[1]?.description).toMatch(/55,000/);
+    expect(nat?.components[1]?.description).toMatch(/unique destination/i);
+    expect(nat?.components[1]?.description).toMatch(/ErrorPortAllocation/);
+    // An idle connection does not fail quietly.
+    expect(nat?.howItWorks[2]?.description).toMatch(/350/);
+    expect(nat?.howItWorks[2]?.description).toMatch(/RST/);
+    // It is not a filter, and the private one is not an internet device.
+    expect(nat?.components[2]?.description).toMatch(
+      /cannot attach a security group/i,
+    );
+    expect(nat?.components[2]?.description).toMatch(/network ACL/i);
+    expect(nat?.components[2]?.description).toMatch(/private NAT gateway/i);
+    expect(nat?.components[2]?.description).toMatch(/overlapping/i);
+    // Where the model stops: no NAT for IPv6, and nothing inbound can start.
+    expect(nat?.howItWorks[3]?.description).toMatch(/egress-only/i);
+    expect(nat?.howItWorks[3]?.description).toMatch(/never a destination/i);
   });
 });
