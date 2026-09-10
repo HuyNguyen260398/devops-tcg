@@ -334,10 +334,10 @@ describe("ConceptDeck", () => {
 
     expect(
       screen.getByRole("button", {
-        name: "AWS NAT Gateway card, front shown",
+        name: "AWS Internet Gateway card, front shown",
       }),
     ).toBeInTheDocument();
-    expect(slotOf("aws-nat-gateway")).toBe("0");
+    expect(slotOf("aws-internet-gateway")).toBe("0");
   });
 
   it("ignores a drag too short to be a swipe", () => {
@@ -383,7 +383,7 @@ describe("ConceptDeck", () => {
 
     expect(slotOf("proxy")).toBe("0");
     expect(slotOf("cdn")).toBe("1");
-    expect(slotOf("aws-nat-gateway")).toBe("-1");
+    expect(slotOf("aws-internet-gateway")).toBe("-1");
   });
 
   it("stages the rank beyond the spread so no card can pop in", () => {
@@ -391,7 +391,7 @@ describe("ConceptDeck", () => {
     render(<ConceptDeck cards={conceptCards} random={() => 0.999999} />);
 
     expect(slotOf("nginx")).toBe("2");
-    expect(slotOf("aws-route-table")).toBe("-2");
+    expect(slotOf("aws-nat-gateway")).toBe("-2");
     expect(slot("nginx")).toHaveAttribute("data-staged", "true");
     expect(slot("cdn")).not.toHaveAttribute("data-staged");
     expect(slot("reverse-proxy")).toBeNull();
@@ -437,9 +437,9 @@ describe("ConceptDeck", () => {
 
     expect(depthAndSide("proxy")).toEqual(["0", "0"]);
     expect(depthAndSide("cdn")).toEqual(["1", "1"]);
-    expect(depthAndSide("aws-nat-gateway")).toEqual(["1", "-1"]);
+    expect(depthAndSide("aws-internet-gateway")).toEqual(["1", "-1"]);
     expect(depthAndSide("nginx")).toEqual(["2", "1"]);
-    expect(depthAndSide("aws-route-table")).toEqual(["2", "-1"]);
+    expect(depthAndSide("aws-nat-gateway")).toEqual(["2", "-1"]);
   });
 
   it("moves the same card element between slots instead of remounting it", async () => {
@@ -471,7 +471,12 @@ describe("ConceptDeck", () => {
   it("hides every off-centre slot from assistive technology and focus", () => {
     render(<ConceptDeck cards={conceptCards} random={() => 0.999999} />);
 
-    for (const id of ["cdn", "nginx", "aws-nat-gateway", "aws-route-table"]) {
+    for (const id of [
+      "cdn",
+      "nginx",
+      "aws-internet-gateway",
+      "aws-nat-gateway",
+    ]) {
       const card = slot(id)!.querySelector(".concept-card")!;
       expect(card).toHaveAttribute("aria-hidden", "true");
       expect(card).not.toHaveAttribute("tabindex");
@@ -580,10 +585,10 @@ describe("ConceptDeck", () => {
     await user.click(previous);
     expect(
       screen.getByRole("button", {
-        name: "AWS NAT Gateway card, front shown",
+        name: "AWS Internet Gateway card, front shown",
       }),
     ).toBeInTheDocument();
-    expect(slotOf("aws-nat-gateway")).toBe("0");
+    expect(slotOf("aws-internet-gateway")).toBe("0");
 
     await user.click(next);
     expect(
@@ -612,14 +617,14 @@ describe("ConceptDeck", () => {
 
     expect(
       screen.getByRole("button", {
-        name: "AWS NAT Gateway card, front shown",
+        name: "AWS Internet Gateway card, front shown",
       }),
     ).toHaveFocus();
     expect(screen.getByTestId("deck-track")).toHaveAttribute(
       "data-direction",
       "previous",
     );
-    expect(slotOf("aws-nat-gateway")).toBe("0");
+    expect(slotOf("aws-internet-gateway")).toBe("0");
 
     await user.keyboard("{ArrowRight}");
     expect(

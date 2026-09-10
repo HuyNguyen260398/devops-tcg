@@ -1910,4 +1910,66 @@ export const conceptCards = [
       },
     ],
   },
+  {
+    id: "aws-internet-gateway",
+    cardNumber: "#034",
+    type: "NETWORK",
+    title: "AWS Internet Gateway",
+    image: {
+      src: "/images/aws-internet-gateway-thumbnail.webp",
+      alt: "Isometric scene of one machine inside a boundary standing over an address plate that carries only its private address, its connection running out through a gateway attached to the boundary \u2014 the gateway holding that machine\u2019s public plate outside, lit and carrying a charge mark of its own \u2014 while a second machine in the same boundary reaches for the public address instead and has its direct path crossed out, its traffic drawn leaving the boundary and returning through the very same gateway, and a third machine\u2019s packet crossing that gateway unchanged, with no plate on either side of it",
+      sketch: {
+        src: "/images/aws-internet-gateway-sketch.svg",
+        alt: "Line drawing of a machine whose own plate shows a private address only, its line running out through a gateway on the boundary that holds the matching public plate beyond it, a second machine whose straight path to that machine is crossed out and whose traffic loops outside the boundary and back into the same gateway instead, and a third machine whose line crosses that gateway with no plate on either side of it",
+      },
+    },
+    definition:
+      "An internet gateway is not a device in the path and not a place anything is filtered. It is an attachment on the VPC that performs a static one-to-one translation for IPv4 \u2014 which is why the public address it answers for never appears on the instance that owns it.",
+    keywords: [
+      "one-to-one NAT",
+      "public IPv4 charge",
+      "egress-only gateway",
+      "public DNS hostname",
+      "VPC attachment",
+    ],
+    components: [
+      {
+        name: "The public address is never on the interface",
+        description:
+          "The translation lives in the gateway, so an instance holding an Elastic IP shows nothing of the kind: the operating system reports the private address and only the private address, and software that has to know its own public address reads it from the instance metadata rather than from any interface. DNS is built around the same fact \u2014 a public DNS hostname answers with the public address from outside the VPC and with the private address from inside it, precisely so that two instances looking each other up talk directly instead of leaving. Address one of them by its public IPv4 anyway and the packet goes out to the gateway and comes back in: a security group rule that references the other group by its id stops matching, because what arrives now carries a public source address, and the round trip is charged rather than being the free hop two instances in one Availability Zone would otherwise have had.",
+      },
+      {
+        name: "Nothing to size, nothing to filter, and not free to use",
+        description:
+          "The gateway is horizontally scaled and redundant, stands in no Availability Zone, has no bandwidth to provision and no failure of its own to plan around. It also takes no security group and no network ACL: nothing whatsoever can be permitted or denied at the gateway itself, so every rule that matters sits on the interfaces and subnets behind it. What it is not is free to use. The gateway is charged for nothing, but every public IPv4 address in use is charged by the hour whether or not a packet ever moves, data transfer out to the internet is charged by the gigabyte, and one flow across the gateway tops out at about 5 Gbps however large the instance is \u2014 which is nearly always why a single transfer will not go faster while ten of them together will.",
+      },
+      {
+        name: "IPv6 crosses it untouched",
+        description:
+          "There is no translation for IPv6 and no private address to sit behind: an address is globally routable from the moment it is assigned, so the row that gives IPv6 a way out gives the internet a way in on the same instant, and the only thing between the two is a security group. Outbound-only is a separate resource altogether \u2014 an egress-only internet gateway, which is stateful, IPv6-only, and takes no security group either. The lifecycle is as literal as the rest of it: one gateway attached to one VPC at a time, and a detach refused outright while anything in the VPC still holds a public or Elastic address. Detach it once nothing does and the rows pointing at it do not vanish with it \u2014 they sit on in their tables as blackhole, matching packets and dropping them.",
+      },
+    ],
+    howItWorks: [
+      {
+        step: 1,
+        description:
+          "The gateway is created, attached to the VPC, and nothing happens at all. Attaching changes no packet\u2019s path: it makes the gateway a target a route table is allowed to name, and until some table carries a row pointing at it \u2014 0.0.0.0/0, or anything narrower \u2014 the gateway is an object in an account rather than a step in a journey.",
+      },
+      {
+        step: 2,
+        description:
+          "A packet leaves an instance carrying its private source address, because that is the only address the instance has. At the gateway the source is rewritten to whichever public address is mapped to that interface, and the reply arriving for the public address is rewritten back to the private one before it re-enters the VPC. The mapping is static and symmetric rather than a table of remembered connections, which is exactly why \u2014 unlike a NAT gateway \u2014 something outside can open the conversation: the mapping was already there before any packet was.",
+      },
+      {
+        step: 3,
+        description:
+          "Which public address that is happens outside the instance too. An auto-assigned address is borrowed from the region\u2019s pool, is given up when the instance stops and comes back as a different address when it starts; an Elastic IP is one you hold, and moving it to another interface is a change of mapping inside the gateway rather than a change to anything either instance can see. Both are charged by the hour while they are in use, and neither is ever configured in the operating system that answers to it.",
+      },
+      {
+        step: 4,
+        description:
+          "Where the model stops is that the gateway holds no policy of any kind. It is not somewhere traffic can be inspected \u2014 putting an appliance in front of what arrives means associating a route table with the gateway\u2019s edge, which is the route table\u2019s trick rather than the gateway\u2019s \u2014 and it is not what makes anything public. An interface with no public address of its own gets nothing from the gateway however direct the route to it: a private subnet reaches the internet through a NAT gateway holding an address of its own, and this gateway is the hop underneath that one.",
+      },
+    ],
+  },
 ] as const satisfies readonly ConceptCardData[];

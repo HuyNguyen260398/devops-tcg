@@ -144,6 +144,15 @@ scaled, neither recoloured nor otherwise modified, and seated on a light plate
 in the neon theme rather than inverted. The connections, the port strips, the
 meter and the second gateway around it were drawn for DevOps TCG on 2026-09-09.
 
+`aws-internet-gateway-thumbnail.webp` and `aws-internet-gateway-sketch.svg`
+carry `Res_Amazon-VPC_Internet-Gateway_48`, the same mark the AWS Subnet and
+AWS Route Table pairs above use and out of the same `Resource-Icons_04302026`
+set. It is the same `#8C4FFF` line-art mark for light backgrounds, embedded
+exactly as shipped — uniformly scaled, neither recoloured nor otherwise
+modified, and seated on a light plate in the neon theme rather than inverted.
+The boundary, the machines, the two address plates, the crossed-out shortcut
+and the packet that crosses unchanged were drawn for DevOps TCG on 2026-09-10.
+
 - Source: https://aws.amazon.com/architecture/icons/
 - Terms: https://aws.amazon.com/architecture/icons/ ("AWS Architecture Icons
   Terms of Use", linked from that page)

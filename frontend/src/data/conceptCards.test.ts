@@ -85,6 +85,12 @@ const expectedCards = [
     "AWS NAT Gateway",
     "/images/aws-nat-gateway-thumbnail.webp",
   ],
+  [
+    "aws-internet-gateway",
+    "#034",
+    "AWS Internet Gateway",
+    "/images/aws-internet-gateway-thumbnail.webp",
+  ],
 ] as const;
 
 describe("conceptCards", () => {
@@ -112,7 +118,7 @@ describe("conceptCards", () => {
     expect(conceptCards[0].howItWorks).toHaveLength(4);
   });
 
-  it("contains all thirty-three concepts in the approved order", () => {
+  it("contains all thirty-four concepts in the approved order", () => {
     expect(conceptCards).toHaveLength(expectedCards.length);
     expect(
       conceptCards.map(({ id, cardNumber, title, image }) => [
@@ -719,5 +725,39 @@ describe("conceptCards", () => {
     // Where the model stops: no NAT for IPv6, and nothing inbound can start.
     expect(nat?.howItWorks[3]?.description).toMatch(/egress-only/i);
     expect(nat?.howItWorks[3]?.description).toMatch(/never a destination/i);
+  });
+
+  it("hides the internet gateway's translation from the instance behind it", () => {
+    const gateway = conceptCards.find(
+      ({ id }) => id === "aws-internet-gateway",
+    );
+
+    // #030 and #032 already say a route to this gateway is half of "public".
+    // This card is about the translation nobody sees underneath that route.
+    expect(gateway?.definition).toMatch(/one-to-one/i);
+    expect(gateway?.keywords).toContain("one-to-one NAT");
+    // The address is on the gateway, so neither the OS nor DNS inside the VPC
+    // ever hands it back — and reaching for it anyway leaves and returns.
+    expect(gateway?.components[0]?.description).toMatch(/instance metadata/i);
+    expect(gateway?.components[0]?.description).toMatch(/private address/i);
+    expect(gateway?.components[0]?.description).toMatch(/references/i);
+    // Nothing to size and nothing to filter, which is not the same as free.
+    expect(gateway?.components[1]?.description).toMatch(/no security group/i);
+    expect(gateway?.components[1]?.description).toMatch(/by the hour/i);
+    expect(gateway?.components[1]?.description).toMatch(/5 Gbps/);
+    // IPv6 crosses it untouched, so the same row that lets traffic out lets it
+    // in, and outbound-only is a different resource entirely.
+    expect(gateway?.components[2]?.description).toMatch(/egress-only/i);
+    expect(gateway?.components[2]?.description).toMatch(/blackhole/i);
+    // The mapping predates the packet, which is why inbound can start here and
+    // cannot on #033.
+    expect(gateway?.howItWorks[1]?.description).toMatch(
+      /static and symmetric/i,
+    );
+    expect(gateway?.howItWorks[2]?.description).toMatch(/Elastic IP/);
+    // Where the model stops: it carries no policy, and grants nothing to an
+    // interface without an address of its own.
+    expect(gateway?.howItWorks[3]?.description).toMatch(/no policy/i);
+    expect(gateway?.howItWorks[3]?.description).toMatch(/NAT gateway/i);
   });
 });

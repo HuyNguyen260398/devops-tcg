@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 278 220">
+  <g transform="translate(139 110) scale(0.88) translate(-139 -110)">
+  <!-- the plate on the gateway is the subject: the address the machine never holds -->
+  <path d="M60 136 L104 136 L104 152 L60 152 Z" fill="#fff2c4" />
+
+  <!-- the only address the machine itself has -->
+  <path d="M56 66 L98 66 L98 80 L56 80 Z" fill="#dbe7ff" />
+
+  <g fill="none" stroke="#1d1d1b" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+    <!-- one boundary, and a gateway attached to it rather than standing in it -->
+    <path d="M50 28 L212 28 L212 128 L50 128 Z" />
+
+    <!-- the machine whose public address is held for it somewhere else -->
+    <path d="M62 38 L92 38 L92 60 L62 60 Z" />
+    <path d="M56 66 L98 66 L98 80 L56 80 Z" />
+    <path d="M64 73 L72 73 M78 73 L90 73" />
+    <path d="M77 80 L77 96 L114 96 L114 110 M109 105 L114 111 L119 105" />
+
+    <!-- the machine that reaches for that public address instead of the private one -->
+    <path d="M160 38 L190 38 L190 60 L160 60 Z" />
+    <path d="M156 49 L96 49" />
+    <path d="M190 49 L222 49 L222 140 L166 140 M171 135 L165 140 L171 145" />
+
+    <!-- and the one carrying an address that needs nothing swapped at all -->
+    <path d="M162 74 L192 74 L192 96 L162 96 Z" />
+    <path d="M177 96 L177 104 L156 104 L156 110 M151 105 L156 111 L161 105" />
+
+    <path d="M108 110 L162 110 L162 150 L108 150 Z" />
+    <path d="M108 144 L104 144" />
+    <path d="M66 144 L78 144 M84 144 L98 144" />
+
+    <path d="M126 150 L126 166 M121 161 L126 167 L131 161" />
+    <path d="M146 150 L146 166 M141 161 L146 167 L151 161" />
+    <path d="M104 172 L168 172 L168 194 L104 194 Z" />
+  </g>
+
+  <!-- the address that is held here, and the direct path that is never taken -->
+  <g fill="none" stroke="#1d1d1b" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M60 136 L104 136 L104 152 L60 152 Z" />
+    <path d="M121 43 L131 55 M131 43 L121 55" />
+  </g>
+
+  <!--
+    One official Amazon VPC resource icon (Res_Amazon-VPC_Internet-Gateway_48)
+    from the AWS Architecture Icons package, embedded exactly as shipped:
+    #8C4FFF line art, uniformly scaled, neither recoloured nor otherwise
+    altered, so the sketch theme shows the real product mark rather than an
+    imitation.
+  -->
+  <g transform="translate(123 118) scale(0.5)"><path d="M33.4312,35.1778 L31.9332,35.1778 L31.9332,17.5018 C31.9332,17.1088 31.7022,16.7518 31.3442,16.5908 L31.2522,16.5488 C29.2432,15.6418 27.1642,14.7028 24.1762,14.7028 C21.0532,14.7028 18.7612,15.7118 16.4952,16.8368 C16.1552,17.0058 15.9402,17.3528 15.9402,17.7328 L15.9402,35.1778 L14.4772,35.1778 L14.4772,16.3118 C16.9112,14.3328 20.4202,13.2048 24.1862,13.2048 C27.6872,13.2048 31.0252,14.2018 33.4312,15.9528 L33.4312,35.1778 Z M24.1862,11.2048 C19.7612,11.2048 15.6172,12.6238 12.8152,15.0998 C12.6002,15.2888 12.4772,15.5618 12.4772,15.8488 L12.4772,36.1778 C12.4772,36.7308 12.9242,37.1778 13.4772,37.1778 L16.9402,37.1778 C17.4932,37.1778 17.9402,36.7308 17.9402,36.1778 L17.9402,18.3558 C19.8592,17.4288 21.7192,16.7028 24.1762,16.7028 C26.5112,16.7028 28.2092,17.3778 29.9332,18.1488 L29.9332,36.1778 C29.9332,36.7308 30.3802,37.1778 30.9332,37.1778 L34.4312,37.1778 C34.9842,37.1778 35.4312,36.7308 35.4312,36.1778 L35.4312,15.4578 C35.4312,15.1538 35.2922,14.8658 35.0532,14.6748 C32.2792,12.4698 28.3182,11.2048 24.1862,11.2048 L24.1862,11.2048 Z M23.9542,43.9088 C12.9522,43.9088 3.9992,34.9568 3.9992,23.9538 C3.9992,12.9508 12.9522,3.9998 23.9542,3.9998 C34.9572,3.9998 43.9092,12.9508 43.9092,23.9538 C43.9092,34.9568 34.9572,43.9088 23.9542,43.9088 L23.9542,43.9088 Z M23.9542,1.9998 C11.8482,1.9998 1.9992,11.8488 1.9992,23.9538 C1.9992,36.0608 11.8482,45.9088 23.9542,45.9088 C36.0602,45.9088 45.9092,36.0608 45.9092,23.9538 C45.9092,11.8488 36.0602,1.9998 23.9542,1.9998 L23.9542,1.9998 Z" fill="#8C4FFF"/></g>
+  </g>
+</svg>

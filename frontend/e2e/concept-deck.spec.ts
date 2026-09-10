@@ -144,6 +144,10 @@ const images = [
     "Isometric scene of several connections leaving through one gateway that stamps each with its own address and a port taken from a finite strip beneath it \u2014 the strip aimed at a single destination almost entirely used up while the strips beside it stand nearly empty \u2014 with a meter running on the gateway itself, and off to the side a second gateway of the same shape carrying no public address and turned inward rather than out",
     "/images/aws-nat-gateway-thumbnail.webp",
   ],
+  [
+    "Isometric scene of one machine inside a boundary standing over an address plate that carries only its private address, its connection running out through a gateway attached to the boundary \u2014 the gateway holding that machine\u2019s public plate outside, lit and carrying a charge mark of its own \u2014 while a second machine in the same boundary reaches for the public address instead and has its direct path crossed out, its traffic drawn leaving the boundary and returning through the very same gateway, and a third machine\u2019s packet crossing that gateway unchanged, with no plate on either side of it",
+    "/images/aws-internet-gateway-thumbnail.webp",
+  ],
 ] as const;
 
 const card = (page: import("@playwright/test").Page) =>
