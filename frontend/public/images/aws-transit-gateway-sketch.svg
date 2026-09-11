@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 278 220">
+  <g transform="translate(139 110) scale(0.88) translate(-139 -110)">
+  <!-- the tables are the subject: the gateway has its own, and which one an
+       attachment lands in is the whole of the segmentation -->
+  <path d="M104 120 L174 120 L174 138 L104 138 Z" fill="#fff2c4" />
+  <path d="M104 144 L174 144 L174 162 L104 162 Z" fill="#dbe7ff" />
+
+  <g fill="none" stroke="#1d1d1b" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+    <!-- two boundaries that never touch, and one below that reaches one of them -->
+    <path d="M44 26 L100 26 L100 56 L44 56 Z" />
+    <path d="M178 26 L234 26 L234 56 L178 56 Z" />
+    <path d="M110 180 L168 180 L168 200 L110 200 Z" />
+
+    <!-- the router itself, standing between them rather than wired across -->
+    <path d="M96 86 L182 86 L182 170 L96 170 Z" />
+
+    <!-- rows, kept to the far half so an arriving attachment has room to land -->
+    <path d="M126 126 L166 126 M126 132 L152 132" />
+    <path d="M126 150 L166 150 M126 156 L152 156" />
+
+    <!-- the first attachment, associated with the first table -->
+    <path d="M72 56 L72 126 L104 126 M98 121 L104 126 L98 131" />
+
+    <!-- the third, associated with the same one, which is why it is reachable -->
+    <path d="M110 186 L84 186 L84 133 L104 133 M98 128 L104 133 L98 138" />
+
+    <!-- the second, associated with a table of its own, which is why it is not -->
+    <path d="M206 56 L206 153 L174 153 M180 148 L174 153 L180 158" />
+  </g>
+
+  <!-- the two tables, and the direct wire that is never the answer -->
+  <g fill="none" stroke="#1d1d1b" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M104 120 L174 120 L174 138 L104 138 Z" />
+    <path d="M104 144 L174 144 L174 162 L104 162 Z" />
+    <path d="M100 41 L128 41 M150 41 L178 41" />
+    <path d="M133 35 L145 47 M145 35 L133 47" />
+  </g>
+
+  <!--
+    One official AWS Transit Gateway resource icon
+    (Res_AWS-Transit-Gateway_Attachment_48) from the AWS Architecture Icons
+    package, embedded exactly as shipped: #8C4FFF line art, uniformly scaled,
+    neither recoloured nor otherwise altered, so the sketch theme shows the
+    real product mark rather than an imitation.
+  -->
+  <g transform="translate(127 90) scale(0.5)"><path d="M24,44 C12.972,44 4,35.028 4,24 C4,12.972 12.972,4 24,4 C35.028,4 44,12.972 44,24 C44,35.028 35.028,44 24,44 M24,2 C11.869,2 2,11.869 2,24 C2,36.131 11.869,46 24,46 C36.131,46 46,36.131 46,24 C46,11.869 36.131,2 24,2 M36,27 C34.346,27 33,25.654 33,24 C33,22.346 34.346,21 36,21 C37.654,21 39,22.346 39,24 C39,25.654 37.654,27 36,27 M12,27 C10.346,27 9,25.654 9,24 C9,22.346 10.346,21 12,21 C13.654,21 15,22.346 15,24 C15,25.654 13.654,27 12,27 M36,19 C33.586,19 31.566,20.721 31.101,23 L16.899,23 C16.434,20.721 14.414,19 12,19 C9.243,19 7,21.243 7,24 C7,26.757 9.243,29 12,29 C14.414,29 16.434,27.279 16.899,25 L31.101,25 C31.566,27.279 33.586,29 36,29 C38.757,29 41,26.757 41,24 C41,21.243 38.757,19 36,19" fill="#8C4FFF"/></g>
+  </g>
+</svg>

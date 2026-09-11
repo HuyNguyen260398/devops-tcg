@@ -1972,4 +1972,66 @@ export const conceptCards = [
       },
     ],
   },
+  {
+    id: "aws-transit-gateway",
+    cardNumber: "#035",
+    type: "NETWORK",
+    title: "AWS Transit Gateway",
+    image: {
+      src: "/images/aws-transit-gateway-thumbnail.webp",
+      alt: "Isometric scene of one gateway standing over two route tables of its own, four attachments arriving at it \u2014 two boundaries landing in the first table, and a third boundary together with a fourth attachment that is no boundary at all landing in the second, so each pair reaches only the other half of its own pair \u2014 one packet drawn twice on its way in, once outside the gateway and again inside it, and a direct wire between two of the boundaries that bypasses the gateway altogether crossed out",
+      sketch: {
+        src: "/images/aws-transit-gateway-sketch.svg",
+        alt: "Line drawing of three boundaries attached to one gateway that carries its own stack of route tables, two attachment lines landing in one table and the third landing in a table of its own, with a direct line drawn between two of the boundaries crossed out",
+      },
+    },
+    definition:
+      "A transit gateway is not a connection between two VPCs. It is a router of its own in the region that VPCs, VPNs and Direct Connect gateways attach to \u2014 so it carries route tables of its own, and a packet crossing it is matched twice: once by the subnet\u2019s table, and again by the gateway\u2019s.",
+    keywords: [
+      "attachment",
+      "association and propagation",
+      "transit gateway route table",
+      "appliance mode",
+      "non-transitive peering",
+    ],
+    components: [
+      {
+        name: "Two tables, and the second one belongs to the gateway",
+        description:
+          "The row in the subnet\u2019s route table naming the attachment is only the first half of the journey. What arrives at the gateway is matched a second time, against whichever of the gateway\u2019s own route tables the ingress attachment is associated with \u2014 association being the single table that judges everything arriving from an attachment, propagation being the several tables that learn that attachment\u2019s ranges. They are separate settings and are routinely taken for one: a VPC attachment has no BGP session at all, so propagating it copies the VPC\u2019s CIDRs into a table, while a VPN or Direct Connect attachment really does propagate whatever the far side announces. Reachability therefore takes four rows rather than one \u2014 the subnet\u2019s row out and the gateway\u2019s row on, then that same pair again coming back \u2014 which is why an attachment sitting at available reaches nothing, and why so many of these faults turn out to work in one direction only.",
+      },
+      {
+        name: "Segmentation is a count of route tables, not a filter",
+        description:
+          "The gateway takes no security group and no network ACL. There is nothing on it to permit or deny, so every rule that matters still sits on the interfaces and subnets at either end, and isolation here is spelled with tables instead. Two environments that must not reach each other are two gateway route tables, each attachment associated with its own; a hub every spoke can reach while the spokes cannot reach one another is the same move \u2014 propagate each spoke into the hub\u2019s table and only the hub into the spokes\u2019. Matching is longest prefix and nothing in the gateway rewrites an address, so two VPCs carrying the same CIDR cannot both be routable across it, and that has to be settled before the attachment rather than after. One filter does quietly change behaviour too: a security group rule referencing another group by its id, which resolves across a same-region peering connection, does not resolve across this \u2014 through the gateway a group knows addresses and nothing else.",
+      },
+      {
+        name: "The attachment is an interface in each zone, and it is metered",
+        description:
+          "Attaching a VPC means naming one subnet per Availability Zone, and an elastic network interface appears in each subnet named. The zones left out are not routed around: traffic for an instance in a zone where the attachment has no subnet is dropped, which is the usual reason one subnet is unreachable while its neighbours are fine. It is charged per attachment-hour and again per gigabyte processed, so an idle attachment is not free and a busy one costs in a way an in-region peering connection does not. Throughput runs to roughly 100 Gbps per VPC attachment while one flow still stops near 5 Gbps. And by default the gateway picks a zone per direction independently, so a stateful appliance in the middle can be handed one half of a conversation and never the other \u2014 appliance mode on that attachment is what pins both directions to the same zone.",
+      },
+    ],
+    howItWorks: [
+      {
+        step: 1,
+        description:
+          "The gateway is created in one region and a VPC is attached by naming a subnet in each Availability Zone it should be reachable in. Nothing routes yet and no packet\u2019s path has changed: the attachment is a target a route table is now allowed to name, exactly as an internet gateway\u2019s attachment is. What creation also did, quietly, is give the gateway a default route table and \u2014 unless both settings were turned off \u2014 associate each new attachment with it and propagate that attachment\u2019s ranges into it. That is why the first, simplest setup appears to work with no table ever configured, and why the first deliberate one does not.",
+      },
+      {
+        step: 2,
+        description:
+          "A row goes into the subnet\u2019s route table sending the other VPC\u2019s range to the attachment, and the packet leaves as it always did, matched by longest prefix, no differently from a row naming an internet gateway. It reaches the gateway carrying the addresses it started with, because nothing here rewrites anything, and there it is matched again: the gateway reads the route table its ingress attachment is associated with, finds the row covering the destination, and hands the packet to the attachment that row names.",
+      },
+      {
+        step: 3,
+        description:
+          "The way back is a separate decision in both places and inherits nothing from the way out. The far subnet needs its own row to the attachment, and the table associated with the far attachment needs its own row for the source range \u2014 which it holds only if the first attachment propagates into that table or somebody wrote the row by hand. A static route in a gateway table beats a propagated one for the same prefix, and a route left pointing at nothing is a blackhole: it matches and drops, rather than being a gap the packet falls through.",
+      },
+      {
+        step: 4,
+        description:
+          "Where the model stops is that the gateway routes and does nothing else. It performs no translation, so overlapping ranges stay unroutable however the tables are arranged; it holds no policy, so inspecting traffic means routing it through an appliance in a VPC of its own; and it has no internet of its own \u2014 central egress is a row pointing at the attachment of a VPC that owns a NAT gateway, which is #033 doing the work underneath. Peering two gateways across regions is itself non-transitive, so a third region is a third peering and never a hop through the second. Even the frame size changes at the door: a VPC or peering attachment carries up to 8500 bytes, a VPN attachment 1500.",
+      },
+    ],
+  },
 ] as const satisfies readonly ConceptCardData[];

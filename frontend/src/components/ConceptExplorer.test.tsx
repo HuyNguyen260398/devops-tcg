@@ -30,27 +30,27 @@ describe("ConceptExplorer on a wide viewport", () => {
   it("opens on the grid with every card", async () => {
     mount();
 
-    await waitFor(() => expect(tiles()).toHaveLength(34));
-    expect(screen.getByText("34 / 34")).toBeInTheDocument();
+    await waitFor(() => expect(tiles()).toHaveLength(35));
+    expect(screen.getByText("35 / 35")).toBeInTheDocument();
   });
 
   it("narrows the grid on every keystroke", async () => {
     const user = userEvent.setup();
 
     mount();
-    await waitFor(() => expect(tiles()).toHaveLength(34));
+    await waitFor(() => expect(tiles()).toHaveLength(35));
 
     await user.type(screen.getByRole("searchbox"), "redis");
 
     await waitFor(() => expect(tiles()).toHaveLength(2));
-    expect(screen.getByText("2 / 34")).toBeInTheDocument();
+    expect(screen.getByText("2 / 35")).toBeInTheDocument();
   });
 
   it("ands a category chip with the typed text", async () => {
     const user = userEvent.setup();
 
     mount();
-    await waitFor(() => expect(tiles()).toHaveLength(34));
+    await waitFor(() => expect(tiles()).toHaveLength(35));
 
     await user.type(screen.getByRole("searchbox"), "aws");
     await user.click(screen.getByRole("button", { name: "SECURITY" }));
@@ -67,7 +67,7 @@ describe("ConceptExplorer on a wide viewport", () => {
     const user = userEvent.setup();
 
     mount();
-    await waitFor(() => expect(tiles()).toHaveLength(34));
+    await waitFor(() => expect(tiles()).toHaveLength(35));
 
     await user.type(screen.getByRole("searchbox"), "zzz");
 
@@ -77,7 +77,7 @@ describe("ConceptExplorer on a wide viewport", () => {
 
     await user.click(screen.getByRole("button", { name: "Clear the filters" }));
 
-    await waitFor(() => expect(tiles()).toHaveLength(34));
+    await waitFor(() => expect(tiles()).toHaveLength(35));
     // The button that was clicked has just unmounted, so focus has to be put
     // somewhere deliberate rather than left on the body.
     expect(screen.getByRole("searchbox")).toHaveFocus();
@@ -87,7 +87,7 @@ describe("ConceptExplorer on a wide viewport", () => {
     const user = userEvent.setup();
 
     mount();
-    await waitFor(() => expect(tiles()).toHaveLength(34));
+    await waitFor(() => expect(tiles()).toHaveLength(35));
 
     const tile = screen.getByRole("button", { name: "Open the Redis card" });
 
@@ -112,7 +112,7 @@ describe("ConceptExplorer on a wide viewport", () => {
     const user = userEvent.setup();
 
     mount();
-    await waitFor(() => expect(tiles()).toHaveLength(34));
+    await waitFor(() => expect(tiles()).toHaveLength(35));
 
     await user.type(screen.getByRole("searchbox"), "redis");
     await waitFor(() => expect(tiles()).toHaveLength(2));
@@ -134,7 +134,7 @@ describe("ConceptExplorer on a wide viewport", () => {
     const user = userEvent.setup();
 
     mount();
-    await waitFor(() => expect(tiles()).toHaveLength(34));
+    await waitFor(() => expect(tiles()).toHaveLength(35));
 
     await user.click(
       screen.getByRole("button", { name: "Show the deck view" }),
@@ -225,7 +225,7 @@ describe("ConceptExplorer on a narrow viewport", () => {
     await user.click(screen.getByRole("button", { name: "Search the deck" }));
 
     await user.type(await screen.findByRole("searchbox"), "redis");
-    expect(screen.getByText("2 / 34")).toBeInTheDocument();
+    expect(screen.getByText("2 / 35")).toBeInTheDocument();
 
     // A phone dismisses the sheet by pressing away from it.
     await user.click(screen.getByTestId("dialog-backdrop"));

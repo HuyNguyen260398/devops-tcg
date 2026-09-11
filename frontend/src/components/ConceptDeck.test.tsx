@@ -334,10 +334,10 @@ describe("ConceptDeck", () => {
 
     expect(
       screen.getByRole("button", {
-        name: "AWS Internet Gateway card, front shown",
+        name: "AWS Transit Gateway card, front shown",
       }),
     ).toBeInTheDocument();
-    expect(slotOf("aws-internet-gateway")).toBe("0");
+    expect(slotOf("aws-transit-gateway")).toBe("0");
   });
 
   it("ignores a drag too short to be a swipe", () => {
@@ -383,7 +383,7 @@ describe("ConceptDeck", () => {
 
     expect(slotOf("proxy")).toBe("0");
     expect(slotOf("cdn")).toBe("1");
-    expect(slotOf("aws-internet-gateway")).toBe("-1");
+    expect(slotOf("aws-transit-gateway")).toBe("-1");
   });
 
   it("stages the rank beyond the spread so no card can pop in", () => {
@@ -391,7 +391,7 @@ describe("ConceptDeck", () => {
     render(<ConceptDeck cards={conceptCards} random={() => 0.999999} />);
 
     expect(slotOf("nginx")).toBe("2");
-    expect(slotOf("aws-nat-gateway")).toBe("-2");
+    expect(slotOf("aws-internet-gateway")).toBe("-2");
     expect(slot("nginx")).toHaveAttribute("data-staged", "true");
     expect(slot("cdn")).not.toHaveAttribute("data-staged");
     expect(slot("reverse-proxy")).toBeNull();
@@ -437,9 +437,9 @@ describe("ConceptDeck", () => {
 
     expect(depthAndSide("proxy")).toEqual(["0", "0"]);
     expect(depthAndSide("cdn")).toEqual(["1", "1"]);
-    expect(depthAndSide("aws-internet-gateway")).toEqual(["1", "-1"]);
+    expect(depthAndSide("aws-transit-gateway")).toEqual(["1", "-1"]);
     expect(depthAndSide("nginx")).toEqual(["2", "1"]);
-    expect(depthAndSide("aws-nat-gateway")).toEqual(["2", "-1"]);
+    expect(depthAndSide("aws-internet-gateway")).toEqual(["2", "-1"]);
   });
 
   it("moves the same card element between slots instead of remounting it", async () => {
@@ -474,8 +474,8 @@ describe("ConceptDeck", () => {
     for (const id of [
       "cdn",
       "nginx",
+      "aws-transit-gateway",
       "aws-internet-gateway",
-      "aws-nat-gateway",
     ]) {
       const card = slot(id)!.querySelector(".concept-card")!;
       expect(card).toHaveAttribute("aria-hidden", "true");
@@ -585,10 +585,10 @@ describe("ConceptDeck", () => {
     await user.click(previous);
     expect(
       screen.getByRole("button", {
-        name: "AWS Internet Gateway card, front shown",
+        name: "AWS Transit Gateway card, front shown",
       }),
     ).toBeInTheDocument();
-    expect(slotOf("aws-internet-gateway")).toBe("0");
+    expect(slotOf("aws-transit-gateway")).toBe("0");
 
     await user.click(next);
     expect(
@@ -617,14 +617,14 @@ describe("ConceptDeck", () => {
 
     expect(
       screen.getByRole("button", {
-        name: "AWS Internet Gateway card, front shown",
+        name: "AWS Transit Gateway card, front shown",
       }),
     ).toHaveFocus();
     expect(screen.getByTestId("deck-track")).toHaveAttribute(
       "data-direction",
       "previous",
     );
-    expect(slotOf("aws-internet-gateway")).toBe("0");
+    expect(slotOf("aws-transit-gateway")).toBe("0");
 
     await user.keyboard("{ArrowRight}");
     expect(

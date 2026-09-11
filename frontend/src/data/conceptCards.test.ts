@@ -91,6 +91,12 @@ const expectedCards = [
     "AWS Internet Gateway",
     "/images/aws-internet-gateway-thumbnail.webp",
   ],
+  [
+    "aws-transit-gateway",
+    "#035",
+    "AWS Transit Gateway",
+    "/images/aws-transit-gateway-thumbnail.webp",
+  ],
 ] as const;
 
 describe("conceptCards", () => {
@@ -118,7 +124,7 @@ describe("conceptCards", () => {
     expect(conceptCards[0].howItWorks).toHaveLength(4);
   });
 
-  it("contains all thirty-four concepts in the approved order", () => {
+  it("contains all thirty-five concepts in the approved order", () => {
     expect(conceptCards).toHaveLength(expectedCards.length);
     expect(
       conceptCards.map(({ id, cardNumber, title, image }) => [
@@ -759,5 +765,41 @@ describe("conceptCards", () => {
     // interface without an address of its own.
     expect(gateway?.howItWorks[3]?.description).toMatch(/no policy/i);
     expect(gateway?.howItWorks[3]?.description).toMatch(/NAT gateway/i);
+  });
+
+  it("makes the transit gateway a router with tables of its own", () => {
+    const transit = conceptCards.find(({ id }) => id === "aws-transit-gateway");
+
+    // #029 ends by naming this card. The fact it hangs on is that attaching is
+    // not connecting: the gateway routes, so there is a second lookup.
+    expect(transit?.definition).toMatch(/matched twice/i);
+    expect(transit?.keywords).toContain("association and propagation");
+    // Association picks the one table that judges an attachment's ingress;
+    // propagation fills the many tables that learn its ranges.
+    expect(transit?.components[0]?.description).toMatch(/associated with/i);
+    expect(transit?.components[0]?.description).toMatch(/propagation/i);
+    expect(transit?.components[0]?.description).toMatch(/no BGP session/i);
+    expect(transit?.components[0]?.description).toMatch(/four rows/i);
+    // Nothing is filtered at the gateway, so isolation is a count of tables.
+    expect(transit?.components[1]?.description).toMatch(/no security group/i);
+    expect(transit?.components[1]?.description).toMatch(/longest prefix/i);
+    expect(transit?.components[1]?.description).toMatch(/same CIDR/i);
+    expect(transit?.components[1]?.description).toMatch(/by its id/i);
+    // The attachment is where the zones, the money and the asymmetry live.
+    expect(transit?.components[2]?.description).toMatch(/Availability Zone/);
+    expect(transit?.components[2]?.description).toMatch(/dropped/i);
+    expect(transit?.components[2]?.description).toMatch(/per gigabyte/i);
+    expect(transit?.components[2]?.description).toMatch(/5 Gbps/);
+    expect(transit?.components[2]?.description).toMatch(/appliance mode/i);
+    // The default tables are why the first setup works without being understood.
+    expect(transit?.howItWorks[0]?.description).toMatch(/default route table/i);
+    expect(transit?.howItWorks[1]?.description).toMatch(/matched again/i);
+    // The way back inherits nothing from the way out.
+    expect(transit?.howItWorks[2]?.description).toMatch(/separate decision/i);
+    expect(transit?.howItWorks[2]?.description).toMatch(/blackhole/i);
+    // Where the model stops: it routes, and it does nothing else.
+    expect(transit?.howItWorks[3]?.description).toMatch(/no translation/i);
+    expect(transit?.howItWorks[3]?.description).toMatch(/non-transitive/i);
+    expect(transit?.howItWorks[3]?.description).toMatch(/8500/);
   });
 });

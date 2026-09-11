@@ -153,11 +153,21 @@ modified, and seated on a light plate in the neon theme rather than inverted.
 The boundary, the machines, the two address plates, the crossed-out shortcut
 and the packet that crosses unchanged were drawn for DevOps TCG on 2026-09-10.
 
+`aws-transit-gateway-thumbnail.webp` and `aws-transit-gateway-sketch.svg` carry
+`Res_AWS-Transit-Gateway_Attachment_48`, out of the same
+`Resource-Icons_04302026` set as the Amazon VPC marks above. It is the same
+`#8C4FFF` line-art mark for light backgrounds, embedded exactly as shipped —
+uniformly scaled, neither recoloured nor otherwise modified, and seated on a
+light plate in the neon theme rather than inverted. The three boundaries, the
+fourth attachment that is not a VPC, the gateway's two route tables and the
+crossed-out direct wire between two of the boundaries were drawn for DevOps TCG
+on 2026-09-11.
+
 - Source: https://aws.amazon.com/architecture/icons/
 - Terms: https://aws.amazon.com/architecture/icons/ ("AWS Architecture Icons
   Terms of Use", linked from that page)
 
-AWS, AWS Lambda, AWS Identity and Access Management, Elastic Load Balancing
-and Amazon VPC are trademarks of Amazon.com, Inc. or its affiliates. This deck is an
-independent study project and is not affiliated with, endorsed by, or sponsored
-by AWS.
+AWS, AWS Lambda, AWS Identity and Access Management, Elastic Load Balancing,
+Amazon VPC and AWS Transit Gateway are trademarks of Amazon.com, Inc. or its
+affiliates. This deck is an independent study project and is not affiliated
+with, endorsed by, or sponsored by AWS.

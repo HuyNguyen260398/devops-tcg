@@ -148,6 +148,10 @@ const images = [
     "Isometric scene of one machine inside a boundary standing over an address plate that carries only its private address, its connection running out through a gateway attached to the boundary \u2014 the gateway holding that machine\u2019s public plate outside, lit and carrying a charge mark of its own \u2014 while a second machine in the same boundary reaches for the public address instead and has its direct path crossed out, its traffic drawn leaving the boundary and returning through the very same gateway, and a third machine\u2019s packet crossing that gateway unchanged, with no plate on either side of it",
     "/images/aws-internet-gateway-thumbnail.webp",
   ],
+  [
+    "Isometric scene of one gateway standing over two route tables of its own, four attachments arriving at it \u2014 two boundaries landing in the first table, and a third boundary together with a fourth attachment that is no boundary at all landing in the second, so each pair reaches only the other half of its own pair \u2014 one packet drawn twice on its way in, once outside the gateway and again inside it, and a direct wire between two of the boundaries that bypasses the gateway altogether crossed out",
+    "/images/aws-transit-gateway-thumbnail.webp",
+  ],
 ] as const;
 
 const card = (page: import("@playwright/test").Page) =>
