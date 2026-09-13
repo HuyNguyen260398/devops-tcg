@@ -97,6 +97,12 @@ const expectedCards = [
     "AWS Transit Gateway",
     "/images/aws-transit-gateway-thumbnail.webp",
   ],
+  [
+    "aws-security-group",
+    "#036",
+    "AWS Security Group",
+    "/images/aws-security-group-thumbnail.webp",
+  ],
 ] as const;
 
 describe("conceptCards", () => {
@@ -124,7 +130,7 @@ describe("conceptCards", () => {
     expect(conceptCards[0].howItWorks).toHaveLength(4);
   });
 
-  it("contains all thirty-five concepts in the approved order", () => {
+  it("contains all thirty-six concepts in the approved order", () => {
     expect(conceptCards).toHaveLength(expectedCards.length);
     expect(
       conceptCards.map(({ id, cardNumber, title, image }) => [
@@ -801,5 +807,37 @@ describe("conceptCards", () => {
     expect(transit?.howItWorks[3]?.description).toMatch(/no translation/i);
     expect(transit?.howItWorks[3]?.description).toMatch(/non-transitive/i);
     expect(transit?.howItWorks[3]?.description).toMatch(/8500/);
+  });
+
+  it("makes the security group an allow-only filter on the interface", () => {
+    const group = conceptCards.find(({ id }) => id === "aws-security-group");
+
+    // #029, #033, #034 and #035 all defer to this card: the rule that matters
+    // sits on the interface. The fact the rest follows from is that the list
+    // holds allows only, so a rule can widen reach and never narrow it.
+    expect(group?.definition).toMatch(/allow-only/i);
+    expect(group?.definition).toMatch(/network interface/i);
+    expect(group?.definition).toMatch(/stateful/i);
+    expect(group?.keywords).toContain("security group reference");
+    // Every group on one interface is unioned, so nothing overrides anything.
+    expect(group?.components[0]?.description).toMatch(/union/i);
+    expect(group?.components[0]?.description).toMatch(/no order/i);
+    expect(group?.components[0]?.description).toMatch(/deletion/i);
+    // Stateful is a memory of flows, and the memory has consequences.
+    expect(group?.components[1]?.description).toMatch(/untracked/i);
+    expect(group?.components[1]?.description).toMatch(/tears down/i);
+    // A rule can name a group, and #034 and #035 are where that stops working.
+    expect(group?.components[2]?.description).toMatch(/prefix list/i);
+    expect(group?.components[2]?.description).toMatch(/Transit Gateway/i);
+    expect(group?.components[2]?.description).toMatch(/public source/i);
+    // A new group is already a complete filter before anybody edits it.
+    expect(group?.howItWorks[0]?.description).toMatch(/no inbound rule/i);
+    expect(group?.howItWorks[1]?.description).toMatch(/no first match/i);
+    expect(group?.howItWorks[1]?.description).toMatch(/timeout/i);
+    expect(group?.howItWorks[2]?.description).toMatch(/judges a flow/i);
+    // Where the model stops: it cannot deny, and it is the last hop, not the
+    // first — which is the handover to #037.
+    expect(group?.howItWorks[3]?.description).toMatch(/cannot deny/i);
+    expect(group?.howItWorks[3]?.description).toMatch(/next card/i);
   });
 });

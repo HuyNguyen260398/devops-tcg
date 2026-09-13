@@ -152,6 +152,10 @@ const images = [
     "Isometric scene of one gateway standing over two route tables of its own, four attachments arriving at it \u2014 two boundaries landing in the first table, and a third boundary together with a fourth attachment that is no boundary at all landing in the second, so each pair reaches only the other half of its own pair \u2014 one packet drawn twice on its way in, once outside the gateway and again inside it, and a direct wire between two of the boundaries that bypasses the gateway altogether crossed out",
     "/images/aws-transit-gateway-thumbnail.webp",
   ],
+  [
+    "Isometric scene of two allow-lists standing side by side over one interface, the first row of each lit because both of them matched and every other row an allow as well, the slot where a deny row would sit drawn empty, dashed and crossed out — while the answer leaves the interface on a dashed path that climbs back to the arriving packet with no row of its own, carrying a single mark where the flow is remembered, and off to the side one list naming another list resolves until an address arrives in its place and the link between them is crossed out",
+    "/images/aws-security-group-thumbnail.webp",
+  ],
 ] as const;
 
 const card = (page: import("@playwright/test").Page) =>

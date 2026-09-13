@@ -163,6 +163,13 @@ fourth attachment that is not a VPC, the gateway's two route tables and the
 crossed-out direct wire between two of the boundaries were drawn for DevOps TCG
 on 2026-09-11.
 
+`aws-security-group-thumbnail.webp` and `aws-security-group-sketch.svg` carry
+no official mark at all. There is no Security Group icon in this repository, so
+none is claimed here, exactly as for the AWS Route Table pair above: the two
+rule lists, the interface they are attached to, the empty dashed slot where a
+deny row would sit, the remembered return path and the pair of plates whose
+link is crossed out were all drawn for DevOps TCG on 2026-09-13.
+
 - Source: https://aws.amazon.com/architecture/icons/
 - Terms: https://aws.amazon.com/architecture/icons/ ("AWS Architecture Icons
   Terms of Use", linked from that page)

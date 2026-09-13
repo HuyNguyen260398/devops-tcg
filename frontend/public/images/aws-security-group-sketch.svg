@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 278 220">
+  <g transform="translate(139 110) scale(0.88) translate(-139 -110)">
+  <!-- every row on both lists is an allow, so the first of each is lit -->
+  <g fill="#fff2c4">
+    <path d="M68 68 L112 68 L112 80 L68 80 Z" />
+    <path d="M130 68 L174 68 L174 80 L130 80 Z" />
+  </g>
+
+  <g fill="#dbe7ff">
+    <path d="M98 22 L126 22 L126 42 L98 42 Z" />
+    <path d="M62 140 L180 140 L180 162 L62 162 Z" />
+  </g>
+
+  <g fill="none" stroke="#1d1d1b" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+    <!-- the question arrives, and it arrives at an interface rather than at a subnet -->
+    <path d="M98 22 L126 22 L126 42 L98 42 Z" />
+    <path d="M112 42 L112 52 M107 47 L112 53 L117 47" />
+
+    <!-- two lists on one interface, and what the interface holds is the union -->
+    <path d="M62 58 L118 58 L118 122 L62 122 Z" />
+    <path d="M68 68 L112 68 L112 80 L68 80 Z" />
+    <path d="M68 86 L112 86 L112 98 L68 98 Z" />
+    <path d="M68 104 L112 104 L112 116 L68 116 Z" />
+
+    <path d="M124 58 L180 58 L180 122 L124 122 Z" />
+    <path d="M130 68 L174 68 L174 80 L130 80 Z" />
+    <path d="M130 86 L174 86 L174 98 L130 98 Z" />
+
+    <!-- both lists land on the same interface -->
+    <path d="M90 122 L90 136 M85 131 L90 137 L95 131" />
+    <path d="M152 122 L152 136 M147 131 L152 137 L157 131" />
+
+    <!-- the interface the lists are attached to, and the machine behind it -->
+    <path d="M62 140 L180 140 L180 162 L62 162 Z" />
+    <path d="M106 162 L106 172 M134 162 L134 172" />
+    <path d="M100 172 L140 172 L140 188 L100 188 Z" />
+
+    <!-- the answer needs no row of its own, because the flow itself is remembered -->
+    <g stroke-dasharray="5 4">
+      <path d="M62 151 L52 151 L52 32 L92 32" />
+    </g>
+    <path d="M92 32 L98 32 M93 27 L99 32 L93 37" />
+
+    <!-- a row naming another list resolves, so long as that list is what arrives -->
+    <path d="M190 62 L222 62 L222 78 L190 78 Z" />
+    <path d="M206 78 L206 88 M201 83 L206 89 L211 83" />
+    <path d="M190 92 L222 92 L222 108 L190 108 Z" />
+
+    <!-- and stops resolving the moment an address arrives in its place -->
+    <path d="M206 110 L206 134" />
+    <path d="M190 136 L222 136 L222 152 L190 152 Z" />
+    <path d="M196 144 L216 144" />
+  </g>
+
+  <!-- the flow the interface remembers, which is the whole of what stateful means -->
+  <circle cx="52" cy="100" r="4.5" fill="#fff2c4" stroke="#1d1d1b" stroke-width="2.4" />
+
+  <!-- the slot a deny row would sit in, which the API never offers -->
+  <g fill="none" stroke="#1d1d1b" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="5 4">
+    <path d="M130 104 L174 104 L174 116 L130 116 Z" />
+  </g>
+
+  <g fill="none" stroke="#1d1d1b" stroke-width="4.2" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M144 104 L160 116 M160 104 L144 116" />
+    <path d="M198 114 L214 130 M214 114 L198 130" />
+  </g>
+  </g>
+</svg>

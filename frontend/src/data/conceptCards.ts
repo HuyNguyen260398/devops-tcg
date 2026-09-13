@@ -2034,4 +2034,66 @@ export const conceptCards = [
       },
     ],
   },
+  {
+    id: "aws-security-group",
+    cardNumber: "#036",
+    type: "SECURITY",
+    title: "AWS Security Group",
+    image: {
+      src: "/images/aws-security-group-thumbnail.webp",
+      alt: "Isometric scene of two allow-lists standing side by side over one interface, the first row of each lit because both of them matched and every other row an allow as well, the slot where a deny row would sit drawn empty, dashed and crossed out — while the answer leaves the interface on a dashed path that climbs back to the arriving packet with no row of its own, carrying a single mark where the flow is remembered, and off to the side one list naming another list resolves until an address arrives in its place and the link between them is crossed out",
+      sketch: {
+        src: "/images/aws-security-group-sketch.svg",
+        alt: "Line drawing of two rule lists standing over a single interface, the top row of each filled in and the lowest slot of the second dashed and struck through, a dotted return path looping from the interface back to the packet above through one small filled circle, and beside them a pair of linked plates whose link is crossed out where the lower plate carries an address instead",
+      },
+    },
+    definition:
+      "A security group is not a firewall on a subnet, and it is not a list of what is forbidden. It is an allow-only list attached to a network interface, stateful, and unioned with every other group on that interface — so a rule can only ever widen what is reachable, and taking one away is the only way to narrow it.",
+    keywords: [
+      "stateful filter",
+      "allow-only rules",
+      "elastic network interface",
+      "security group reference",
+      "connection tracking",
+    ],
+    components: [
+      {
+        name: "Attached to an interface, and counted together",
+        description:
+          "The group is not on the instance, the subnet or the VPC. It is on each elastic network interface, up to five of them by default and sixteen if the quota is raised, and what the interface enforces is the union of every rule in every group attached to it. There is no order and no precedence: no group overrides another, nothing shadows anything, and a packet is allowed the moment any one rule in any one of them allows it. That is why the console shows no deny anywhere and why narrowing reach is always a deletion. It also means a machine with two interfaces carries two different filters, and the group is the wrong place to look for either one — the rules that judge an arriving packet are the ones attached to the interface it arrived at.",
+      },
+      {
+        name: "Stateful, and what tracking is",
+        description:
+          "The group remembers each flow it let through, so the answer returns with no inbound rule of its own and the ephemeral port nobody can predict never needs a row. A new group starts with no inbound rule at all and one outbound rule permitting everything, which is why a fresh group already blocks unsolicited arrivals before anyone edits it; the VPC's default group is the exception, admitting anything from an interface that also carries it. Tracking has consequences people meet late. A rule permitting all traffic in both directions can leave a flow untracked and judged packet by packet instead, and removing the rule that allowed a flow now tears down the connections it was holding rather than letting them finish — so an edit made to tighten a group at a quiet hour is still an edit that drops sessions.",
+      },
+      {
+        name: "A rule that names a group, not a range",
+        description:
+          "A source can be a range, a prefix list, or another security group's id — and naming a group means whatever interfaces carry that group, wherever they are and whatever addresses they happen to have. Nothing is copied, so the rule follows a fleet that renumbers itself and needs no maintenance. It is also the rule that stops resolving in two places the deck has already named. Across a peering connection inside one region it works; across a Transit Gateway it does not, because the gateway hands on addresses and nothing else. And a packet that left through an internet gateway and came back arrives carrying a public source, so the group it was sent from is no longer what the far side sees — the reference stops matching, and nothing about either group has changed.",
+      },
+    ],
+    howItWorks: [
+      {
+        step: 1,
+        description:
+          "You create the group and attach it to an interface, and the filter it applies is already complete: no inbound rule, so nothing unsolicited arrives, and one outbound rule, so everything may leave. Nothing about the subnet, the route table or the instance type is consulted, because the group knows none of them. It knows one interface, and it knows the other groups standing beside it on that same interface.",
+      },
+      {
+        step: 2,
+        description:
+          "A packet arrives and every rule in every attached group is considered at once. There is no first match and no last word — the question is only whether some rule somewhere in that union permits it, and if none does the packet is dropped in silence. The client sees a timeout, which is the same thing it sees when a route never delivered the packet at all and the same thing it sees when a stateless rule dropped the reply, and those three are not distinguishable from the far end.",
+      },
+      {
+        step: 3,
+        description:
+          "What the group let out it remembers, and the reply comes back on the strength of that memory rather than on a rule. This is the whole of the difference from the filter on the subnet beside it: one of them judges a flow, the other judges a packet. The memory is not free of consequence — a flow permitted broadly enough in both directions may be left untracked and judged afresh each packet, and removing a rule ends the connections that rule was holding open.",
+      },
+      {
+        step: 4,
+        description:
+          "Where the model stops is that the group has no vocabulary for an exception. It cannot deny, so a single address that must be kept out of a range you have allowed cannot be expressed here at all — that sentence can only be written one layer out, on the subnet, in the numbered and stateless list that is the next card. And it filters at the interface, which is the last place in the path rather than the first: it never sees a packet a route never delivered, so a group is not where an unexplained timeout is usually solved.",
+      },
+    ],
+  },
 ] as const satisfies readonly ConceptCardData[];
