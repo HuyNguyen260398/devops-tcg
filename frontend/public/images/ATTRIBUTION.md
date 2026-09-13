@@ -170,6 +170,13 @@ rule lists, the interface they are attached to, the empty dashed slot where a
 deny row would sit, the remembered return path and the pair of plates whose
 link is crossed out were all drawn for DevOps TCG on 2026-09-13.
 
+`aws-network-acl-thumbnail.webp` and `aws-network-acl-sketch.svg` carry no
+official mark either, for the same reason and on the same terms as the AWS
+Security Group pair above: the two numbered lists, the walk down the rows of
+each, the faint rows nothing ever reaches, the struck-through final row and the
+dashed path the answer takes around to the second list were all drawn for
+DevOps TCG on 2026-09-13.
+
 - Source: https://aws.amazon.com/architecture/icons/
 - Terms: https://aws.amazon.com/architecture/icons/ ("AWS Architecture Icons
   Terms of Use", linked from that page)

@@ -2096,4 +2096,66 @@ export const conceptCards = [
       },
     ],
   },
+  {
+    id: "aws-network-acl",
+    cardNumber: "#037",
+    type: "SECURITY",
+    title: "AWS Network ACL",
+    image: {
+      src: "/images/aws-network-acl-thumbnail.webp",
+      alt: "Isometric scene of two numbered lists standing side by side, one for each direction — a packet arriving at the first and walking down its rows until the second one lights and takes it, the rows underneath drawn faint because nothing ever reads them — while the answer leaves on a dashed path that loops around and is delivered to the top of the second list, where it is walked all the way down to the unnumbered last row, which carries a mark of its own and is crossed out",
+      sketch: {
+        src: "/images/aws-network-acl-sketch.svg",
+        alt: "Line drawing of two stacks of numbered rows, an arrow stepping down the first stack to the row it matches and the rows below it drawn in a lighter line, and a dotted path running from the foot of that stack around to the head of the second, where a second arrow runs the whole way down to a struck-through final row",
+      },
+    },
+    definition:
+      "A network ACL is stateless, and that one word is the whole card. It sits on the subnet rather than on an interface, holds numbered allow and deny rules read in order until one matches, and judges each direction entirely on its own — so the answer to a connection it correctly permitted needs a rule of its own, and without one the connection simply hangs.",
+    keywords: [
+      "stateless filter",
+      "rule number order",
+      "ephemeral port range",
+      "implicit deny",
+      "subnet association",
+    ],
+    components: [
+      {
+        name: "Numbered, ordered, and finished at the first match",
+        description:
+          "Rules are numbered from 1 to 32766 and read in ascending order, and the first one that matches ends the matter — everything below it is never reached, whether it would have allowed or denied. This is the exact inverse of the list on the interface next door, where every rule is unioned and order means nothing, and the two live one hop apart. A number is a position rather than a label, and nothing can be reordered, which is why the convention is to leave gaps of a hundred: inserting a rule between two adjacent numbers means renumbering everything after it. At the foot of both directions sits a row numbered with an asterisk, denying whatever reached it, and that row can be neither edited nor removed.",
+      },
+      {
+        name: "Stateless, and the rule on the way back",
+        description:
+          "Nothing here remembers anything. The request and its answer are two unrelated events judged by two separate lists, so permitting a connection inbound grants nothing to the reply that leaves. The reply is addressed to whichever ephemeral port the client picked — 1024 to 65535 in practice — and the outbound list has to permit that entire range, because no one can know in advance which port it will be. This is why a subnet whose inbound rules are precisely right still times out, and why the failure looks so much like a routing fault: the request arrived, the service answered, and the answer was dropped on the way out by a list nobody was looking at.",
+      },
+      {
+        name: "The only place a deny can be written",
+        description:
+          "A security group has no deny at all, so one address that must be kept out of a range you have otherwise allowed can only be expressed here. That is the reason to reach for this layer, and it is a coarse one on purpose. It applies to every interface in the subnet at once rather than to the one that needs it; it knows addresses, protocols and ports and nothing else, so it cannot name a security group the way a group can; and it holds twenty rules per direction by default, forty if the quota is raised. It is the blunt instrument kept one layer out from the precise one, and it is the wrong tool for anything a group can already express.",
+      },
+    ],
+    howItWorks: [
+      {
+        step: 1,
+        description:
+          "Every subnet is associated with exactly one network ACL, and associating one is not something most people do: a subnet nobody associated takes the VPC's default, which permits everything in both directions and therefore never visibly acts. A network ACL you create yourself is the opposite — it denies everything until a rule is written — so attaching a fresh one to a working subnet cuts it off completely and immediately, which is the single most common way this layer is first met.",
+      },
+      {
+        step: 2,
+        description:
+          "A packet crossing the subnet boundary is matched against the list for the direction it is travelling, in ascending rule number, and the first match decides it. There is no most-specific rule and no union: a broad allow numbered 100 settles the question before a precise deny numbered 200 is ever read, which is the reverse of how the route table one layer down behaves and a reliable source of rules that were written but never consulted.",
+      },
+      {
+        step: 3,
+        description:
+          "The answer comes back and is judged again, by the other list, with no knowledge that the first packet was ever permitted. It arrives on an unpredictable ephemeral port, so what the return direction needs is not a mirror of the inbound rule but a rule covering 1024 to 65535. A filter that judges a flow needs one rule; a filter that judges a packet needs two, and the second one is the one that is missing.",
+      },
+      {
+        step: 4,
+        description:
+          "Where the model stops is at the subnet's own edge. Two interfaces in the same subnet talk without ever crossing it, so no rule here can hold them apart — that isolation only exists on the interface, in the card before this one. Some traffic is exempt outright, including the VPC DNS resolver at the .2 address, DHCP and the instance metadata service, so a deny-all here does not cut a machine off from the things that make it a machine on this network at all.",
+      },
+    ],
+  },
 ] as const satisfies readonly ConceptCardData[];

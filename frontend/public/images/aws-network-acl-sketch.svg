@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 278 220">
+  <g transform="translate(139 110) scale(0.88) translate(-139 -110)">
+  <g transform="translate(14 16)">
+  <!-- the row that matched on the way in, and the row that caught the way back -->
+  <g fill="#fff2c4">
+    <path d="M54 82 L106 82 L106 94 L54 94 Z" />
+    <path d="M138 136 L190 136 L190 148 L138 148 Z" />
+  </g>
+
+  <g fill="#dbe7ff">
+    <path d="M66 22 L94 22 L94 42 L66 42 Z" />
+  </g>
+
+  <g fill="none" stroke="#1d1d1b" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+    <!-- the packet arrives at the subnet's own list, one direction at a time -->
+    <path d="M66 22 L94 22 L94 42 L66 42 Z" />
+    <path d="M80 42 L80 52 M75 47 L80 53 L85 47" />
+
+    <!-- inbound: numbered rows, read in the order they are numbered -->
+    <path d="M46 56 L114 56 L114 152 L46 152 Z" />
+    <path d="M54 64 L106 64 L106 76 L54 76 Z" />
+    <path d="M54 82 L106 82 L106 94 L54 94 Z" />
+
+    <!-- the walk down the numbers, stopping at the first row that matches -->
+    <path d="M38 60 L38 88 L50 88 M45 83 L51 88 L45 93" />
+
+    <!-- outbound: a separate list, judging the answer on its own terms -->
+    <path d="M130 56 L198 56 L198 152 L130 152 Z" />
+    <path d="M138 64 L190 64 L190 76 L138 76 Z" />
+    <path d="M138 82 L190 82 L190 94 L138 94 Z" />
+    <path d="M138 100 L190 100 L190 112 L138 112 Z" />
+    <path d="M138 118 L190 118 L190 130 L138 130 Z" />
+    <path d="M138 136 L190 136 L190 148 L138 148 Z" />
+
+    <!-- read all the way down, because no row of its own covers the way back -->
+    <path d="M122 60 L122 142 L134 142 M129 137 L135 142 L129 147" />
+
+    <!-- the answer leaves, and is judged again rather than remembered -->
+    <g stroke-dasharray="5 4">
+      <path d="M80 152 L80 166 L212 166 L212 48 L164 48 L164 56" />
+    </g>
+    <path d="M164 50 L164 56 M159 51 L164 57 L169 51" />
+  </g>
+
+  <!-- the rows below the match, which are never reached at all -->
+  <g fill="none" stroke="#1d1d1b" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M54 100 L106 100 L106 112 L54 112 Z" />
+    <path d="M54 118 L106 118 L106 130 L54 130 Z" />
+    <path d="M54 136 L106 136 L106 148 L54 148 Z" />
+  </g>
+
+  <!-- the last row of either list is the one nobody writes and nobody removes -->
+  <g fill="#1d1d1b">
+    <path d="M56 139 L62 139 L62 145 L56 145 Z" />
+    <path d="M140 139 L146 139 L146 145 L140 145 Z" />
+  </g>
+
+  <!-- and on the way back it is the row that matched -->
+  <g fill="none" stroke="#1d1d1b" stroke-width="4.2" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M156 136 L172 148 M172 136 L156 148" />
+  </g>
+  </g>
+  </g>
+</svg>

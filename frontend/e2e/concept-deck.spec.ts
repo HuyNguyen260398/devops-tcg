@@ -156,6 +156,10 @@ const images = [
     "Isometric scene of two allow-lists standing side by side over one interface, the first row of each lit because both of them matched and every other row an allow as well, the slot where a deny row would sit drawn empty, dashed and crossed out — while the answer leaves the interface on a dashed path that climbs back to the arriving packet with no row of its own, carrying a single mark where the flow is remembered, and off to the side one list naming another list resolves until an address arrives in its place and the link between them is crossed out",
     "/images/aws-security-group-thumbnail.webp",
   ],
+  [
+    "Isometric scene of two numbered lists standing side by side, one for each direction — a packet arriving at the first and walking down its rows until the second one lights and takes it, the rows underneath drawn faint because nothing ever reads them — while the answer leaves on a dashed path that loops around and is delivered to the top of the second list, where it is walked all the way down to the unnumbered last row, which carries a mark of its own and is crossed out",
+    "/images/aws-network-acl-thumbnail.webp",
+  ],
 ] as const;
 
 const card = (page: import("@playwright/test").Page) =>

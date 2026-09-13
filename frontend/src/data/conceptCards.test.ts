@@ -103,6 +103,12 @@ const expectedCards = [
     "AWS Security Group",
     "/images/aws-security-group-thumbnail.webp",
   ],
+  [
+    "aws-network-acl",
+    "#037",
+    "AWS Network ACL",
+    "/images/aws-network-acl-thumbnail.webp",
+  ],
 ] as const;
 
 describe("conceptCards", () => {
@@ -130,7 +136,7 @@ describe("conceptCards", () => {
     expect(conceptCards[0].howItWorks).toHaveLength(4);
   });
 
-  it("contains all thirty-six concepts in the approved order", () => {
+  it("contains all thirty-seven concepts in the approved order", () => {
     expect(conceptCards).toHaveLength(expectedCards.length);
     expect(
       conceptCards.map(({ id, cardNumber, title, image }) => [
@@ -839,5 +845,34 @@ describe("conceptCards", () => {
     // first — which is the handover to #037.
     expect(group?.howItWorks[3]?.description).toMatch(/cannot deny/i);
     expect(group?.howItWorks[3]?.description).toMatch(/next card/i);
+  });
+
+  it("makes the network ACL the stateless half of the pair", () => {
+    const acl = conceptCards.find(({ id }) => id === "aws-network-acl");
+
+    // #036 ends by handing over to this card twice: it cannot deny, and it
+    // cannot see inside a subnet. Stateless is the whole of the difference.
+    expect(acl?.definition).toMatch(/stateless/i);
+    expect(acl?.definition).toMatch(/on the subnet/i);
+    expect(acl?.definition).toMatch(/each direction/i);
+    expect(acl?.keywords).toContain("ephemeral port range");
+    // Ordered and finished at the first match — the inverse of the union.
+    expect(acl?.components[0]?.description).toMatch(/ascending order/i);
+    expect(acl?.components[0]?.description).toMatch(/32766/);
+    expect(acl?.components[0]?.description).toMatch(/asterisk/i);
+    // The return rule is the one that is missing, and the timeout it causes.
+    expect(acl?.components[1]?.description).toMatch(/1024 to 65535/);
+    expect(acl?.components[1]?.description).toMatch(/times out/i);
+    // The one thing a security group cannot express at all.
+    expect(acl?.components[2]?.description).toMatch(/no deny/i);
+    expect(acl?.components[2]?.description).toMatch(/twenty rules/i);
+    // A custom list denies everything, which is how this layer is first met.
+    expect(acl?.howItWorks[0]?.description).toMatch(/denies everything/i);
+    expect(acl?.howItWorks[1]?.description).toMatch(/first match/i);
+    expect(acl?.howItWorks[2]?.description).toMatch(/judged again/i);
+    // Where the model stops: it sits on the boundary, so it never sees a
+    // conversation that stays inside the subnet.
+    expect(acl?.howItWorks[3]?.description).toMatch(/same subnet/i);
+    expect(acl?.howItWorks[3]?.description).toMatch(/metadata/i);
   });
 });
