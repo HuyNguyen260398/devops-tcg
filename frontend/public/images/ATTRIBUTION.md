@@ -177,6 +177,17 @@ each, the faint rows nothing ever reaches, the struck-through final row and the
 dashed path the answer takes around to the second list were all drawn for
 DevOps TCG on 2026-09-13.
 
+`aws-vpc-endpoint-thumbnail.webp` and `aws-vpc-endpoint-sketch.svg` carry
+`Res_Amazon-VPC_NAT-Gateway_48`, the same mark the AWS Subnet and AWS NAT
+Gateway pairs above use and out of the same `Resource-Icons_04302026` set,
+because the card's argument is that an endpoint takes this traffic off that
+gateway — so the mark appears struck through. It is the same `#8C4FFF` line-art
+mark for light backgrounds, embedded exactly as shipped — uniformly scaled,
+neither recoloured nor otherwise modified, and seated on a light plate in the
+neon theme rather than inverted. The subnet, the machine, the table and its
+empty crossed row, the interface carrying the name it answers to, the two paths
+out and the service at the end of them were drawn for DevOps TCG on 2026-09-14.
+
 - Source: https://aws.amazon.com/architecture/icons/
 - Terms: https://aws.amazon.com/architecture/icons/ ("AWS Architecture Icons
   Terms of Use", linked from that page)

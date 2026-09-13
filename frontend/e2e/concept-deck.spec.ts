@@ -160,6 +160,10 @@ const images = [
     "Isometric scene of two numbered lists standing side by side, one for each direction — a packet arriving at the first and walking down its rows until the second one lights and takes it, the rows underneath drawn faint because nothing ever reads them — while the answer leaves on a dashed path that loops around and is delivered to the top of the second list, where it is walked all the way down to the unnumbered last row, which carries a mark of its own and is crossed out",
     "/images/aws-network-acl-thumbnail.webp",
   ],
+  [
+    "Isometric scene of a subnet whose table carries a local row, one lit row naming a prefix list, and an empty dashed row crossed out where the way to the internet would be — and yet two paths reach the service standing outside it, one leaving from the lit row and the other from an interface inside the subnet that no row in the table mentions at all, while the gateway that would have carried both is crossed out on its plate beside them",
+    "/images/aws-vpc-endpoint-thumbnail.webp",
+  ],
 ] as const;
 
 const card = (page: import("@playwright/test").Page) =>

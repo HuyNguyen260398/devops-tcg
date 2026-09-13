@@ -109,6 +109,12 @@ const expectedCards = [
     "AWS Network ACL",
     "/images/aws-network-acl-thumbnail.webp",
   ],
+  [
+    "aws-vpc-endpoint",
+    "#038",
+    "AWS VPC Endpoint",
+    "/images/aws-vpc-endpoint-thumbnail.webp",
+  ],
 ] as const;
 
 describe("conceptCards", () => {
@@ -136,7 +142,7 @@ describe("conceptCards", () => {
     expect(conceptCards[0].howItWorks).toHaveLength(4);
   });
 
-  it("contains all thirty-seven concepts in the approved order", () => {
+  it("contains all thirty-eight concepts in the approved order", () => {
     expect(conceptCards).toHaveLength(expectedCards.length);
     expect(
       conceptCards.map(({ id, cardNumber, title, image }) => [
@@ -874,5 +880,39 @@ describe("conceptCards", () => {
     // conversation that stays inside the subnet.
     expect(acl?.howItWorks[3]?.description).toMatch(/same subnet/i);
     expect(acl?.howItWorks[3]?.description).toMatch(/metadata/i);
+  });
+
+  it("splits the VPC endpoint into the row and the address", () => {
+    const endpoint = conceptCards.find(({ id }) => id === "aws-vpc-endpoint");
+
+    // #030 says an interface endpoint reaches a service with no route at all
+    // and #033 says a gateway endpoint is the fix for its biggest bill. Both
+    // are promises this card keeps, and the two kinds share only the name.
+    expect(endpoint?.definition).toMatch(/no way out/i);
+    expect(endpoint?.definition).toMatch(/row in a route table/i);
+    expect(endpoint?.definition).toMatch(/found by name/i);
+    expect(endpoint?.keywords).toContain("prefix list");
+    // The gateway endpoint: two services, a prefix list, free, and stuck here.
+    expect(endpoint?.components[0]?.description).toMatch(/S3 and DynamoDB/);
+    expect(endpoint?.components[0]?.description).toMatch(/prefix list/i);
+    expect(endpoint?.components[0]?.description).toMatch(/no hourly charge/i);
+    expect(endpoint?.components[0]?.description).toMatch(/Transit Gateway/i);
+    // The interface endpoint: an ENI, filterable, metered, and reachable.
+    expect(endpoint?.components[1]?.description).toMatch(
+      /elastic network interface/i,
+    );
+    expect(endpoint?.components[1]?.description).toMatch(/security group/i);
+    expect(endpoint?.components[1]?.description).toMatch(/per gigabyte/i);
+    // Private DNS is the switch that decides whether any of it is used.
+    expect(endpoint?.components[2]?.description).toMatch(/private DNS/i);
+    expect(endpoint?.components[2]?.description).toMatch(/endpoint policy/i);
+    expect(endpoint?.howItWorks[1]?.description).toMatch(/prefix list/i);
+    expect(endpoint?.howItWorks[2]?.description).toMatch(/no route was/i);
+    // Where the model stops: a service, not a network — and the bill does not
+    // fall until the old path stops being taken.
+    expect(endpoint?.howItWorks[3]?.description).toMatch(
+      /a service, not a network/i,
+    );
+    expect(endpoint?.howItWorks[3]?.description).toMatch(/still metering/i);
   });
 });
