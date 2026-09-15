@@ -116,6 +116,7 @@ const expectedCards = [
     "/images/aws-vpc-endpoint-thumbnail.webp",
   ],
   ["tcp", "#039", "TCP", "/images/tcp-thumbnail.webp"],
+  ["udp", "#040", "UDP", "/images/udp-thumbnail.webp"],
 ] as const;
 
 describe("conceptCards", () => {
@@ -143,7 +144,7 @@ describe("conceptCards", () => {
     expect(conceptCards[0].howItWorks).toHaveLength(4);
   });
 
-  it("contains all thirty-nine concepts in the approved order", () => {
+  it("contains all forty concepts in the approved order", () => {
     expect(conceptCards).toHaveLength(expectedCards.length);
     expect(
       conceptCards.map(({ id, cardNumber, title, image }) => [
@@ -945,5 +946,33 @@ describe("conceptCards", () => {
     // something in the path quietly forgets it.
     expect(tcp?.howItWorks[3]?.description).toMatch(/head-of-line/i);
     expect(tcp?.howItWorks[3]?.description).toMatch(/keepalive/i);
+  });
+  it("makes UDP the transport with the agreement taken out", () => {
+    const udp = conceptCards.find(({ id }) => id === "udp");
+
+    // #039 is a card about an agreement between two ends. This one is the same
+    // layer with that agreement removed, so it is defined by what is absent.
+    expect(udp?.definition).toMatch(/remove the agreement/i);
+    expect(udp?.definition).toMatch(/nothing is remembered/i);
+    expect(udp?.keywords).toContain("datagram");
+    // The header is the whole promise, and the boundary survives the trip.
+    expect(udp?.components[0]?.description).toMatch(/eight bytes/i);
+    expect(udp?.components[0]?.description).toMatch(/one send is one receive/i);
+    expect(udp?.components[0]?.description).toMatch(/IPv6/);
+    // Nothing is kept between one datagram and the next, connect() included.
+    expect(udp?.components[1]?.description).toMatch(/establishes nothing/i);
+    expect(udp?.components[1]?.description).toMatch(/no congestion control/i);
+    expect(udp?.components[1]?.description).toMatch(/fragment/i);
+    // What the absence buys, and who spends it.
+    expect(udp?.components[2]?.description).toMatch(/head-of-line/i);
+    expect(udp?.components[2]?.description).toMatch(/multicast/i);
+    expect(udp?.components[2]?.description).toMatch(/QUIC/);
+    expect(udp?.howItWorks[2]?.description).toMatch(/does not supply/i);
+    // Where the model stops: unreliable describes the transport, not the
+    // connection somebody has built on top of it.
+    expect(udp?.howItWorks[3]?.description).toMatch(
+      /where the agreement lives/i,
+    );
+    expect(udp?.howItWorks[3]?.description).toMatch(/#039/);
   });
 });

@@ -2282,4 +2282,60 @@ export const conceptCards = [
       },
     ],
   },
+  {
+    id: "udp",
+    cardNumber: "#040",
+    type: "NETWORK",
+    title: "UDP",
+    image: {
+      src: "/images/udp-thumbnail.webp",
+      alt: "Isometric scene of two plates facing each other, each holding an empty dashed slot where a remembered number would sit, and between them four datagrams travelling entirely on their own with no line joining any one of them to the next — each a box carrying four small header cells and nothing else, one struck through where it was dropped, another standing in front of a second copy of itself, and the rest arriving at whatever height they arrive at; while above them, where a handshake would have been agreed, and below them, where an answer would have returned, there is nothing in either place but an empty dashed lane crossed out",
+      sketch: {
+        src: "/images/udp-sketch.svg",
+        alt: "Line drawing of two upright plates, each with an empty dashed slot near its top, and four separate boxes between them, none joined to another, each carrying a row of four small header cells, one box crossed out and one drawn twice with its copy behind it, and above and below the row an empty dashed lane struck through where a handshake and a reply would have been",
+      },
+    },
+    definition:
+      "UDP is what is left of a transport when you remove the agreement. There is no connection to establish and nothing is remembered between one datagram and the next: a port, a length, a checksum, and your bytes. Everything TCP gave you is still needed — it is now the application's job.",
+    keywords: ["datagram", "connectionless", "port", "checksum", "QUIC"],
+    components: [
+      {
+        name: "The header is the whole promise",
+        description:
+          "Eight bytes, and there is nowhere to put a ninth: a source port, a destination port, a length, and a checksum. No sequence number, no acknowledgement, no flags and no options field — the header has no room for a mechanism, which is exactly why no mechanism was ever added to it. The source port may be left at zero when no reply is expected. The checksum covers the payload together with a pseudo-header taken from the addresses beneath it, and it is optional on IPv4 and mandatory on IPv6, which is a difference people meet the first time a tunnel refuses datagrams one stack was perfectly happy to send. What the header does keep is the boundary: one send is one receive, so a datagram of zero bytes is a real message the reader is handed, and a read offering too small a buffer loses the rest of that datagram rather than continuing it on the next call. It is the exact opposite of the stream on #039, and it is why a protocol here needs no length of its own.",
+      },
+      {
+        name: "Nothing is remembered",
+        description:
+          "There is no order, no retransmission, no duplicate suppression, no flow control and no congestion control, so the network is free to drop a datagram, to deliver it twice, or to deliver it after the one sent behind it, and neither end is told which happened. Calling connect on a UDP socket sends nothing and establishes nothing: it remembers an address and filters what arrives, so a connection refused here is an ICMP message turning up afterwards rather than a handshake that failed. Having no congestion control means nothing slows the sender but the link itself — a freedom and a hazard in the same sentence, since a busy application here is not politely backing off the way every TCP flow around it is. And because a datagram arrives whole or not at all, one larger than the path will carry is fragmented underneath, where losing any single fragment loses the entire datagram: which is why a sender that cares chooses a size it knows will fit instead of discovering the limit in production.",
+      },
+      {
+        name: "What the absence buys, and who spends it",
+        description:
+          "The first datagram can carry payload, because no round trip was spent agreeing anything first. A lost one delays nothing else, since nothing else was waiting behind it — there is no head-of-line blocking here, which is not a tuning victory but a consequence of there being no line. And one datagram can be addressed to many receivers at once by broadcast or by multicast, which a connection cannot express at all. DNS spends that on asking and answering in a single datagram each; a voice call spends it preferring a lost syllable to a late one. The most interesting spender rebuilds precisely what the transport left out: QUIC carries sequence numbers, acknowledgement, loss recovery and congestion control of its own, in userspace, on top of UDP — per stream rather than per connection, and so it keeps the one property the layer underneath it was never able to take away.",
+      },
+    ],
+    howItWorks: [
+      {
+        step: 1,
+        description:
+          "Bind a port, name a destination, send. There is no handshake to complete and no state to create, so the first packet on the wire is already carrying payload. The socket it left from is attached to nobody, which is why the very next call may send to somewhere else entirely without anything being torn down or set up.",
+      },
+      {
+        step: 2,
+        description:
+          "The network may lose that datagram, deliver it twice, or deliver it after the one sent behind it, and nothing anywhere reports which of those it did. A send that returned successfully means only that the datagram left this host; it carries no information whatever about arrival, and there is no later message that will supply any.",
+      },
+      {
+        step: 3,
+        description:
+          "Whatever is needed, the application supplies: its own identifier to match an answer to a question, its own timer to ask a second time, its own judgement about how fast it may send. What it does not supply, it does not have — and the failure that follows tends to get described as an unreliable network rather than as a transport that was chosen for exactly this.",
+      },
+      {
+        step: 4,
+        description:
+          "Where the model stops is that unreliable describes the transport and not the connection somebody has built across it: a QUIC stream is as ordered and as reliable as anything on #039 and runs entirely here, so the choice was never speed against reliability but where the agreement lives. The absence shows up all over the rest of the deck — #028's load balancer has no connection to terminate and so forwards flows it never reads, #036's stateful filter has no handshake to watch and must infer a flow from a timer alone, and a NAT mapping for one of these holds only for as long as something keeps sending.",
+      },
+    ],
+  },
 ] as const satisfies readonly ConceptCardData[];

@@ -168,6 +168,10 @@ const images = [
     "Isometric scene of two upright plates facing each other, each holding a small tablet with a number on it, joined above by three lanes of which the first carries a number of its own — and between them, standing in open space with no machine of any kind to hold it, a row of numbered tiles: a run already lit and delivered, then one slot left dashed and empty where a number went missing, and behind that slot every later tile stacked and waiting although each has already arrived, with a bracket beneath them marking how far ahead of the answers the sender may be and a single arrow returning underneath carrying one number back",
     "/images/tcp-thumbnail.webp",
   ],
+  [
+    "Isometric scene of two plates facing each other, each holding an empty dashed slot where a remembered number would sit, and between them four datagrams travelling entirely on their own with no line joining any one of them to the next — each a box carrying four small header cells and nothing else, one struck through where it was dropped, another standing in front of a second copy of itself, and the rest arriving at whatever height they arrive at; while above them, where a handshake would have been agreed, and below them, where an answer would have returned, there is nothing in either place but an empty dashed lane crossed out",
+    "/images/udp-thumbnail.webp",
+  ],
 ] as const;
 
 const card = (page: import("@playwright/test").Page) =>

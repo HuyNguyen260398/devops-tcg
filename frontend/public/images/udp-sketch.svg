@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 278 220">
+  <g transform="translate(139 110) scale(0.88) translate(-139 -110)">
+  <g transform="translate(0 10)">
+  <!-- the datagrams themselves, each one whole and on its own -->
+  <g fill="#dbe7ff">
+    <path d="M80 96 L104 96 L104 126 L80 126 Z" />
+    <path d="M111 112 L135 112 L135 142 L111 142 Z" />
+    <path d="M173 110 L197 110 L197 140 L173 140 Z" />
+  </g>
+
+  <!-- eight bytes of header, and nowhere to put a ninth -->
+  <g fill="#fff2c4">
+    <path d="M82 100 L86.8 100 L86.8 106 L82 106 Z" />
+    <path d="M87.2 100 L92 100 L92 106 L87.2 106 Z" />
+    <path d="M92.4 100 L97.2 100 L97.2 106 L92.4 106 Z" />
+    <path d="M97.6 100 L102.4 100 L102.4 106 L97.6 106 Z" />
+    <path d="M113 116 L117.8 116 L117.8 122 L113 122 Z" />
+    <path d="M118.2 116 L123 116 L123 122 L118.2 122 Z" />
+    <path d="M123.4 116 L128.2 116 L128.2 122 L123.4 122 Z" />
+    <path d="M128.6 116 L133.4 116 L133.4 122 L128.6 122 Z" />
+    <path d="M175 114 L179.8 114 L179.8 120 L175 120 Z" />
+    <path d="M180.2 114 L185 114 L185 120 L180.2 120 Z" />
+    <path d="M185.4 114 L190.2 114 L190.2 120 L185.4 120 Z" />
+    <path d="M190.6 114 L195.4 114 L195.4 120 L190.6 120 Z" />
+  </g>
+
+  <!-- the copy of the last one that nothing anywhere will notice -->
+  <g fill="none" stroke="#1d1d1b" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M176 107 L200 107 L200 137 L176 137 Z" />
+    <path d="M46 110 L64 110 M46 120 L58 120 M46 130 L64 130" />
+    <path d="M214 110 L232 110 M214 120 L226 120 M214 130 L232 130" />
+    <path d="M83 113 L101 113 M83 118 L94 118" />
+    <path d="M114 129 L132 129 M114 134 L125 134" />
+    <path d="M176 127 L194 127 M176 132 L187 132" />
+  </g>
+
+  <g fill="none" stroke="#1d1d1b" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+    <!-- nothing was agreed above, nothing returns below, nothing is kept inside -->
+    <g stroke-dasharray="4 3.5">
+      <path d="M48 78 L48 32 L230 32 L230 78" />
+      <path d="M221 150 L221 172 L57 172 L57 150" />
+      <path d="M142 94 L166 94 L166 124 L142 124 Z" />
+      <path d="M46 86 L64 86 L64 98 L46 98 Z" />
+      <path d="M214 86 L232 86 L232 98 L214 98 Z" />
+    </g>
+
+    <!-- the two ends, remembering nothing between one datagram and the next -->
+    <path d="M40 78 L70 78 L70 150 L40 150 Z" />
+    <path d="M208 78 L238 78 L238 150 L208 150 Z" />
+
+    <path d="M80 96 L104 96 L104 126 L80 126 Z" />
+    <path d="M111 112 L135 112 L135 142 L111 142 Z" />
+    <path d="M173 110 L197 110 L197 140 L173 140 Z" />
+
+    <path d="M82 100 L86.8 100 L86.8 106 L82 106 Z" />
+    <path d="M87.2 100 L92 100 L92 106 L87.2 106 Z" />
+    <path d="M92.4 100 L97.2 100 L97.2 106 L92.4 106 Z" />
+    <path d="M97.6 100 L102.4 100 L102.4 106 L97.6 106 Z" />
+    <path d="M113 116 L117.8 116 L117.8 122 L113 122 Z" />
+    <path d="M118.2 116 L123 116 L123 122 L118.2 122 Z" />
+    <path d="M123.4 116 L128.2 116 L128.2 122 L123.4 122 Z" />
+    <path d="M128.6 116 L133.4 116 L133.4 122 L128.6 122 Z" />
+    <path d="M175 114 L179.8 114 L179.8 120 L175 120 Z" />
+    <path d="M180.2 114 L185 114 L185 120 L180.2 120 Z" />
+    <path d="M185.4 114 L190.2 114 L190.2 120 L185.4 120 Z" />
+    <path d="M190.6 114 L195.4 114 L195.4 120 L190.6 120 Z" />
+  </g>
+
+  <!-- one datagram simply gone, and neither agreement ever made -->
+  <g fill="none" stroke="#1d1d1b" stroke-width="4.2" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M145 97 L163 121 M163 97 L145 121" />
+    <path d="M130 23 L148 41 M148 23 L130 41" />
+    <path d="M130 163 L148 181 M148 163 L130 181" />
+  </g>
+  </g>
+  </g>
+</svg>
