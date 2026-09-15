@@ -164,6 +164,10 @@ const images = [
     "Isometric scene of a subnet whose table carries a local row, one lit row naming a prefix list, and an empty dashed row crossed out where the way to the internet would be — and yet two paths reach the service standing outside it, one leaving from the lit row and the other from an interface inside the subnet that no row in the table mentions at all, while the gateway that would have carried both is crossed out on its plate beside them",
     "/images/aws-vpc-endpoint-thumbnail.webp",
   ],
+  [
+    "Isometric scene of two upright plates facing each other, each holding a small tablet with a number on it, joined above by three lanes of which the first carries a number of its own — and between them, standing in open space with no machine of any kind to hold it, a row of numbered tiles: a run already lit and delivered, then one slot left dashed and empty where a number went missing, and behind that slot every later tile stacked and waiting although each has already arrived, with a bracket beneath them marking how far ahead of the answers the sender may be and a single arrow returning underneath carrying one number back",
+    "/images/tcp-thumbnail.webp",
+  ],
 ] as const;
 
 const card = (page: import("@playwright/test").Page) =>

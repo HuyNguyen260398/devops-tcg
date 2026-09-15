@@ -115,6 +115,7 @@ const expectedCards = [
     "AWS VPC Endpoint",
     "/images/aws-vpc-endpoint-thumbnail.webp",
   ],
+  ["tcp", "#039", "TCP", "/images/tcp-thumbnail.webp"],
 ] as const;
 
 describe("conceptCards", () => {
@@ -142,7 +143,7 @@ describe("conceptCards", () => {
     expect(conceptCards[0].howItWorks).toHaveLength(4);
   });
 
-  it("contains all thirty-eight concepts in the approved order", () => {
+  it("contains all thirty-nine concepts in the approved order", () => {
     expect(conceptCards).toHaveLength(expectedCards.length);
     expect(
       conceptCards.map(({ id, cardNumber, title, image }) => [
@@ -914,5 +915,35 @@ describe("conceptCards", () => {
       /a service, not a network/i,
     );
     expect(endpoint?.howItWorks[3]?.description).toMatch(/still metering/i);
+  });
+  it("makes the TCP connection an agreement about numbers", () => {
+    const tcp = conceptCards.find(({ id }) => id === "tcp");
+
+    // The whole card derives from one fact: a connection is state held by two
+    // hosts about how to number bytes, not a pipe the network holds open.
+    expect(tcp?.definition).toMatch(/agreement between two ends/i);
+    expect(tcp?.definition).toMatch(/number bytes/i);
+    expect(tcp?.keywords).toContain("sliding window");
+    // The handshake exists to agree the first number, and what it leaves
+    // behind is named by the four-tuple and outlives the close.
+    expect(tcp?.components[0]?.description).toMatch(/initial sequence number/i);
+    expect(tcp?.components[0]?.description).toMatch(/four-tuple/i);
+    expect(tcp?.components[0]?.description).toMatch(/TIME_WAIT/);
+    // An acknowledgement names the next byte expected, and what arrives is a
+    // stream rather than the messages that were written.
+    expect(tcp?.components[1]?.description).toMatch(/next byte it expects/i);
+    expect(tcp?.components[1]?.description).toMatch(
+      /selective acknowledgement/i,
+    );
+    expect(tcp?.components[1]?.description).toMatch(/byte stream/i);
+    // The window is two numbers and only one of them is ever advertised.
+    expect(tcp?.components[2]?.description).toMatch(/receive window/i);
+    expect(tcp?.components[2]?.description).toMatch(/congestion window/i);
+    expect(tcp?.components[2]?.description).toMatch(/window scaling/i);
+    expect(tcp?.howItWorks[2]?.description).toMatch(/fast retransmit/i);
+    // Where the model stops: the price of the agreement, and what happens when
+    // something in the path quietly forgets it.
+    expect(tcp?.howItWorks[3]?.description).toMatch(/head-of-line/i);
+    expect(tcp?.howItWorks[3]?.description).toMatch(/keepalive/i);
   });
 });

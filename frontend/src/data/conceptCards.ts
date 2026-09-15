@@ -2220,4 +2220,66 @@ export const conceptCards = [
       },
     ],
   },
+  {
+    id: "tcp",
+    cardNumber: "#039",
+    type: "NETWORK",
+    title: "TCP",
+    image: {
+      src: "/images/tcp-thumbnail.webp",
+      alt: "Isometric scene of two upright plates facing each other, each holding a small tablet with a number on it, joined above by three lanes of which the first carries a number of its own — and between them, standing in open space with no machine of any kind to hold it, a row of numbered tiles: a run already lit and delivered, then one slot left dashed and empty where a number went missing, and behind that slot every later tile stacked and waiting although each has already arrived, with a bracket beneath them marking how far ahead of the answers the sender may be and a single arrow returning underneath carrying one number back",
+      sketch: {
+        src: "/images/tcp-sketch.svg",
+        alt: "Line drawing of two upright plates facing each other, each with a small numbered tablet, joined above by three lanes of which the first is labelled with a number, a row of numbered boxes between them with one box left empty and dashed and the boxes after it stacked in a queue, a bracket beneath those boxes, and an arrow returning below carrying a single number back to the sender",
+      },
+    },
+    definition:
+      "A TCP connection is not a pipe the network holds open for you — it is an agreement between two ends about how to number bytes. Everything else on this card falls out of that one fact: the handshake exists to agree the first number, an acknowledgement is a statement about numbers received, and a retransmission is what happens when a number goes unmentioned.",
+    keywords: [
+      "three-way handshake",
+      "sequence number",
+      "acknowledgement",
+      "sliding window",
+      "congestion control",
+    ],
+    components: [
+      {
+        name: "The handshake agrees the first number",
+        description:
+          "Each end picks an initial sequence number and tells the other: the SYN carries one, the SYN-ACK carries the second and acknowledges the first, and the ACK completes it. The number is chosen unpredictably rather than started at zero, because anything that can guess it can write into the stream from off the path. What the three segments leave behind is a little state on two hosts and nowhere else — named by the four-tuple of both addresses and both ports, which is why a client exhausts its ephemeral ports per destination rather than absolutely, and why two connections may share a port with no ambiguity at all. Closing is the same agreement run backwards, one FIN in each direction, so a half-closed connection that can still send in one direction is legal and not an error; and the side that closes first keeps the four-tuple reserved in TIME_WAIT afterwards, so that a segment delayed in the network cannot arrive against a new connection wearing the old numbers. That is the whole reason a busy host holds thousands of sockets in a state where nothing is running.",
+      },
+      {
+        name: "An acknowledgement is a statement about numbers",
+        description:
+          "An ACK names the next byte it expects, so it acknowledges everything before that number and says nothing whatever about what arrived after a gap — which is why a receiver holding the bytes past a hole can only keep repeating the same number, and why selective acknowledgement is an option bolted on to say the rest. Reordering therefore costs nothing: the receiver re-sequences and the sender never learns. Loss costs a round trip at best and a timer at worst. The thing this delivers is a byte stream, not the messages that were written into it: the sender's boundaries are not preserved, two writes may arrive as one read and one write as two, so every protocol above has to carry its own length or its own delimiter. A read returning fewer bytes than were sent is TCP working exactly as specified.",
+      },
+      {
+        name: "The window is permission to be ahead",
+        description:
+          "A sender may be ahead of the acknowledgements by the smaller of two numbers, and only one of them is ever spoken aloud. The receive window is advertised on every segment and says what the receiver still has room for — dropping to zero when the application stops reading, which stops the sender without losing anything. The congestion window is the sender's own guess about the path, never advertised and never agreed, started small, doubled each round trip through slow start and cut when loss says the guess was wrong. Throughput is bounded by that window divided by the round-trip time, which is why a transfer to a distant region crawls on a link that is not remotely full, and why the window scaling option negotiated in the handshake — the 16-bit field being far too small for a modern path — is the difference between a fast link and a fast transfer.",
+      },
+    ],
+    howItWorks: [
+      {
+        step: 1,
+        description:
+          "Three segments pass and both ends now hold the same agreement: a starting number each, a window, and whatever options were negotiated. Nothing in the network was told, because there is nothing in the network to tell — the routers of #005's third layer forward each segment as an unrelated packet and know nothing of the connection carrying them.",
+      },
+      {
+        step: 2,
+        description:
+          "Bytes go out carrying the numbers the agreement assigns them, and the sender keeps its own copy of everything it has not yet heard acknowledged. The receiver puts arrivals back into order and answers with the next number it is waiting for. Neither end is waiting a round trip per segment: the window is exactly the permission to keep sending into the silence.",
+      },
+      {
+        step: 3,
+        description:
+          "One segment goes missing and the receiver keeps answering with the same number while it stacks up everything that arrives after it. Three duplicate acknowledgements are read as loss rather than as reordering and the sender resends at once — fast retransmit, without waiting for the timer — while a loss the duplicates never reveal waits for a retransmission timeout that backs off each time. The congestion window is cut in the same breath, so the repair costs throughput as well as time.",
+      },
+      {
+        step: 4,
+        description:
+          "Where the model stops is that one stream is one order, so a segment lost at the front holds back every byte behind it even though they are already in the receiver's memory — head-of-line blocking, and it stalls everything multiplexed onto that connection together rather than one at a time. And because the agreement is state on two hosts, anything in the path that keeps a table of its own is only guessing: a NAT or a firewall that expires an idle flow drops nothing and tells nobody, leaving both ends believing in a connection that will fail at the next write, which is why a keepalive exists to spend a packet on saying nothing. What TCP cannot do is be absent — that is the next card.",
+      },
+    ],
+  },
 ] as const satisfies readonly ConceptCardData[];

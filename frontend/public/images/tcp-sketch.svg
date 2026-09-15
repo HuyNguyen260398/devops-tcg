@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 278 220">
+  <g transform="translate(139 110) scale(0.88) translate(-139 -110)">
+  <g transform="translate(0 10)">
+  <!-- the numbers each end agrees to start from, and the ones that come back -->
+  <g fill="#fff2c4">
+    <path d="M123 20 L155 20 L155 34 L123 34 Z" />
+    <path d="M88 100 L100 100 L100 118 L88 118 Z" />
+    <path d="M103 100 L115 100 L115 118 L103 118 Z" />
+    <path d="M123 163 L155 163 L155 177 L123 177 Z" />
+  </g>
+
+  <g fill="#dbe7ff">
+    <path d="M50 86 L72 86 L72 98 L50 98 Z" />
+    <path d="M206 86 L228 86 L228 98 L206 98 Z" />
+  </g>
+
+  <!-- the tiles that have arrived and are waiting on the one that has not -->
+  <g fill="none" stroke="#1d1d1b" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M136 97 L148 97 L148 115 L136 115 Z" />
+    <path d="M151 97 L163 97 L163 115 L151 115 Z" />
+    <path d="M166 97 L178 97 L178 115 L166 115 Z" />
+    <path d="M181 97 L193 97 L193 115 L181 115 Z" />
+    <path d="M50 110 L72 110 M50 120 L64 120 M50 130 L72 130" />
+    <path d="M206 110 L228 110 M206 120 L220 120 M206 130 L228 130" />
+  </g>
+
+  <g fill="none" stroke="#1d1d1b" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+    <!-- three lanes agree the numbers, and nothing between the ends is told -->
+    <path d="M52 78 L52 27 L226 27 L226 74" />
+    <path d="M221 69 L226 75 L231 69" />
+    <path d="M220 78 L220 43 L58 43 L58 74" />
+    <path d="M53 69 L58 75 L63 69" />
+    <path d="M70 78 L70 59 L210 59 L210 74" />
+    <path d="M205 69 L210 75 L215 69" />
+    <path d="M123 20 L155 20 L155 34 L123 34 Z" />
+
+    <!-- the two ends, holding between them the only copy of the agreement -->
+    <path d="M44 78 L78 78 L78 150 L44 150 Z" />
+    <path d="M200 78 L234 78 L234 150 L200 150 Z" />
+    <path d="M50 86 L72 86 L72 98 L50 98 Z" />
+    <path d="M206 86 L228 86 L228 98 L206 98 Z" />
+
+    <!-- delivered, missing, and held back behind the gap -->
+    <path d="M88 100 L100 100 L100 118 L88 118 Z" />
+    <path d="M103 100 L115 100 L115 118 L103 118 Z" />
+    <g stroke-dasharray="3.5 3">
+      <path d="M118 100 L130 100 L130 118 L118 118 Z" />
+    </g>
+    <path d="M133 100 L145 100 L145 118 L133 118 Z" />
+    <path d="M148 100 L160 100 L160 118 L148 118 Z" />
+    <path d="M163 100 L175 100 L175 118 L163 118 Z" />
+    <path d="M178 100 L190 100 L190 118 L178 118 Z" />
+
+    <!-- how far ahead of the answers the sender is allowed to be -->
+    <path d="M118 126 L118 134 L190 134 L190 126" />
+    <path d="M154 134 L154 142" />
+
+    <!-- one number returns, and it speaks for everything before it -->
+    <path d="M217 150 L217 170 L61 170 L61 154" />
+    <path d="M56 159 L61 153 L66 159" />
+    <path d="M123 163 L155 163 L155 177 L123 177 Z" />
+  </g>
+  </g>
+  </g>
+</svg>
