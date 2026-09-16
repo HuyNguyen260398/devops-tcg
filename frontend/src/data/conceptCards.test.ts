@@ -117,6 +117,12 @@ const expectedCards = [
   ],
   ["tcp", "#039", "TCP", "/images/tcp-thumbnail.webp"],
   ["udp", "#040", "UDP", "/images/udp-thumbnail.webp"],
+  [
+    "kubernetes-node",
+    "#041",
+    "Kubernetes Node",
+    "/images/kubernetes-node-thumbnail.webp",
+  ],
 ] as const;
 
 describe("conceptCards", () => {
@@ -144,7 +150,7 @@ describe("conceptCards", () => {
     expect(conceptCards[0].howItWorks).toHaveLength(4);
   });
 
-  it("contains all forty concepts in the approved order", () => {
+  it("contains all forty-one concepts in the approved order", () => {
     expect(conceptCards).toHaveLength(expectedCards.length);
     expect(
       conceptCards.map(({ id, cardNumber, title, image }) => [
@@ -974,5 +980,41 @@ describe("conceptCards", () => {
       /where the agreement lives/i,
     );
     expect(udp?.howItWorks[3]?.description).toMatch(/#039/);
+  });
+
+  it("makes the Kubernetes Node a machine the cluster only reads about", () => {
+    const node = conceptCards.find(({ id }) => id === "kubernetes-node");
+
+    // The whole card: the control plane owns no machine, it reads what the
+    // machine says about itself — and when that stops, nothing is repaired.
+    expect(node?.type).toBe("COMPUTE");
+    expect(node?.definition).toMatch(/observes rather than owns/i);
+    expect(node?.definition).toMatch(/nothing is repaired/i);
+    expect(node?.keywords).toContain("allocatable");
+    expect(node?.keywords).toContain("taint");
+    // Allocatable is the only figure the scheduler sees, and it is compared
+    // against a claim rather than a measurement.
+    expect(node?.components[0]?.description).toMatch(/kube-reserved/);
+    expect(node?.components[0]?.description).toMatch(
+      /claim, not a measurement/i,
+    );
+    expect(node?.components[0]?.description).toMatch(/host port/i);
+    // The lease is the heartbeat, and the pods do not move when it stops.
+    expect(node?.components[1]?.description).toMatch(/Lease/);
+    expect(node?.components[1]?.description).toMatch(/300 seconds/);
+    expect(node?.components[1]?.description).toMatch(
+      /still shows them Running/i,
+    );
+    // A label attracts and the pod chooses it; a taint repels and the node does.
+    expect(node?.components[2]?.description).toMatch(/NoExecute/);
+    expect(node?.components[2]?.description).toMatch(/cordon/i);
+    // Local eviction is the kubelet's own decision, and it is not an OOM kill.
+    expect(node?.howItWorks[2]?.description).toMatch(/BestEffort/);
+    expect(node?.howItWorks[2]?.description).toMatch(/#022/);
+    // Where the model stops: a unit of failure, never a unit of identity.
+    expect(node?.howItWorks[3]?.description).toMatch(
+      /unit of failure, not a unit of identity/i,
+    );
+    expect(node?.howItWorks[3]?.description).toMatch(/#024/);
   });
 });

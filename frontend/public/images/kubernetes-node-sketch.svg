@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 278 220">
+  <g transform="translate(139 110) scale(0.88) translate(-139 -110)">
+  <!-- the claims already stacked into the part that was offered -->
+  <g fill="#dbe7ff">
+    <path d="M106 56 L128 56 L128 68 L106 68 Z" />
+    <path d="M134 56 L150 56 L150 68 L134 68 Z" />
+  </g>
+
+  <!-- the mark the machine carries, and the token matched against it -->
+  <g fill="#fff2c4">
+    <path d="M100 108 L118 108 L118 126 L100 126 Z" />
+    <path d="M52 70 L66 70 L66 84 L52 84 Z" />
+  </g>
+
+  <!-- the cell the machine publishes about itself, in the subject's own tone -->
+  <g fill="#dbe7ff">
+    <path d="M129 110 L143 110 L143 118 L129 118 Z" />
+  </g>
+
+  <g fill="none" stroke="#1d1d1b" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round">
+    <!-- reserved before anything was offered, so never on the table -->
+    <path d="M159 68 L167 56 M164 68 L172 56 M169 68 L174 60" />
+    <!-- what each card has to say for itself -->
+    <path d="M148 112 L172 112 M129 124 L172 124" />
+    <path d="M52 92 L70 92 M52 98 L64 98" />
+    <path d="M52 150 L70 150 M52 156 L64 156" />
+    <path d="M203 78 L213 78 M203 84 L210 84" />
+    <path d="M223 78 L233 78 M223 84 L230 84" />
+    <path d="M207 160 L227 160 M207 166 L221 166" />
+  </g>
+
+  <g fill="none" stroke="#1d1d1b" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+    <!-- the machine, and the only figure anything is ever placed against -->
+    <path d="M92 40 L186 40 L186 146 L92 146 Z" />
+    <path d="M100 50 L178 50 L178 74 L100 74 Z" />
+    <path d="M106 56 L128 56 L128 68 L106 68 Z" />
+    <path d="M134 56 L150 56 L150 68 L134 68 Z" />
+
+    <!-- the reading beside it, low and on a track of its own -->
+    <path d="M100 84 L178 84 L178 98 L100 98 Z" />
+    <path d="M100 84 L126 84 L126 98 L100 98 Z" />
+
+    <!-- the node's own veto, standing on the plate -->
+    <path d="M100 108 L118 108 L118 126 L100 126 Z" />
+    <path d="M104 122 L114 112" />
+
+    <!-- and the account it files of itself -->
+    <path d="M126 104 L178 104 L178 132 L126 132 Z" />
+    <path d="M129 110 L143 110 L143 118 L129 118 Z" />
+
+    <!-- one arrives holding the matching token, one holding none -->
+    <path d="M44 62 L76 62 L76 106 L44 106 Z" />
+    <path d="M52 70 L66 70 L66 84 L52 84 Z" />
+    <path d="M56 80 L62 74" />
+    <path d="M44 120 L76 120 L76 164 L44 164 Z" />
+
+    <!-- the machine that stopped reporting, its pods still standing -->
+    <path d="M194 40 L240 40 L240 126 L194 126 Z" />
+    <path d="M199 70 L216 70 L216 114 L199 114 Z" />
+    <path d="M219 70 L236 70 L236 114 L219 114 Z" />
+
+    <!-- a different pod, on a different machine -->
+    <path d="M194 144 L240 144 L240 196 L194 196 Z" />
+    <path d="M202 152 L232 152 L232 182 L202 182 Z" />
+
+    <g stroke-dasharray="4 3.5">
+      <!-- the reserved tail, the lease gone quiet, the token never carried -->
+      <path d="M156 54 L174 54 L174 70 L156 70 Z" />
+      <path d="M199 47 L235 47 L235 61 L199 61 Z" />
+      <path d="M52 128 L66 128 L66 142 L52 142 Z" />
+    </g>
+
+    <!-- one passes the mark; the other is stopped in front of it -->
+    <path d="M80 84 L90 84 M85 80 L90 84 L85 88" />
+
+    <!-- nothing is repaired, so the replacement starts somewhere else -->
+    <path d="M217 130 L217 140 M213 135 L217 140 L221 135" />
+  </g>
+
+  <!-- what the mark turned away, and what the silence took with it -->
+  <g fill="none" stroke="#1d1d1b" stroke-width="3.6" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M79 136 L89 148 M89 136 L79 148" />
+  </g>
+  <g fill="none" stroke="#1d1d1b" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M201 72 L214 112 M214 72 L201 112" />
+    <path d="M221 72 L234 112 M234 72 L221 112" />
+  </g>
+  </g>
+</svg>

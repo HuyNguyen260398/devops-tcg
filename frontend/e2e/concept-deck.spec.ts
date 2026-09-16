@@ -172,6 +172,10 @@ const images = [
     "Isometric scene of two plates facing each other, each holding an empty dashed slot where a remembered number would sit, and between them four datagrams travelling entirely on their own with no line joining any one of them to the next — each a box carrying four small header cells and nothing else, one struck through where it was dropped, another standing in front of a second copy of itself, and the rest arriving at whatever height they arrive at; while above them, where a handshake would have been agreed, and below them, where an answer would have returned, there is nothing in either place but an empty dashed lane crossed out",
     "/images/udp-thumbnail.webp",
   ],
+  [
+    "Isometric scene of one machine plate carrying the figure it publishes about itself \u2014 a capacity bar whose far end is cut away dark and reserved, so only the lit remainder is filled by the claimed blocks stacked into it, while the needle measuring what is actually running sits low and unread beside them \u2014 a mark on the plate turning away an arriving unit that carries no matching token while one that does passes it, and off to the side a second plate whose lease card has gone dark, its units still standing upright and lit yet crossed out, with a fresh one appearing on a third plate instead",
+    "/images/kubernetes-node-thumbnail.webp",
+  ],
 ] as const;
 
 const card = (page: import("@playwright/test").Page) =>

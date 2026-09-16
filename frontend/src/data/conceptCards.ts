@@ -2338,4 +2338,60 @@ export const conceptCards = [
       },
     ],
   },
+  {
+    id: "kubernetes-node",
+    cardNumber: "#041",
+    type: "COMPUTE",
+    title: "Kubernetes Node",
+    image: {
+      src: "/images/kubernetes-node-thumbnail.webp",
+      alt: "Isometric scene of one machine plate carrying the figure it publishes about itself \u2014 a capacity bar whose far end is cut away dark and reserved, so only the lit remainder is filled by the claimed blocks stacked into it, while the needle measuring what is actually running sits low and unread beside them \u2014 a mark on the plate turning away an arriving unit that carries no matching token while one that does passes it, and off to the side a second plate whose lease card has gone dark, its units still standing upright and lit yet crossed out, with a fresh one appearing on a third plate instead",
+      sketch: {
+        src: "/images/kubernetes-node-sketch.svg",
+        alt: "Line drawing of a machine plate with a bar whose end section is hatched off, claimed blocks filling only the open part and a low needle beside it, a struck mark on the plate rejecting one arriving unit while another carrying a token passes, and a second plate with a dashed lease card whose upright units are crossed out beside a new unit on a third plate",
+      },
+    },
+    definition:
+      "A node is a machine the cluster observes rather than owns. The kubelet on it registers the object, publishes what the machine has, and renews a lease; the scheduler places work by subtracting requested amounts from that published figure, never by measuring what is in use. When the lease stops arriving nothing is repaired \u2014 the node is marked NotReady and its pods are deleted, to be created again somewhere else.",
+    keywords: ["allocatable", "kubelet", "lease", "taint", "eviction"],
+    components: [
+      {
+        name: "Allocatable",
+        description:
+          "Capacity is what the machine has; allocatable is what survives kube-reserved, system-reserved and the eviction threshold being subtracted from it, and allocatable is the only figure the scheduler ever looks at. It is compared against the sum of the requests already placed here \u2014 a claim, not a measurement \u2014 so a node running at a tenth of its CPU can be entirely full, and a node with room to spare still refuses a pod for want of a free host port, a free address, or a slot under its pod cap.",
+      },
+      {
+        name: "Conditions and the lease",
+        description:
+          "Ready, and the pressure conditions beside it, are the node\u2019s own account of itself. The kubelet renews a Lease object every few seconds and the node controller watches that rather than the status body, so a silent lease turns Ready to Unknown, which taints the node, which starts the 300 seconds every pod tolerates by default \u2014 and at the end of it the pods are deleted. They are never moved. Until then the API still shows them Running, because it is faithfully reporting the last thing it was told.",
+      },
+      {
+        name: "Taints and tolerations",
+        description:
+          "The node\u2019s own veto, and the mirror image of a label: a label attracts and the pod chooses it, a taint repels and the node does. NoSchedule turns away what has no matching toleration, NoExecute also removes what is already running. The kubelet taints its own node under memory or disk pressure, and a drain is nothing more than a cordon plus evictions \u2014 which together are where almost every \u201cwhy is nothing scheduling here\u201d ends up.",
+      },
+    ],
+    howItWorks: [
+      {
+        step: 1,
+        description:
+          "The machine announces itself. The kubelet starts, authenticates, and creates or updates the Node object with its own capacity, addresses and labels \u2014 there is no inventory held anywhere else, so the cluster learns of a machine only when the machine says so, and deleting the object from the API simply has the kubelet still running there create it again. Which is also the reason a kubelet is confined to its own node\u2019s objects: it is the one client that writes the record it is the subject of.",
+      },
+      {
+        step: 2,
+        description:
+          "A pod is scheduled against that published figure and nothing else. The nodes are filtered on allocatable minus the requests already placed, on taints the pod does not tolerate, and on whatever its selectors and affinity demand; what survives is scored, and the winner is written into the pod once and never revisited. The scheduler has no idea what any of these machines is actually doing \u2014 #024 is the same instant seen from the pod\u2019s side.",
+      },
+      {
+        step: 3,
+        description:
+          "The kubelet runs what it was given, renews the lease, and reports. When the machine runs short it also evicts on its own authority, in QoS order \u2014 BestEffort first, then Burstable that is over its request, Guaranteed last \u2014 a decision taken locally that the scheduler never made and cannot see coming, which is why a pod can die on a node that looks healthy from the centre. It is not the same event as a container exceeding its own limit and being killed by the kernel at #022\u2019s cgroup ceiling: that one is about a container, this one is about the machine.",
+      },
+      {
+        step: 4,
+        description:
+          "A node leaves either deliberately or by falling silent, and the pods go the same way in both cases: deleted here, created elsewhere, with anything held only on this machine\u2019s local disk going with it. Where the model stops is that a node is a unit of failure, not a unit of identity \u2014 nothing above should name one, and a cluster that has come to care which machine a pod landed on has usually rebuilt the pet #024 was trying to be rid of.",
+      },
+    ],
+  },
 ] as const satisfies readonly ConceptCardData[];
