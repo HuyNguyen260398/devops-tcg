@@ -155,7 +155,14 @@ Non-obvious mechanisms worth knowing before editing `ConceptDeck.tsx`:
   script the way the theme does. Matching lives in `src/lib/filterCards.ts`:
   every whitespace-separated token must appear in the card's title, type,
   keywords or definition, ANDed with the category chip, and the chips are
-  derived from the data so a card in a fifth category needs no code change. The
+  derived from the data so a card in a new category needs no code change beyond
+  the data — with one caveat the chip strip itself imposes: it hides its
+  scrollbar (a visible one under four chips reads as a broken layout), so
+  anything past its edge on a wide screen is invisible rather than merely out of
+  reach, and `AppHeader`'s `lg:max-w-xl` search column is sized for the row the
+  chips make rather than for the field above them. A sixth category has to be
+  measured against that width; `card-explorer.spec.ts` asserts the strip does
+  not overflow. The
   filtered array must stay memoised — `ConceptDeck` re-deals its order whenever
   its `cards` prop changes identity, so a fresh array per render would reshuffle
   the deck on every keystroke, and `filterCards` returns the very array it was

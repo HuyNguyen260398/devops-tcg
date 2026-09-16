@@ -56,12 +56,25 @@ describe("cardTypes", () => {
     ]);
   });
 
-  it("derives the shipped deck's four categories from the data", () => {
+  it("derives the shipped deck's five categories from the data", () => {
     expect([...cardTypes(conceptCards)].sort()).toEqual([
       "COMPUTE",
+      "K8S",
       "NETWORK",
       "PLATFORM",
       "SECURITY",
+    ]);
+  });
+
+  // The chip row is first-appearance order, so a category introduced later in
+  // the deck joins the end of the row rather than displacing the four before it.
+  it("puts the newest category last in the chip row", () => {
+    expect(cardTypes(conceptCards)).toEqual([
+      "NETWORK",
+      "PLATFORM",
+      "SECURITY",
+      "COMPUTE",
+      "K8S",
     ]);
   });
 });
@@ -127,6 +140,22 @@ describe("filterCards", () => {
     expect(filterCards(fixtures, { query: "", type: "PLATFORM" })).toEqual([
       fixtures[2],
     ]);
+  });
+
+  it("narrows the shipped deck to the Kubernetes cards on the K8S chip", () => {
+    expect(
+      filterCards(conceptCards, { query: "", type: "K8S" }).map(({ id }) => id),
+    ).toEqual(["kubernetes-pod", "kubernetes-node"]);
+  });
+
+  // Those two left COMPUTE when they took the new chip, so it keeps the three
+  // cards that are about running code rather than about running Kubernetes.
+  it("leaves COMPUTE the cards that did not move", () => {
+    expect(
+      filterCards(conceptCards, { query: "", type: "COMPUTE" }).map(
+        ({ id }) => id,
+      ),
+    ).toEqual(["lambda-throttle", "aws-lambda", "container"]);
   });
 
   it("keeps the input order rather than ranking matches", () => {

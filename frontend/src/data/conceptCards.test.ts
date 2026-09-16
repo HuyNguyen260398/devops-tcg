@@ -505,6 +505,8 @@ describe("conceptCards", () => {
 
     // The card exists to break "a pod is just a container": it is the unit of
     // scheduling, and what the containers inside it share is the whole point.
+    // It shares its chip with #041, the machine it is scheduled onto.
+    expect(pod?.type).toBe("K8S");
     expect(pod?.definition).toMatch(/sandbox/i);
     expect(pod?.definition).toMatch(/schedul/i);
     expect(pod?.keywords).toContain("sidecar");
@@ -987,7 +989,7 @@ describe("conceptCards", () => {
 
     // The whole card: the control plane owns no machine, it reads what the
     // machine says about itself — and when that stops, nothing is repaired.
-    expect(node?.type).toBe("COMPUTE");
+    expect(node?.type).toBe("K8S");
     expect(node?.definition).toMatch(/observes rather than owns/i);
     expect(node?.definition).toMatch(/nothing is repaired/i);
     expect(node?.keywords).toContain("allocatable");

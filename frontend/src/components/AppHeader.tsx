@@ -33,8 +33,11 @@ export function AppHeader({
         DevOps TCG
       </h1>
 
+      {/* Wide enough for the chip strip to stand on one row: the chips are
+          derived from the data, so the column is sized for the row they make
+          rather than for the field above them. */}
       {children !== undefined && (
-        <div className="flex w-full justify-center lg:max-w-md">{children}</div>
+        <div className="flex w-full justify-center lg:max-w-xl">{children}</div>
       )}
 
       <div className="flex shrink-0 items-center gap-2">

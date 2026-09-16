@@ -1305,7 +1305,7 @@ export const conceptCards = [
   {
     id: "kubernetes-pod",
     cardNumber: "#024",
-    type: "COMPUTE",
+    type: "K8S",
     title: "Kubernetes Pod",
     image: {
       src: "/images/kubernetes-pod-thumbnail.webp",
@@ -2341,7 +2341,7 @@ export const conceptCards = [
   {
     id: "kubernetes-node",
     cardNumber: "#041",
-    type: "COMPUTE",
+    type: "K8S",
     title: "Kubernetes Node",
     image: {
       src: "/images/kubernetes-node-thumbnail.webp",

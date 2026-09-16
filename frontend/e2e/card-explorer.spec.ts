@@ -62,7 +62,47 @@ test("finds a card by its category and by a keyword", async ({
 
   await field.fill("");
   await page.getByRole("button", { name: "COMPUTE" }).click();
-  await expect(tiles(page)).toHaveCount(5);
+  await expect(tiles(page)).toHaveCount(3);
+});
+
+// The strip hides its scrollbar, so anything past the edge on a wide screen is
+// invisible rather than merely out of reach. The column is sized for the chips.
+test("stands every category chip on one row on a wide screen", async ({
+  page,
+}, testInfo) => {
+  wideOnly(testInfo);
+
+  await page.goto("/");
+
+  const strip = page.locator(".search-chips");
+  await expect(strip).toBeVisible();
+
+  const { scrollWidth, clientWidth } = await strip.evaluate((el) => ({
+    scrollWidth: el.scrollWidth,
+    clientWidth: el.clientWidth,
+  }));
+
+  expect(scrollWidth).toBeLessThanOrEqual(clientWidth);
+});
+
+test("collects the Kubernetes cards under their own chip", async ({
+  page,
+}, testInfo) => {
+  wideOnly(testInfo);
+
+  await page.goto("/");
+
+  // The chip row is derived from the data, so the newest category is simply
+  // the last chip rather than anything a component had to be told about.
+  await page.getByRole("button", { name: "K8S" }).click();
+
+  await expect(tiles(page)).toHaveCount(2);
+  await expect(
+    page.getByRole("button", { name: "Open the Kubernetes Pod card" }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Open the Kubernetes Node card" }),
+  ).toBeVisible();
 });
 
 test("deals every tile the same height, whatever the filter", async ({
