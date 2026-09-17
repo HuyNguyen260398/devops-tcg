@@ -1268,6 +1268,15 @@ test("shuffles the deck from a control centred under the cards", async ({
   page,
 }) => {
   await page.goto("/");
+  // The pre-shuffle placeholder carries an inert Shuffle button of its own, and
+  // dealing the deck destroys that node rather than reusing it — the control
+  // moves from a lone child of the section into the fragment it shares with the
+  // arrows. boundingBox waits only for an attached element, so on a machine slow
+  // enough to still be holding the placeholder the locator resolves to the
+  // stand-in, the deal detaches it a round trip later, and the box comes back
+  // null. Gating on the dealt deck is what measures the real control.
+  await expect(card(page)).toBeVisible();
+
   const shuffle = page.getByRole("button", { name: "Shuffle" });
   const track = page.getByTestId("deck-track");
 
