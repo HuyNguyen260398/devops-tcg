@@ -5,28 +5,27 @@ on:
     branches: [main]
   workflow_dispatch:
 
+# Only the AWS stage assumes a role, so id-token is granted there rather than
+# to the whole workflow: the pnpm gate and the report never hold a token they
+# have no call for.
 permissions:
   contents: read
-  id-token: write
 
 concurrency:
   group: deploy-production
   cancel-in-progress: false
 
 jobs:
-  deploy:
-    name: Deploy production
+  # A stage of its own, and the first one, so an unconfigured deployment fails
+  # in seconds naming what is missing, rather than after the full frontend gate
+  # with an opaque "Input required and not supplied: aws-region". Every value it
+  # reads is a repository variable or secret, so it needs neither the checkout
+  # nor the production environment.
+  preflight:
+    name: Verify configuration
     runs-on: ubuntu-latest
-    # A hung network call should fail the deploy, not sit on the runner until
-    # GitHub's six-hour job limit kills it.
-    timeout-minutes: 60
-    environment:
-      name: production
-      url: ${{ steps.tf.outputs.site_url }}
+    timeout-minutes: 5
     steps:
-      # Runs before checkout and the test suite so an unconfigured deployment
-      # fails in seconds, naming what is missing, rather than after the full
-      # build with an opaque "Input required and not supplied: aws-region".
       - name: Verify deployment configuration
         env:
           AWS_REGION: ${{ vars.AWS_REGION }}
@@ -63,6 +62,19 @@ jobs:
 
           echo "All required deployment configuration is present."
 
+  # The pnpm stage. It ends by handing the very export the browser suite passed
+  # against to the AWS stage as an artifact, which is why nothing is built
+  # twice: the bytes that reach S3 are the bytes that were tested, not a
+  # rebuild of them.
+  frontend:
+    name: Frontend gate
+    needs: preflight
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
       - name: Check out repository
         uses: actions/checkout@v7
 
@@ -79,27 +91,21 @@ jobs:
           cache-dependency-path: frontend/pnpm-lock.yaml
 
       - name: Install frontend dependencies
-        working-directory: frontend
         run: pnpm install --frozen-lockfile
 
       - name: Check frontend formatting
-        working-directory: frontend
         run: pnpm format:check
 
       - name: Lint frontend
-        working-directory: frontend
         run: pnpm lint
 
       - name: Type-check frontend
-        working-directory: frontend
         run: pnpm typecheck
 
       - name: Run unit tests with coverage
-        working-directory: frontend
         run: pnpm test:coverage
 
       - name: Build static export
-        working-directory: frontend
         run: pnpm build
 
       # No --with-deps: every shared library Chromium needs is already in the
@@ -109,13 +115,51 @@ jobs:
       # hours when azure.archive.ubuntu.com went dark. The timeout bounds the
       # remaining network call, the browser download from cdn.playwright.dev.
       - name: Install Playwright Chromium
-        working-directory: frontend
         timeout-minutes: 5
         run: pnpm exec playwright install chromium
 
       - name: Run browser acceptance tests
-        working-directory: frontend
         run: pnpm test:e2e
+
+      - name: Upload the tested static export
+        uses: actions/upload-artifact@v7
+        with:
+          name: static-export
+          path: frontend/out
+          if-no-files-found: error
+          retention-days: 7
+
+      # Playwright keeps a trace of the first retry, which is the only record of
+      # a failure that a rerun may not reproduce.
+      - name: Upload Playwright traces
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: playwright-traces
+          path: frontend/test-results
+          if-no-files-found: ignore
+          retention-days: 7
+
+  # The AWS stage. No Node and no pnpm: it applies the infrastructure and
+  # publishes the artifact the pnpm stage tested.
+  deploy:
+    name: Deploy production
+    needs: frontend
+    runs-on: ubuntu-latest
+    # A hung network call should fail the deploy, not sit on the runner until
+    # GitHub's six-hour job limit kills it.
+    timeout-minutes: 60
+    permissions:
+      contents: read
+      id-token: write
+    environment:
+      name: production
+      url: ${{ steps.tf.outputs.site_url }}
+    outputs:
+      site_url: ${{ steps.tf.outputs.site_url }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
 
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v4
@@ -166,9 +210,11 @@ jobs:
             echo "site_url=$site_url"
           } >> "$GITHUB_OUTPUT"
 
-      - name: Build deployable static export
-        working-directory: frontend
-        run: pnpm build
+      - name: Download the tested static export
+        uses: actions/download-artifact@v8
+        with:
+          name: static-export
+          path: frontend/out
 
       - name: Sync static export
         run: aws s3 sync frontend/out "s3://${{ steps.tf.outputs.bucket }}" --delete
@@ -184,3 +230,160 @@ jobs:
           curl --fail --show-error --location
           --retry 12 --retry-all-errors --retry-delay 10
           "${{ steps.tf.outputs.site_url }}"
+
+  # The report stage. It runs whatever the stages above did, so the roll-up
+  # names the stage that broke rather than leaving Slack to guess, and it never
+  # fails the run on its own: a Slack outage must not turn a green deploy red.
+  notify:
+    name: Report and notify
+    needs: [preflight, frontend, deploy]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Summarise the run
+        env:
+          PREFLIGHT: ${{ needs.preflight.result }}
+          FRONTEND: ${{ needs.frontend.result }}
+          DEPLOY: ${{ needs.deploy.result }}
+          SITE_URL: ${{ needs.deploy.outputs.site_url }}
+          # Read through the environment rather than interpolated into the
+          # script: a commit subject is arbitrary text and must never be pasted
+          # into a shell.
+          COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
+        run: |
+          set -euo pipefail
+
+          mark() {
+            case "$1" in
+              success) printf '✅' ;;
+              failure) printf '❌' ;;
+              cancelled) printf '🚫' ;;
+              *) printf '⚪' ;;
+            esac
+          }
+
+          # The first stage that did not succeed is the one worth naming; a
+          # green deploy means every stage before it was green too.
+          broken_stage=""
+          broken_result=""
+          for entry in "configuration=$PREFLIGHT" "pnpm=$FRONTEND" "aws=$DEPLOY"; do
+            if [ "${entry#*=}" != "success" ]; then
+              broken_stage="${entry%%=*}"
+              broken_result="${entry#*=}"
+              break
+            fi
+          done
+
+          if [ -z "$broken_stage" ]; then
+            status_mark="✅"
+            headline="Deploy succeeded"
+          else
+            case "$broken_result" in
+              cancelled)
+                status_mark="🚫"
+                headline="Deploy cancelled in the $broken_stage stage"
+                ;;
+              skipped)
+                status_mark="⚪"
+                headline="Deploy skipped at the $broken_stage stage"
+                ;;
+              *)
+                status_mark="❌"
+                headline="Deploy failed in the $broken_stage stage"
+                ;;
+            esac
+          fi
+
+          short_sha="${GITHUB_SHA:0:7}"
+          subject="$(printf '%s' "${COMMIT_MESSAGE:-}" | head -n 1)"
+
+          if [ -z "$subject" ]; then
+            subject="manual run of $GITHUB_REF_NAME"
+          fi
+
+          run_url="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+          commit_url="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/commit/$GITHUB_SHA"
+
+          {
+            echo "## $status_mark $headline"
+            echo
+            echo "| Stage | Result |"
+            echo "| --- | --- |"
+            echo "| Configuration | $(mark "$PREFLIGHT") $PREFLIGHT |"
+            echo "| pnpm | $(mark "$FRONTEND") $FRONTEND |"
+            echo "| aws | $(mark "$DEPLOY") $DEPLOY |"
+            echo
+            echo "[\`$short_sha\`]($commit_url) $subject — @$GITHUB_ACTOR"
+
+            if [ -n "${SITE_URL:-}" ]; then
+              echo
+              echo "Live at $SITE_URL"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          # Slack's mrkdwn claims these three for its own markup, so a commit
+          # subject carrying one has to arrive escaped.
+          escaped_subject="$(printf '%s' "$subject" \
+            | sed -e 's/&/\&amp;/g' -e 's/</\&lt;/g' -e 's/>/\&gt;/g')"
+
+          field() {
+            printf '*%s*\n%s %s' "$1" "$(mark "$2")" "$2"
+          }
+
+          context="<$run_url|Run #$GITHUB_RUN_NUMBER> · <$commit_url|\`$short_sha\`> · @$GITHUB_ACTOR"
+
+          if [ -n "${SITE_URL:-}" ]; then
+            context="$context · <$SITE_URL|$SITE_URL>"
+          fi
+
+          jq -n \
+            --arg text "$status_mark $headline — $GITHUB_REPOSITORY@$short_sha" \
+            --arg headline "$(printf '*%s %s*\n%s' "$status_mark" "$headline" "$escaped_subject")" \
+            --arg configuration "$(field configuration "$PREFLIGHT")" \
+            --arg pnpm "$(field pnpm "$FRONTEND")" \
+            --arg aws "$(field aws "$DEPLOY")" \
+            --arg context "$context" \
+            '{
+              text: $text,
+              blocks: [
+                { type: "section", text: { type: "mrkdwn", text: $headline } },
+                {
+                  type: "section",
+                  fields: [
+                    { type: "mrkdwn", text: $configuration },
+                    { type: "mrkdwn", text: $pnpm },
+                    { type: "mrkdwn", text: $aws }
+                  ]
+                },
+                { type: "context", elements: [{ type: "mrkdwn", text: $context }] }
+              ]
+            }' > "$RUNNER_TEMP/slack-payload.json"
+
+          echo "Report written for: $headline"
+
+      # continue-on-error, because this step reports the run rather than being
+      # part of it: an unreachable Slack must not be the thing that makes a
+      # successful deploy look failed.
+      - name: Notify Slack
+        continue-on-error: true
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          set -euo pipefail
+
+          # The secrets context is not available to a job-level `if`, so the
+          # absent-webhook case is handled here: until the secret exists the
+          # report above is the whole of this stage.
+          if [ -z "${SLACK_WEBHOOK_URL:-}" ]; then
+            echo "No SLACK_WEBHOOK_URL secret is set; skipping the Slack notification."
+            exit 0
+          fi
+
+          curl --fail --show-error --silent \
+            --retry 3 --retry-all-errors --retry-delay 5 \
+            --header "Content-Type: application/json" \
+            --data @"$RUNNER_TEMP/slack-payload.json" \
+            "$SLACK_WEBHOOK_URL" > /dev/null
+
+          echo "Slack notified."

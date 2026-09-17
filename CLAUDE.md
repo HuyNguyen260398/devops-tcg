@@ -226,12 +226,20 @@ The parent hosted zone is external shared infrastructure — Terraform reads it
 and manages only `tcg.nghuy.link` records. Buckets are versioned with no
 `force_destroy`, so teardown is a documented manual sequence (`infra/README.md`).
 
-Deploy (`.github/workflows/deploy.yml`, push to `main`, protected `production`
-environment) runs the full frontend gate → OIDC apply → validates that
-`site_url` matches the `SITE_DOMAIN` variable → rebuilds → `s3 sync --delete`
-→ CloudFront invalidation → HTTPS smoke check. PRs run
-`.github/workflows/quality.yml`; the Terraform plan job only fires when
-`infra/**` changed. Auth is OIDC role assumption only — never add AWS keys.
+Deploy (`.github/workflows/deploy.yml`, push to `main`) runs as four staged
+jobs: `preflight` fails in seconds when a variable or the role ARN is missing;
+`frontend` is the pnpm gate and ends by uploading `frontend/out` as the
+`static-export` artifact; `deploy` holds the protected `production`
+environment and the only `id-token: write` in the file, and does OIDC apply →
+validates that `site_url` matches the `SITE_DOMAIN` variable → downloads that
+artifact → `s3 sync --delete` → CloudFront invalidation → HTTPS smoke check;
+`notify` runs `if: always()` and writes the stage roll-up to the job summary
+and to Slack. The export is built once and published as tested — the AWS stage
+has no Node in it to rebuild with. `notify` never fails the run: the Slack post
+is `continue-on-error`, and with no `SLACK_WEBHOOK_URL` secret it skips and
+says so. PRs run `.github/workflows/quality.yml`; the Terraform plan job only
+fires when `infra/**` changed. Auth is OIDC role assumption only — never add
+AWS keys.
 
 ## Working conventions
 

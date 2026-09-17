@@ -47,7 +47,7 @@ the final publish sequence after infrastructure is available.
 | `infra/modules/frontend/` | Private/versioned site bucket, OAC, bucket policy, CloudFront caching, HTTPS, headers, and 404 behavior |
 | `infra/envs/prod/` | Regional providers, module composition, `tcg.nghuy.link` A/AAAA aliases, and deploy outputs |
 | `.github/workflows/quality.yml` | Frontend gates, offline infrastructure checks, and conditional OIDC plan |
-| `.github/workflows/deploy.yml` | Protected OIDC apply, static publish, invalidation, and HTTPS smoke check |
+| `.github/workflows/deploy.yml` | Staged pipeline: configuration preflight, pnpm gate, protected OIDC apply with static publish, invalidation and HTTPS smoke check, then the run report and Slack notification |
 
 The `nghuy.link.` hosted zone is external shared infrastructure. Terraform reads
 its ID and manages only records required by `tcg.nghuy.link`.

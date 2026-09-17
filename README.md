@@ -100,6 +100,12 @@ repository secrets:
 - `AWS_PLAN_ROLE_ARN`
 - `AWS_DEPLOY_ROLE_ARN`
 
+Optionally configure one more repository secret:
+
+- `SLACK_WEBHOOK_URL` — a Slack incoming webhook. The Deploy workflow posts its
+  stage roll-up there on every run. Without it the run report still lands in the
+  job summary and the notification step skips.
+
 Configure these repository variables:
 
 - `AWS_REGION`
@@ -123,9 +129,11 @@ stack.
 4. Run the Deploy workflow manually or push to `main` after environment
    approval.
 
-The workflow applies Terraform, validates its outputs, synchronizes
-`frontend/out/` with `--delete`, invalidates CloudFront, and checks the final
-HTTPS URL.
+The workflow runs in four stages: it verifies the configuration, runs the pnpm
+gate and uploads the export the browser suite passed against, then applies
+Terraform, validates its outputs, synchronizes that export with `--delete`,
+invalidates CloudFront and checks the final HTTPS URL, and finally reports the
+stage results to the job summary and to Slack.
 
 ## Verification
 
