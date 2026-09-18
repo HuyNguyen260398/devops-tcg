@@ -123,6 +123,12 @@ const expectedCards = [
     "Kubernetes Node",
     "/images/kubernetes-node-thumbnail.webp",
   ],
+  [
+    "kubernetes-cluster",
+    "#042",
+    "Kubernetes Cluster",
+    "/images/kubernetes-cluster-thumbnail.webp",
+  ],
 ] as const;
 
 describe("conceptCards", () => {
@@ -150,7 +156,7 @@ describe("conceptCards", () => {
     expect(conceptCards[0].howItWorks).toHaveLength(4);
   });
 
-  it("contains all forty-one concepts in the approved order", () => {
+  it("contains all forty-two concepts in the approved order", () => {
     expect(conceptCards).toHaveLength(expectedCards.length);
     expect(
       conceptCards.map(({ id, cardNumber, title, image }) => [
@@ -1018,5 +1024,36 @@ describe("conceptCards", () => {
       /unit of failure, not a unit of identity/i,
     );
     expect(node?.howItWorks[3]?.description).toMatch(/#024/);
+  });
+  it("draws the cluster as one door with a plane on either side of it", () => {
+    const cluster = conceptCards.find(({ id }) => id === "kubernetes-cluster");
+
+    expect(cluster?.cardNumber).toBe("#042");
+    expect(cluster?.type).toBe("K8S");
+    // The architecture is a star, not the mesh every whiteboard draws.
+    expect(cluster?.definition).toMatch(/two planes and one door/i);
+    expect(cluster?.definition).toMatch(/star/i);
+    expect(cluster?.keywords).toContain("control plane");
+    expect(cluster?.keywords).toContain("api server");
+    // etcd is the cluster, and only the API server may touch it.
+    expect(cluster?.components[0]?.description).toMatch(/etcd/);
+    expect(cluster?.components[0]?.description).toMatch(/only process/i);
+    expect(cluster?.components[0]?.description).toMatch(/quorum/i);
+    // The kubelet pulls its work; nothing dials into a node to place a pod.
+    expect(cluster?.components[1]?.description).toMatch(/CRI/);
+    expect(cluster?.components[1]?.description).toMatch(/nodeName/);
+    expect(cluster?.components[1]?.description).toMatch(/no listening port/i);
+    // The wiring is the design: one hub, spokes outbound, loops level-triggered.
+    expect(cluster?.components[2]?.description).toMatch(/level-triggered/i);
+    expect(cluster?.components[2]?.description).toMatch(/chokepoint/i);
+    // A write is a record of intent, acknowledged before anything runs.
+    expect(cluster?.howItWorks[0]?.description).toMatch(/admission/i);
+    expect(cluster?.howItWorks[0]?.description).toMatch(/record of intent/i);
+    // The scheduler writes a binding and never speaks to the node it chose.
+    expect(cluster?.howItWorks[1]?.description).toMatch(/binding/i);
+    expect(cluster?.howItWorks[1]?.description).toMatch(/#041/);
+    expect(cluster?.howItWorks[2]?.description).toMatch(/#024/);
+    // Where the model stops: the control plane stops deciding, not running.
+    expect(cluster?.howItWorks[3]?.description).toMatch(/fails static/i);
   });
 });

@@ -176,6 +176,10 @@ const images = [
     "Isometric scene of one machine plate carrying the figure it publishes about itself \u2014 a capacity bar whose far end is cut away dark and reserved, so only the lit remainder is filled by the claimed blocks stacked into it, while the needle measuring what is actually running sits low and unread beside them \u2014 a mark on the plate turning away an arriving unit that carries no matching token while one that does passes it, and off to the side a second plate whose lease card has gone dark, its units still standing upright and lit yet crossed out, with a fresh one appearing on a third plate instead",
     "/images/kubernetes-node-thumbnail.webp",
   ],
+  [
+    "Isometric scene of one door standing in the middle of the control plane with the store behind it reached by a single line and by nothing else \u2014 an intent arriving from outside on one arrow into that same door, and two deciding parts beside it joined to it alone, their own direct paths to the store and to each other drawn dashed and struck through \u2014 while below, three machine plates each send one line up to that door and none sideways to a neighbour, the links between them crossed out, and off to the side the same door stands dark with its machines still lit and running beneath it and the new unit arriving at it crossed out",
+    "/images/kubernetes-cluster-thumbnail.webp",
+  ],
 ] as const;
 
 const card = (page: import("@playwright/test").Page) =>

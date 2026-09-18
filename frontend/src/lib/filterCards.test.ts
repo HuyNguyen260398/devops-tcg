@@ -145,7 +145,7 @@ describe("filterCards", () => {
   it("narrows the shipped deck to the Kubernetes cards on the K8S chip", () => {
     expect(
       filterCards(conceptCards, { query: "", type: "K8S" }).map(({ id }) => id),
-    ).toEqual(["kubernetes-pod", "kubernetes-node"]);
+    ).toEqual(["kubernetes-pod", "kubernetes-node", "kubernetes-cluster"]);
   });
 
   // Those two left COMPUTE when they took the new chip, so it keeps the three

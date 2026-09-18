@@ -32,7 +32,8 @@ OpenAI image generation on 2026-08-15 and are stored locally:
 `proxy-thumbnail.webp` on 2026-09-05, `aws-vpc-thumbnail.webp` on
 2026-09-06, `aws-subnet-thumbnail.webp` on 2026-09-07,
 `tcp-thumbnail.webp` with `udp-thumbnail.webp` on 2026-09-15,
-and `kubernetes-node-thumbnail.webp` on 2026-09-16, each as
+`kubernetes-node-thumbnail.webp` on 2026-09-16, and
+`kubernetes-cluster-thumbnail.webp` on 2026-09-18, each as
 an isometric SVG scene composed in-repo and rendered to WebP with headless
 Chromium. They contain no
 third-party artwork.
@@ -42,7 +43,7 @@ thumbnail in the deck that was neither drawn for it nor 16:9.
 
 ## Sketch-theme drawings
 
-The forty-one `*-sketch.svg` files are original hand-authored SVG line
+The forty-two `*-sketch.svg` files are original hand-authored SVG line
 drawings made for DevOps TCG on 2026-08-19, on 2026-08-20 for the two
 certificate authority cards, on 2026-08-21 for JWT, on 2026-08-23 for AWS
 Lambda, on 2026-08-24 for the two IAM cards, on 2026-08-25 for OIDC, on
@@ -51,7 +52,8 @@ Lambda, on 2026-08-24 for the two IAM cards, on 2026-08-25 for OIDC, on
 Terraform State, on 2026-09-01 for Kubernetes Pod, on 2026-09-02 for Prometheus
 and Prometheus Federation, on 2026-09-03 for AWS ALB and AWS NLB, on
 2026-09-06 for AWS VPC, on 2026-09-07 for AWS Subnet, on 2026-09-15 for
-TCP and UDP, and on 2026-09-16 for Kubernetes Node. Their line work is
+TCP and UDP, on 2026-09-16 for Kubernetes Node, and on 2026-09-18 for
+Kubernetes Cluster. Their line work is
 plain `<path>` geometry — no tracing of any third-party image, no generator,
 and no external asset — and they are the artwork the sketch theme shows in
 place of the photographs above.

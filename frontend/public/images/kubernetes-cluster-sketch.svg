@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 278 220">
+  <g transform="translate(139 110) scale(0.88) translate(-139 -110)">
+  <!-- what the store holds, which is the whole of the cluster's state -->
+  <g fill="#dbe7ff">
+    <path d="M172 62 L210 62 L210 68 L172 68 Z" />
+    <path d="M172 74 L210 74 L210 80 L172 80 Z" />
+  </g>
+
+  <!-- the door's own rows, and a unit standing on each machine -->
+  <g fill="#dbe7ff">
+    <path d="M134 52 L146 52 L146 58 L134 58 Z" />
+    <path d="M134 86 L146 86 L146 92 L134 92 Z" />
+    <path d="M68 166 L84 166 L84 174 L68 174 Z" />
+    <path d="M122 166 L138 166 L138 174 L122 174 Z" />
+    <path d="M176 166 L192 166 L192 174 L176 174 Z" />
+  </g>
+
+  <!-- the parts that decide, and the agent on each machine -->
+  <g fill="#fff2c4">
+    <path d="M70 46 L82 46 L82 58 L70 58 Z" />
+    <path d="M70 98 L82 98 L82 110 L70 110 Z" />
+    <path d="M66 150 L76 150 L76 160 L66 160 Z" />
+    <path d="M120 150 L130 150 L130 160 L120 160 Z" />
+    <path d="M174 150 L184 150 L184 160 L174 160 Z" />
+  </g>
+
+  <g fill="none" stroke="#1d1d1b" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round">
+    <!-- what each part has to say for itself -->
+    <path d="M88 48 L112 48 M88 54 L104 54 M68 64 L112 64" />
+    <path d="M88 100 L112 100 M88 106 L104 106 M68 116 L112 116" />
+    <path d="M134 64 L146 64 M134 70 L142 70 M134 98 L146 98 M134 106 L142 106" />
+    <path d="M172 86 L210 86 M172 92 L202 92" />
+    <path d="M90 166 L106 166 M90 172 L100 172" />
+    <path d="M144 166 L160 166 M144 172 L154 172" />
+    <path d="M198 166 L214 166 M198 172 L208 172" />
+    <path d="M66 184 L104 184 M120 184 L158 184 M174 184 L212 184" />
+  </g>
+
+  <!-- the shortcuts the architecture does not have -->
+  <g fill="none" stroke="#1d1d1b" stroke-width="1.2" stroke-dasharray="4 3" stroke-linecap="round">
+    <path d="M112 40 L112 38 L191 38 L191 56" />
+    <path d="M89 70 L89 94" />
+    <path d="M108 168 L116 168" />
+    <path d="M162 168 L170 168" />
+  </g>
+  <g fill="none" stroke="#1d1d1b" stroke-width="2.4" stroke-linecap="round">
+    <path d="M159 32 L171 44 M171 32 L159 44" />
+    <path d="M83 76 L95 88 M95 76 L83 88" />
+    <path d="M108 164 L116 172 M116 164 L108 172" />
+    <path d="M162 164 L170 172 M170 164 L162 172" />
+  </g>
+
+  <g fill="none" stroke="#1d1d1b" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+    <!-- the control plane, and the one door standing in it -->
+    <path d="M56 32 L222 32 L222 130 L56 130 Z" />
+    <path d="M130 44 L150 44 L150 118 L130 118 Z" />
+
+    <!-- the two clients of that door, joined to it and to nothing else -->
+    <path d="M64 40 L118 40 L118 70 L64 70 Z" />
+    <path d="M64 92 L118 92 L118 122 L64 122 Z" />
+    <path d="M118 55 L130 55 M118 107 L130 107" />
+
+    <!-- the store, on the only line that reaches it -->
+    <path d="M168 56 L214 56 L214 100 L168 100 Z" />
+    <path d="M150 78 L168 78" />
+
+    <!-- every machine joined upward to the same door -->
+    <path d="M139 118 L139 134" />
+    <path d="M85 146 L85 138 L139 134 L193 138 L193 146" />
+    <path d="M139 134 L139 146" />
+    <path d="M62 146 L108 146 L108 192 L62 192 Z" />
+    <path d="M116 146 L162 146 L162 192 L116 192 Z" />
+    <path d="M170 146 L216 146 L216 192 L170 192 Z" />
+    <path d="M66 164 L86 164 L86 176 L66 176 Z" />
+    <path d="M120 164 L140 164 L140 176 L120 176 Z" />
+    <path d="M174 164 L194 164 L194 176 L174 176 Z" />
+  </g>
+  </g>
+</svg>
