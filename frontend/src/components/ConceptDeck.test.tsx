@@ -814,6 +814,10 @@ describe("ConceptDeck", () => {
       expect(slotOf("private-ca")).toBe("0");
     });
 
+    // Two full walks of the deck, one click per card, so what this costs grows
+    // with the data: it was already inside half a second of the 5s default on
+    // CI at forty-one cards. The budget is stated here rather than left to the
+    // default so that adding a card is a data change and never a timeout.
     it("deals an order the deck did not already have", async () => {
       const user = userEvent.setup();
       render(<ConceptDeck cards={conceptCards} random={() => 0.5} />);
@@ -827,7 +831,7 @@ describe("ConceptDeck", () => {
 
       expect(after).not.toEqual(before);
       expect([...after].sort()).toEqual([...before].sort());
-    });
+    }, 20_000);
 
     it("turns a flipped card back to its front", async () => {
       const user = userEvent.setup();
