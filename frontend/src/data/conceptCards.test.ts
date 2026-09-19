@@ -129,6 +129,12 @@ const expectedCards = [
     "Kubernetes Cluster",
     "/images/kubernetes-cluster-thumbnail.webp",
   ],
+  [
+    "kubernetes-deployment",
+    "#043",
+    "Kubernetes Deployment",
+    "/images/kubernetes-deployment-thumbnail.webp",
+  ],
 ] as const;
 
 describe("conceptCards", () => {
@@ -156,7 +162,7 @@ describe("conceptCards", () => {
     expect(conceptCards[0].howItWorks).toHaveLength(4);
   });
 
-  it("contains all forty-two concepts in the approved order", () => {
+  it("contains all forty-three concepts in the approved order", () => {
     expect(conceptCards).toHaveLength(expectedCards.length);
     expect(
       conceptCards.map(({ id, cardNumber, title, image }) => [
@@ -1055,5 +1061,41 @@ describe("conceptCards", () => {
     expect(cluster?.howItWorks[2]?.description).toMatch(/#024/);
     // Where the model stops: the control plane stops deciding, not running.
     expect(cluster?.howItWorks[3]?.description).toMatch(/fails static/i);
+  });
+
+  it("puts a ReplicaSet between the Deployment and every pod", () => {
+    const deployment = conceptCards.find(
+      ({ id }) => id === "kubernetes-deployment",
+    );
+
+    expect(deployment?.cardNumber).toBe("#043");
+    expect(deployment?.type).toBe("K8S");
+    // The thesis: it owns ReplicaSets, and a rollout is arithmetic on two of them.
+    expect(deployment?.definition).toMatch(/never touches a pod/i);
+    expect(deployment?.definition).toMatch(/replicasets?/i);
+    expect(deployment?.keywords).toContain("replicaset");
+    expect(deployment?.keywords).toContain("rollout");
+    // One label keeps two revisions from adopting each other's pods.
+    expect(deployment?.components[0]?.description).toMatch(/pod-template-hash/);
+    expect(deployment?.components[0]?.description).toMatch(/selector/i);
+    // The rollout is bounded by the two knobs and paced by Ready, not by time.
+    expect(deployment?.components[1]?.description).toMatch(/maxSurge/);
+    expect(deployment?.components[1]?.description).toMatch(/maxUnavailable/);
+    expect(deployment?.components[1]?.description).toMatch(/#024/);
+    // The history is the retained ReplicaSets, so undo reaches only as far as they do.
+    expect(deployment?.components[2]?.description).toMatch(
+      /revisionHistoryLimit/,
+    );
+    // A changed template makes a new ReplicaSet; a changed replica count makes none.
+    expect(deployment?.howItWorks[0]?.description).toMatch(/zero/i);
+    expect(deployment?.howItWorks[1]?.description).toMatch(/ready/i);
+    // The classic stall: nothing rolls back on its own.
+    expect(deployment?.howItWorks[2]?.description).toMatch(
+      /progressDeadlineSeconds/,
+    );
+    // Where the model stops: undo goes forwards, and identity is not on offer.
+    expect(deployment?.howItWorks[3]?.description).toMatch(/forwards/i);
+    expect(deployment?.howItWorks[3]?.description).toMatch(/StatefulSet/);
+    expect(deployment?.howItWorks[3]?.description).toMatch(/#042/);
   });
 });

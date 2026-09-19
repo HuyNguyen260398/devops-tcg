@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 278 220">
+  <g transform="translate(139 110) scale(0.88) translate(-139 -110)">
+  <!-- what each object has written on it -->
+  <g fill="#dbe7ff">
+    <path d="M51 116 L65 116 L65 121 L51 121 Z" />
+    <path d="M153 116 L167 116 L167 121 L153 121 Z" />
+    <path d="M181 116 L195 116 L195 121 L181 121 Z" />
+    <path d="M48 152 L128 152 L128 157 L48 157 Z" />
+    <path d="M150 152 L230 152 L230 157 L150 157 Z" />
+    <path d="M94 190 L99 190 L99 195 L94 195 Z" />
+    <path d="M158 190 L163 190 L163 195 L158 195 Z" />
+    <path d="M166 190 L171 190 L171 195 L166 195 Z" />
+    <path d="M174 190 L179 190 L179 195 L174 195 Z" />
+  </g>
+
+  <!-- the template mark each thing carries: one bar for the old, two for the new -->
+  <g fill="#fff2c4">
+    <path d="M106 27 L118 27 L118 39 L106 39 Z" />
+    <path d="M48 80 L60 80 L60 92 L48 92 Z" />
+    <path d="M150 80 L162 80 L162 92 L150 92 Z" />
+    <path d="M51 105 L63 105 L63 110 L51 110 Z" />
+    <path d="M153 104 L165 104 L165 108 L153 108 Z" />
+    <path d="M153 110 L165 110 L165 114 L153 114 Z" />
+    <path d="M181 104 L193 104 L193 108 L181 108 Z" />
+    <path d="M181 110 L193 110 L193 114 L181 114 Z" />
+    <path d="M158 181 L170 181 L170 186 L158 186 Z" />
+  </g>
+
+  <g fill="none" stroke="#1d1d1b" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round">
+    <!-- the bars inside each template mark -->
+    <path d="M108 31 L116 31 M108 35 L116 35" />
+    <path d="M50 86 L58 86" />
+    <path d="M152 84 L160 84 M152 88 L160 88" />
+
+    <!-- what the Deployment and the two ReplicaSets say for themselves -->
+    <path d="M124 30 L170 30 M124 36 L160 36 M106 45 L170 45" />
+    <path d="M66 83 L90 83 M66 89 L82 89" />
+    <path d="M168 83 L192 83 M168 89 L184 89" />
+
+    <!-- and what stands written on the pods still running -->
+    <path d="M51 128 L67 128 M51 134 L63 134" />
+    <path d="M153 128 L169 128 M153 134 L165 134" />
+    <path d="M181 128 L197 128 M181 134 L193 134" />
+
+    <!-- the revision strip along the bottom -->
+    <path d="M94 183 L118 183" />
+  </g>
+
+  <!-- the line down to a pod that the Deployment does not have -->
+  <g fill="none" stroke="#1d1d1b" stroke-width="1.2" stroke-dasharray="4 3" stroke-linecap="round">
+    <path d="M116 52 L116 98" />
+  </g>
+  <g fill="none" stroke="#1d1d1b" stroke-width="2.4" stroke-linecap="round">
+    <path d="M112 78 L120 86 M120 78 L112 86" />
+    <!-- and the two pods the old ReplicaSet has already taken away -->
+    <path d="M80 114 L96 132 M96 114 L80 132" />
+    <path d="M108 114 L124 132 M124 114 L108 132" />
+  </g>
+
+  <g fill="none" stroke="#1d1d1b" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+    <!-- the Deployment, and its only two links -->
+    <path d="M100 22 L178 22 L178 52 L100 52 Z" />
+    <path d="M139 52 L139 62" />
+    <path d="M88 74 L88 68 L139 62 L190 68 L190 74" />
+
+    <!-- the old ReplicaSet, emptying: one pod left and two struck out -->
+    <path d="M42 74 L134 74 L134 170 L42 170 Z" />
+    <path d="M48 100 L72 100 L72 146 L48 146 Z" />
+    <path d="M76 100 L100 100 L100 146 L76 146 Z" />
+    <path d="M104 100 L128 100 L128 146 L104 146 Z" />
+
+    <!-- the new ReplicaSet, filling: two pods up and one slot still to come -->
+    <path d="M144 74 L236 74 L236 170 L144 170 Z" />
+    <path d="M150 100 L174 100 L174 146 L150 146 Z" />
+    <path d="M178 100 L202 100 L202 146 L178 146 Z" />
+
+    <!-- the undo, which goes forwards onto a new revision -->
+    <path d="M154 178 L188 178 L188 200 L154 200 Z" />
+    <path d="M130 189 L148 189 M143 185 L148 189 L143 193" />
+  </g>
+
+  <!-- the slot the next pod goes into, and the revision kept at zero it came from -->
+  <g fill="none" stroke="#1d1d1b" stroke-width="1.2" stroke-dasharray="4 3" stroke-linejoin="round">
+    <path d="M206 100 L230 100 L230 146 L206 146 Z" />
+    <path d="M90 178 L124 178 L124 200 L90 200 Z" />
+  </g>
+  </g>
+</svg>

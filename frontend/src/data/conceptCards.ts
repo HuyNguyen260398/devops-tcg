@@ -2450,4 +2450,66 @@ export const conceptCards = [
       },
     ],
   },
+  {
+    id: "kubernetes-deployment",
+    cardNumber: "#043",
+    type: "K8S",
+    title: "Kubernetes Deployment",
+    image: {
+      src: "/images/kubernetes-deployment-thumbnail.webp",
+      alt: "Isometric scene of one plate above two others side by side, the left of the pair emptying as its row of units thins and the right filling as its row grows, every unit carrying the same template mark as the plate it hangs from, while the direct line from the top plate down to the units is drawn dashed and struck through \u2014 an intent arriving from outside on one arrow into that top plate, and off to the side a retired plate standing dark, its old template returning not as a reversal but as a fresh, higher-numbered plate at the front of the row",
+      sketch: {
+        src: "/images/kubernetes-deployment-sketch.svg",
+        alt: "Line drawing of a Deployment box above two ReplicaSet boxes, the left one shrinking and the right one growing, each unit beneath them labelled with its own template hash, the Deployment\u2019s direct line to the units struck through, and an old revision returning as a new numbered one",
+      },
+    },
+    definition:
+      "A Deployment never touches a pod. It owns ReplicaSets \u2014 one for each version of the pod template \u2014 and the ReplicaSets own the pods, so a rolling update edits nothing that is running: it is two ReplicaSets being resized against each other, the new one up and the old one down, until the old one holds nothing. A rollback reverses none of that. It re-applies an old revision\u2019s template as a new revision, and what comes back are new pods.",
+    keywords: [
+      "replicaset",
+      "rollout",
+      "rolling update",
+      "revision",
+      "rollback",
+    ],
+    components: [
+      {
+        name: "The two objects below it",
+        description:
+          "A Deployment creates no pods of its own. It hashes the pod template into a pod-template-hash label, stamps that label into a ReplicaSet\u2019s selector and onto every pod that ReplicaSet makes, and from then on one revision\u2019s pods are invisible to every other \u2014 that single label is the whole reason two overlapping revisions never adopt each other\u2019s work. It is also why a Deployment\u2019s own selector cannot be changed once set: it is already baked into ReplicaSets that exist, so altering it is a delete and a re-create rather than an update.",
+      },
+      {
+        name: "The rollout",
+        description:
+          "maxSurge and maxUnavailable bound how far the two counts may drift from the desired replicas while they move \u2014 at ten replicas and the 25% default on each, between eight and thirteen pods exist at every moment of the update. What advances it is not a clock but readiness: the old ReplicaSet is scaled down only once the new pods report Ready, so the readiness probe (#024) is the thing actually pacing the rollout. Setting maxUnavailable to zero buys guaranteed capacity at the price of needing somewhere to put the surge.",
+      },
+      {
+        name: "Revisions",
+        description:
+          "There is no history object. The revisions are the old ReplicaSets themselves, kept alive at zero replicas, and revisionHistoryLimit is how many of them survive \u2014 so an undo reaches exactly as far back as those ReplicaSets do and not one step further. An unchanged template records nothing at all: editing the replica count, or re-applying the same manifest, moves no revision, which is why the history is a list of template changes rather than a list of times somebody ran apply.",
+      },
+    ],
+    howItWorks: [
+      {
+        step: 1,
+        description:
+          "You change the pod template and the object is admitted through the one door (#042). The controller hashes the new template, finds no ReplicaSet carrying that hash, and creates one \u2014 at zero replicas. Nothing has been updated and no running pod has been touched. What exists now is a second ReplicaSet beside the first, and the whole rollout from here is those two being given different numbers.",
+      },
+      {
+        step: 2,
+        description:
+          "The controller walks the counts. It scales the new ReplicaSet up as far as maxSurge allows, waits for those pods to report Ready, scales the old one down as far as maxUnavailable allows, and repeats until the old one is empty. Each ReplicaSet does its own half alone \u2014 it creates or deletes pods to match its number and knows nothing of the other \u2014 so the Deployment is not conducting a migration, it is writing two numbers over and over.",
+      },
+      {
+        step: 3,
+        description:
+          "A pod that never goes Ready stops the walk where it stands. The old ReplicaSet keeps serving, the new one sits holding its failing pods, and the rollout is not finished \u2014 nor failed, because nothing in the loop has any notion of giving up. progressDeadlineSeconds supplies one: after that long without progress the Deployment is marked Failed. Know what that buys, though. It sets a condition and nothing more; kubectl rollout status turns it into an exit code, and no rollback happens on its own.",
+      },
+      {
+        step: 4,
+        description:
+          "The undo goes forwards. It takes an old ReplicaSet\u2019s template, makes it the newest revision, and runs the same walk again \u2014 so the version you returned to arrives on new pods with new names and new addresses (#024), and the revision numbers only ever climb. Where the model stops is what a Deployment declines to offer: its pods are interchangeable, so there is no stable name, no ordering and no storage that follows one \u2014 that is a StatefulSet. Nor does it watch load. An autoscaler that does writes the replica count in through the same door as everything else (#042), and the Deployment only ever sees the number change.",
+      },
+    ],
+  },
 ] as const satisfies readonly ConceptCardData[];
