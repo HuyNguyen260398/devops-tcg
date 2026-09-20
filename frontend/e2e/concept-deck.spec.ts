@@ -184,6 +184,10 @@ const images = [
     "Isometric scene of one plate above two others side by side, the left of the pair emptying as its row of units thins and the right filling as its row grows, every unit carrying the same template mark as the plate it hangs from, while the direct line from the top plate down to the units is drawn dashed and struck through \u2014 an intent arriving from outside on one arrow into that top plate, and off to the side a retired plate standing dark, its old template returning not as a reversal but as a fresh, higher-numbered plate at the front of the row",
     "/images/kubernetes-deployment-thumbnail.webp",
   ],
+  [
+    "One request arriving on a single arrow into a balancing plate, which fans out to four instances marked identically to one another and holding nothing but an empty dashed shelf \u2014 three of them lit, each sending its own arrow down into one wide store below, and the fourth dark and struck through with its feed from the balancer drawn dashed, the row serving on without it \u2014 while off to the side one instance stands with a small store lodged inside it, that store struck through, a single caller tied to that one instance by a dashed cord",
+    "/images/aws-stateless-services-thumbnail.webp",
+  ],
 ] as const;
 
 const card = (page: import("@playwright/test").Page) =>

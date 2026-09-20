@@ -2512,4 +2512,66 @@ export const conceptCards = [
       },
     ],
   },
+  {
+    id: "aws-stateless-services",
+    cardNumber: "#044",
+    type: "PLATFORM",
+    title: "AWS Stateless Services",
+    image: {
+      src: "/images/aws-stateless-services-thumbnail.webp",
+      alt: "One request arriving on a single arrow into a balancing plate, which fans out to four instances marked identically to one another and holding nothing but an empty dashed shelf — three of them lit, each sending its own arrow down into one wide store below, and the fourth dark and struck through with its feed from the balancer drawn dashed, the row serving on without it — while off to the side one instance stands with a small store lodged inside it, that store struck through, a single caller tied to that one instance by a dashed cord",
+      sketch: {
+        src: "/images/aws-stateless-services-sketch.svg",
+        alt: "Line drawing of a balancer fanning out to four identical instances standing over one wide store, each instance holding the same empty dashed shelf, one of the four drawn dashed as a place that may hold an instance or not, another with a filled store inside it struck through, and an arrow from every live instance down into the store",
+      },
+    },
+    definition:
+      "A stateless service keeps nothing between requests that a later request will need, so any instance can serve any caller and every instance is disposable. The state did not disappear: it arrived with the request, or it sits in a service whose whole job is holding it (#045). Statelessness is a contract the code keeps rather than a property the platform enforces \u2014 AWS reuses a warm Lambda sandbox, so a global written by one invocation is still there for the next.",
+    keywords: [
+      "disposable",
+      "horizontal scaling",
+      "session state",
+      "warm start",
+      "idempotency",
+    ],
+    components: [
+      {
+        name: "Where the state went",
+        description:
+          "Every fact a request needs has to arrive with it or be fetched: the caller\u2019s identity travels in a token the service verifies by itself rather than looks up (#013), the session row comes from DynamoDB or ElastiCache, the upload goes to S3. The service is stateless; the system is not. What you bought is not less state but state in one place, and every other claim on this card is really a claim about having moved it there.",
+      },
+      {
+        name: "The disposable instance",
+        description:
+          "An instance\u2019s identity is a count, not a name \u2014 an Auto Scaling group\u2019s desired capacity, a Lambda\u2019s concurrency, an ECS task count. Because no instance is distinguishable from another, scale-in, a failed ALB health check, a rolling deploy and a two-minute spot interruption notice are one event with four causes, and the response to all four is identical: stop sending it traffic and stop it. The only thing at risk is the request already in flight, which is what the target group\u2019s deregistration delay is for.",
+      },
+      {
+        name: "The leak",
+        description:
+          "Nothing enforces the contract, so it leaks quietly. A Lambda execution environment is reused between invocations, so a module-level global or a file written to /tmp survives into the next invocation on that sandbox and is invisible to every other \u2014 fine for a cached database client, a bug for a counter. ALB target-group stickiness pins a caller to one target with a cookie and re-creates by hand exactly what the tier was built to avoid. An in-process cache does the same without announcing it. Each works perfectly until the next request lands elsewhere, so the failure arrives as a fraction of traffic rather than as an outage.",
+      },
+    ],
+    howItWorks: [
+      {
+        step: 1,
+        description:
+          "A request reaches the load balancer (#027), which picks a healthy target by its own algorithm. Nothing in it knows or asks which target served this caller before, and nothing needs to. The choice is free precisely because the answer does not depend on it \u2014 that freedom is the whole return on the tier, and everything below is what it costs.",
+      },
+      {
+        step: 2,
+        description:
+          "The target answers from what arrived plus what it can fetch. The token is verified with a public key instead of being looked up in a session table (#013); the row is read from DynamoDB; the object is read from S3. Local disk carries the deployment artifact and the logs on their way out, and is never the only copy of anything.",
+      },
+      {
+        step: 3,
+        description:
+          "Because nothing is on it, the instance can be taken away mid-afternoon without ceremony. Deregister it, wait out the in-flight requests, terminate. There is no drain because there is no data \u2014 and that is also the honest test of whether a service is stateless: not whether it was designed to be, but whether killing one instance at random during business hours is uninteresting.",
+      },
+      {
+        step: 4,
+        description:
+          "What that buys is that capacity becomes a number and a retry becomes safe: a second attempt is indistinguishable from the first, so a timeout can simply be tried again \u2014 provided the work itself is idempotent, which is a property of the operation and not of the tier, and is the part a stateless design does not give you for free. The difficulty did not vanish either. It was handed, whole, to the service that took the state (#045).",
+      },
+    ],
+  },
 ] as const satisfies readonly ConceptCardData[];

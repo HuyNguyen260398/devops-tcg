@@ -135,6 +135,12 @@ const expectedCards = [
     "Kubernetes Deployment",
     "/images/kubernetes-deployment-thumbnail.webp",
   ],
+  [
+    "aws-stateless-services",
+    "#044",
+    "AWS Stateless Services",
+    "/images/aws-stateless-services-thumbnail.webp",
+  ],
 ] as const;
 
 describe("conceptCards", () => {
@@ -162,7 +168,7 @@ describe("conceptCards", () => {
     expect(conceptCards[0].howItWorks).toHaveLength(4);
   });
 
-  it("contains all forty-three concepts in the approved order", () => {
+  it("contains all forty-four concepts in the approved order", () => {
     expect(conceptCards).toHaveLength(expectedCards.length);
     expect(
       conceptCards.map(({ id, cardNumber, title, image }) => [
@@ -1097,5 +1103,39 @@ describe("conceptCards", () => {
     expect(deployment?.howItWorks[3]?.description).toMatch(/forwards/i);
     expect(deployment?.howItWorks[3]?.description).toMatch(/StatefulSet/);
     expect(deployment?.howItWorks[3]?.description).toMatch(/#042/);
+  });
+
+  it("makes the stateless instance disposable and names what leaks", () => {
+    const stateless = conceptCards.find(
+      ({ id }) => id === "aws-stateless-services",
+    );
+
+    expect(stateless?.cardNumber).toBe("#044");
+    expect(stateless?.type).toBe("PLATFORM");
+    // The thesis: the state did not vanish, it was moved somewhere that holds it.
+    expect(stateless?.definition).toMatch(/disposable/i);
+    expect(stateless?.definition).toMatch(/#045/);
+    expect(stateless?.keywords).toContain("disposable");
+    expect(stateless?.keywords).toContain("idempotency");
+    // Where the state went: onto the request, or into a service built to keep it.
+    expect(stateless?.components[0]?.description).toMatch(/#013/);
+    expect(stateless?.components[0]?.description).toMatch(/system is not/i);
+    // Identity is a count, so every way of losing an instance is one event.
+    expect(stateless?.components[1]?.description).toMatch(/count, not a name/i);
+    expect(stateless?.components[1]?.description).toMatch(
+      /deregistration delay/i,
+    );
+    // The payload: nothing enforces statelessness, so the contract can leak.
+    expect(stateless?.components[2]?.description).toMatch(/reused/i);
+    expect(stateless?.components[2]?.description).toMatch(/\/tmp/);
+    expect(stateless?.components[2]?.description).toMatch(/stickiness/i);
+    // The balancer chooses freely because the answer does not depend on it.
+    expect(stateless?.howItWorks[0]?.description).toMatch(/#027/);
+    expect(stateless?.howItWorks[1]?.description).toMatch(/#013/);
+    // Termination is not a special case; it is the ordinary case.
+    expect(stateless?.howItWorks[2]?.description).toMatch(/no data/i);
+    // Where the model stops: idempotency is the operation's, and the hard part moved.
+    expect(stateless?.howItWorks[3]?.description).toMatch(/idempotent/i);
+    expect(stateless?.howItWorks[3]?.description).toMatch(/#045/);
   });
 });

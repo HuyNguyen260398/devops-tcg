@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 278 220">
+  <g transform="translate(139 110) scale(0.84) translate(-139 -110)">
+  <!-- the one thing in the scene that keeps something: its mark, and the leak -->
+  <g fill="#fff2c4">
+    <path d="M56 158 L70 158 L70 170 L56 170 Z" />
+    <path d="M153 95 L175 95 L175 123 L153 123 Z" />
+  </g>
+
+  <g fill="none" stroke="#1d1d1b" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round">
+    <!-- the bars inside the store's mark -->
+    <path d="M58 162 L68 162 M58 166 L68 166" />
+
+    <!-- what the balancer says for itself -->
+    <path d="M110 30 L152 30 M110 37 L140 37 M110 44 L164 44" />
+
+    <!-- and what stands written on each instance: the same thing, four times -->
+    <path d="M51 78 L67 78 M51 85 L61 85" />
+    <path d="M102 78 L118 78 M102 85 L112 85" />
+    <path d="M153 78 L169 78 M153 85 L163 85" />
+    <path d="M204 78 L220 78 M204 85 L214 85" />
+
+    <!-- the store's own rows -->
+    <path d="M76 164 L146 164 M76 171 L122 171 M56 182 L222 182 M56 189 L182 189" />
+  </g>
+
+  <!-- nothing is kept on an instance: each carries the same empty shelf -->
+  <g fill="none" stroke="#1d1d1b" stroke-width="1.2" stroke-dasharray="4 3" stroke-linejoin="round">
+    <path d="M51 95 L73 95 L73 123 L51 123 Z" />
+    <path d="M102 95 L124 95 L124 123 L102 123 Z" />
+    <path d="M204 95 L226 95 L226 123 L204 123 Z" />
+  </g>
+
+  <!-- the instance that may be there or not, and the feed that goes with it -->
+  <g fill="none" stroke="#1d1d1b" stroke-width="1.2" stroke-dasharray="4 3" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M198 70 L232 70 L232 132 L198 132 L198 70 Z" />
+    <path d="M164 58 L215 58 L215 70" />
+  </g>
+
+  <!-- the state an instance kept for itself, which is the thing that is not allowed -->
+  <g fill="none" stroke="#1d1d1b" stroke-width="2.4" stroke-linecap="round">
+    <path d="M155 97 L173 121 M173 97 L155 121" />
+  </g>
+
+  <g fill="none" stroke="#1d1d1b" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+    <!-- the balancer, and the fan of live feeds under it -->
+    <path d="M104 22 L174 22 L174 48 L104 48 Z" />
+    <path d="M139 48 L139 58" />
+    <path d="M62 58 L164 58" />
+    <path d="M62 58 L62 70 M113 58 L113 70 M164 58 L164 70" />
+
+    <!-- three instances answering, none of them distinguishable from another -->
+    <path d="M45 70 L79 70 L79 132 L45 132 Z" />
+    <path d="M96 70 L130 70 L130 132 L96 132 Z" />
+    <path d="M147 70 L181 70 L181 132 L147 132 Z" />
+
+    <!-- and every one of them reaching the same way to the one thing that holds it -->
+    <path d="M62 132 L62 152 M58 148 L62 152 L66 148" />
+    <path d="M113 132 L113 152 M109 148 L113 152 L117 148" />
+    <path d="M164 132 L164 152 M160 148 L164 152 L168 148" />
+
+    <path d="M48 152 L230 152 L230 196 L48 196 Z" />
+  </g>
+  </g>
+</svg>
