@@ -2574,4 +2574,66 @@ export const conceptCards = [
       },
     ],
   },
+  {
+    id: "aws-stateful-services",
+    cardNumber: "#045",
+    type: "PLATFORM",
+    title: "AWS Stateful Services",
+    image: {
+      src: "/images/aws-stateful-services-thumbnail.webp",
+      alt: "Two interchangeable callers above one endpoint plate, the link from the second of them crossed out, and below it two dashed zones side by side — the left holding a store struck through, its badge travelling over the top on a dashed arrow to the lit store in the right zone, which now wears it — while the endpoint’s live arrow goes to that right store and the path it took a minute ago, to the left one, is dashed and struck out, the two stores joined by a doubled line, a stack of dated copies standing off to one side and a third store to the other behind a one-way dashed arrow marked with a clock",
+      sketch: {
+        src: "/images/aws-stateful-services-sketch.svg",
+        alt: "Line drawing of one endpoint above two dashed zones, a solid arrow from it into the store on the right and a crossed-out one to the store on the left where it pointed before, the left store struck through and left holding an empty dashed badge slot while the right store wears the filled badge that has just travelled across to it, the two joined by a doubled line, and one dot marking the left zone against two marking the right",
+      },
+    },
+    definition:
+      "A stateful service holds data whose identity outlives any process, so it cannot be replaced by creating another one \u2014 a new instance is a new empty thing. Failure is therefore a promotion, not a replacement: a standby is made primary and the endpoint re-pointed, and every open connection breaks. Scaling is not a number either. Read replicas buy reads and inherit lag; writes scale only by a bigger primary or by a key that splits them. This is where everything #044 handed away went.",
+    keywords: [
+      "durability",
+      "failover",
+      "replication lag",
+      "partition key",
+      "availability zone",
+    ],
+    components: [
+      {
+        name: "Identity that outlives the process",
+        description:
+          "What you address is a name, not a count \u2014 an RDS endpoint, an EBS volume id, a slot range on a Redis node (#021), a DynamoDB partition. That is the whole difference, and every operational fact on this card follows from it: because the name is what holds the data, standing up another instance recovers nothing, and recovery can only be restore-or-promote \u2014 point a surviving copy at the name the callers already use.",
+      },
+      {
+        name: "Scaling that isn\u2019t a slider",
+        description:
+          "There are three moves and they are not interchangeable. Vertical: a bigger primary, paid for with a restart. Read replicas: more read capacity, applied asynchronously, so a read issued straight after a write can return the old value \u2014 replication lag is a correctness question wearing a performance question\u2019s clothes. Sharding: the only one of the three that adds write capacity, and it is a data-model decision \u2014 a DynamoDB partition key, a Redis slot range \u2014 taken long before the load that needs it arrives.",
+      },
+      {
+        name: "The blast radius",
+        description:
+          "An EBS volume lives in one Availability Zone and cannot be attached across one, and that single constraint is what decides where the tier above it may run. Multi-AZ RDS buys a synchronous standby you are not allowed to read from; DynamoDB and S3 write to three zones and never show you the choice. Underneath all of it are the backups: automated snapshots and point-in-time recovery are what bound how much you can lose, and deletion protection exists because this is the one piece of the estate a destroy cannot re-create (#023).",
+      },
+    ],
+    howItWorks: [
+      {
+        step: 1,
+        description:
+          "A write arrives and has to be durable before it is acknowledged. Multi-AZ RDS commits it to a synchronous standby in a second Availability Zone; DynamoDB replicates it to three; EBS lands it on a volume replicated within its own zone. The latency you notice on a stateful write is mostly this \u2014 not the work, but the wait to be able to promise the work survives.",
+      },
+      {
+        step: 2,
+        description:
+          "The data now has an address. The volume is in one zone, the primary is one instance, the row belongs to one partition. The tier above may float freely (#044), but it has to reach this \u2014 which is why its subnets, its security groups (#036) and how it spreads across zones are all, underneath, decisions about where the state already sits.",
+      },
+      {
+        step: 3,
+        description:
+          "Failure is a promotion. The standby is made primary and the endpoint\u2019s DNS record re-pointed \u2014 tens of seconds in which writes fail and every open connection is dropped. None of that is transparent: the application must reconnect and retry, and a transaction in flight is gone. This is the bill the tier above pays for having nothing to lose, and it is due at the worst possible moment.",
+      },
+      {
+        step: 4,
+        description:
+          "Growth is a schema decision, not a slider. Read replicas add reads and lag; only a bigger primary or a partition key that splits the traffic adds writes \u2014 and the key is chosen before the data exists. Get it wrong and one hot partition throttles while the table sits far below its provisioned capacity, which is the failure no amount of added instances can fix. Where the model stops is worth saying plainly: none of this is a flaw in AWS\u2019s managed services. It is the part of the problem they took on, and the reason #044 gets to look easy.",
+      },
+    ],
+  },
 ] as const satisfies readonly ConceptCardData[];

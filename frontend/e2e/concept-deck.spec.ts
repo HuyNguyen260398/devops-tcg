@@ -188,6 +188,10 @@ const images = [
     "One request arriving on a single arrow into a balancing plate, which fans out to four instances marked identically to one another and holding nothing but an empty dashed shelf \u2014 three of them lit, each sending its own arrow down into one wide store below, and the fourth dark and struck through with its feed from the balancer drawn dashed, the row serving on without it \u2014 while off to the side one instance stands with a small store lodged inside it, that store struck through, a single caller tied to that one instance by a dashed cord",
     "/images/aws-stateless-services-thumbnail.webp",
   ],
+  [
+    "Two interchangeable callers above one endpoint plate, the link from the second of them crossed out, and below it two dashed zones side by side \u2014 the left holding a store struck through, its badge travelling over the top on a dashed arrow to the lit store in the right zone, which now wears it \u2014 while the endpoint\u2019s live arrow goes to that right store and the path it took a minute ago, to the left one, is dashed and struck out, the two stores joined by a doubled line, a stack of dated copies standing off to one side and a third store to the other behind a one-way dashed arrow marked with a clock",
+    "/images/aws-stateful-services-thumbnail.webp",
+  ],
 ] as const;
 
 const card = (page: import("@playwright/test").Page) =>

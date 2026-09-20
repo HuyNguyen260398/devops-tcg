@@ -141,6 +141,12 @@ const expectedCards = [
     "AWS Stateless Services",
     "/images/aws-stateless-services-thumbnail.webp",
   ],
+  [
+    "aws-stateful-services",
+    "#045",
+    "AWS Stateful Services",
+    "/images/aws-stateful-services-thumbnail.webp",
+  ],
 ] as const;
 
 describe("conceptCards", () => {
@@ -168,7 +174,7 @@ describe("conceptCards", () => {
     expect(conceptCards[0].howItWorks).toHaveLength(4);
   });
 
-  it("contains all forty-four concepts in the approved order", () => {
+  it("contains all forty-five concepts in the approved order", () => {
     expect(conceptCards).toHaveLength(expectedCards.length);
     expect(
       conceptCards.map(({ id, cardNumber, title, image }) => [
@@ -1137,5 +1143,41 @@ describe("conceptCards", () => {
     // Where the model stops: idempotency is the operation's, and the hard part moved.
     expect(stateless?.howItWorks[3]?.description).toMatch(/idempotent/i);
     expect(stateless?.howItWorks[3]?.description).toMatch(/#045/);
+  });
+
+  it("makes the stateful service a promotion rather than a replacement", () => {
+    const stateful = conceptCards.find(
+      ({ id }) => id === "aws-stateful-services",
+    );
+
+    expect(stateful?.cardNumber).toBe("#045");
+    expect(stateful?.type).toBe("PLATFORM");
+    // The thesis: identity outlives the process, so nothing can stand in for it.
+    expect(stateful?.definition).toMatch(/promotion, not a replacement/i);
+    expect(stateful?.definition).toMatch(/#044/);
+    expect(stateful?.keywords).toContain("failover");
+    expect(stateful?.keywords).toContain("replication lag");
+    // What you address is a name, which is why recovery is restore-or-promote.
+    expect(stateful?.components[0]?.description).toMatch(
+      /a name, not a count/i,
+    );
+    expect(stateful?.components[0]?.description).toMatch(/#021/);
+    // The payload: only one of the three moves adds write capacity.
+    expect(stateful?.components[1]?.description).toMatch(/read replicas/i);
+    expect(stateful?.components[1]?.description).toMatch(/lag/i);
+    expect(stateful?.components[1]?.description).toMatch(/sharding/i);
+    // An EBS volume cannot leave its AZ, and that shapes the tier above it.
+    expect(stateful?.components[2]?.description).toMatch(
+      /Availability Zone|AZ/,
+    );
+    expect(stateful?.components[2]?.description).toMatch(/#023/);
+    // Durability is bought before the acknowledgement, and it is the latency.
+    expect(stateful?.howItWorks[0]?.description).toMatch(/acknowledged/i);
+    expect(stateful?.howItWorks[1]?.description).toMatch(/#044/);
+    // Failover is not transparent: connections break and the app must reconnect.
+    expect(stateful?.howItWorks[2]?.description).toMatch(/reconnect/i);
+    // Where the model stops: the key is chosen before the data exists.
+    expect(stateful?.howItWorks[3]?.description).toMatch(/hot partition/i);
+    expect(stateful?.howItWorks[3]?.description).toMatch(/#044/);
   });
 });

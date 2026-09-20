@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 278 220">
+  <g transform="translate(139 110) scale(0.84) translate(-139 -110)">
+  <!-- the badge that says which one is answering, and where it has just arrived -->
+  <g fill="#fff2c4">
+    <path d="M158 100 L176 100 L176 112 L158 112 Z" />
+  </g>
+
+  <g fill="none" stroke="#1d1d1b" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round">
+    <!-- the bars inside the badge -->
+    <path d="M161 104 L173 104 M161 108 L173 108" />
+
+    <!-- the name the callers hold, which is the only thing here that does not move -->
+    <path d="M110 26 L152 26 M110 33 L140 33 M110 40 L164 40" />
+
+    <!-- and the rows each store holds: the same rows, already written on both -->
+    <path d="M58 128 L120 128 M58 140 L120 140 M58 152 L120 152 M58 164 L96 164" />
+    <path d="M158 128 L220 128 M158 140 L220 140 M158 152 L220 152 M158 164 L196 164" />
+  </g>
+
+  <!-- two zones, each of which a volume may not leave -->
+  <g fill="none" stroke="#1d1d1b" stroke-width="1.2" stroke-dasharray="4 3" stroke-linejoin="round">
+    <path d="M44 70 L134 70 L134 196 L44 196 Z" />
+    <path d="M144 70 L234 70 L234 196 L144 196 Z" />
+    <!-- the badge slot the old primary is left holding -->
+    <path d="M58 100 L76 100 L76 112 L58 112 Z" />
+  </g>
+
+  <!-- where the name pointed a minute ago, and the badge on its way across -->
+  <g fill="none" stroke="#1d1d1b" stroke-width="1.2" stroke-dasharray="4 3" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M139 56 L89 56 L89 70" />
+    <path d="M67 98 L67 86 L167 86 L167 96" />
+  </g>
+  <g fill="none" stroke="#1d1d1b" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M163 92 L167 96 L171 92" />
+  </g>
+
+  <!-- the primary that is not coming back, and the link it is no longer on -->
+  <g fill="none" stroke="#1d1d1b" stroke-width="2.4" stroke-linecap="round">
+    <path d="M84 58 L94 68 M94 58 L84 68" />
+    <path d="M58 122 L120 172 M120 122 L58 172" />
+  </g>
+
+  <g fill="none" stroke="#1d1d1b" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+    <!-- the endpoint, and the one live path down from it -->
+    <path d="M104 19 L174 19 L174 45 L104 45 Z" />
+    <path d="M139 45 L139 56 L189 56 L189 70 M185 66 L189 70 L193 66" />
+
+    <!-- the two stores: one struck out, one now answering to the name -->
+    <path d="M52 96 L126 96 L126 180 L52 180 Z" />
+    <path d="M152 96 L226 96 L226 180 L152 180 Z" />
+
+    <!-- the write that was durable in both zones before it was ever acknowledged -->
+    <path d="M126 136 L152 136 M126 146 L152 146" />
+  </g>
+
+  <!-- one zone, and the other -->
+  <g fill="#1d1d1b">
+    <circle cx="56" cy="188" r="2.6" />
+    <circle cx="156" cy="188" r="2.6" />
+    <circle cx="165" cy="188" r="2.6" />
+  </g>
+  </g>
+</svg>
