@@ -150,6 +150,7 @@ describe("filterCards", () => {
       "kubernetes-node",
       "kubernetes-cluster",
       "kubernetes-deployment",
+      "kubernetes-replicaset",
     ]);
   });
 

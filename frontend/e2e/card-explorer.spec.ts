@@ -14,15 +14,15 @@ test("opens on a grid of every card", async ({ page }, testInfo) => {
 
   await page.goto("/");
 
-  await expect(tiles(page)).toHaveCount(45);
-  await expect(page.getByText("45 / 45")).toBeVisible();
+  await expect(tiles(page)).toHaveCount(46);
+  await expect(page.getByText("46 / 46")).toBeVisible();
 });
 
 test("filters the grid on every keystroke", async ({ page }, testInfo) => {
   wideOnly(testInfo);
 
   await page.goto("/");
-  await expect(tiles(page)).toHaveCount(45);
+  await expect(tiles(page)).toHaveCount(46);
 
   const field = page.getByRole("searchbox", { name: "Search cards" });
 
@@ -37,10 +37,10 @@ test("filters the grid on every keystroke", async ({ page }, testInfo) => {
   await expect(
     page.getByRole("button", { name: "Open the Kafka card" }),
   ).toBeVisible();
-  await expect(page.getByText("1 / 45")).toBeVisible();
+  await expect(page.getByText("1 / 46")).toBeVisible();
 
   await field.fill("");
-  await expect(tiles(page)).toHaveCount(45);
+  await expect(tiles(page)).toHaveCount(46);
 });
 
 test("finds a card by its category and by a keyword", async ({
@@ -96,7 +96,7 @@ test("collects the Kubernetes cards under their own chip", async ({
   // the last chip rather than anything a component had to be told about.
   await page.getByRole("button", { name: "K8S" }).click();
 
-  await expect(tiles(page)).toHaveCount(4);
+  await expect(tiles(page)).toHaveCount(5);
   await expect(
     page.getByRole("button", { name: "Open the Kubernetes Pod card" }),
   ).toBeVisible();
@@ -109,6 +109,9 @@ test("collects the Kubernetes cards under their own chip", async ({
   await expect(
     page.getByRole("button", { name: "Open the Kubernetes Deployment card" }),
   ).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Open the Kubernetes ReplicaSet card" }),
+  ).toBeVisible();
 });
 
 test("deals every tile the same height, whatever the filter", async ({
@@ -117,7 +120,7 @@ test("deals every tile the same height, whatever the filter", async ({
   wideOnly(testInfo);
 
   await page.goto("/");
-  await expect(tiles(page)).toHaveCount(45);
+  await expect(tiles(page)).toHaveCount(46);
 
   const heights = () =>
     page.$$eval("button[aria-label^='Open the']", (els) => [
@@ -135,7 +138,7 @@ test("deals every tile the same height, whatever the filter", async ({
   // which is what used to stretch them.
   for (const query of ["aws", "redis", "terraform state"]) {
     await page.getByRole("searchbox", { name: "Search cards" }).fill(query);
-    await expect(tiles(page)).not.toHaveCount(45);
+    await expect(tiles(page)).not.toHaveCount(46);
     expect(await heights()).toEqual([unfiltered]);
   }
 });
@@ -151,7 +154,7 @@ test("offers a way back when nothing matches", async ({ page }, testInfo) => {
 
   await page.getByRole("button", { name: "Clear the filters" }).click();
 
-  await expect(tiles(page)).toHaveCount(45);
+  await expect(tiles(page)).toHaveCount(46);
 });
 
 test("opens a tile as a flippable card and returns focus on Escape", async ({
@@ -285,7 +288,7 @@ test("filters the deck from the sheet and keeps the filter once dismissed", asyn
   const field = page.getByRole("searchbox", { name: "Search cards" });
 
   await field.pressSequentially("redis");
-  await expect(page.getByText("2 / 45")).toBeVisible();
+  await expect(page.getByText("2 / 46")).toBeVisible();
 
   await page.getByTestId("dialog-backdrop").click();
 
@@ -346,7 +349,7 @@ test("scrolls the grid inside the shell rather than scrolling the page", async (
   wideOnly(testInfo);
 
   await page.goto("/");
-  await expect(tiles(page)).toHaveCount(45);
+  await expect(tiles(page)).toHaveCount(46);
 
   const documentOverflow = await page.evaluate(
     () =>

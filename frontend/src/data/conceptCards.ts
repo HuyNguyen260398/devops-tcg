@@ -2636,4 +2636,66 @@ export const conceptCards = [
       },
     ],
   },
+  {
+    id: "kubernetes-replicaset",
+    cardNumber: "#046",
+    type: "K8S",
+    title: "Kubernetes ReplicaSet",
+    image: {
+      src: "/images/kubernetes-replicaset-thumbnail.webp",
+      alt: "One selector plate above a row of pods that each wear the very mark the plate wears, every one of them tied up to it by its own line \u2014 one more pod arriving from the left on a dashed arrow wearing the mark but tied to nothing yet, one leaving to the right with its mark struck out and its line to the plate dashed and crossed through, and an empty dashed slot standing open in the row where it used to be \u2014 while off to one side a template block\u2019s arrow up to the running pods is dashed and struck through, and to the other a pod already crossed out stands beside the lit one that has taken its place, both of them there at once",
+      sketch: {
+        src: "/images/kubernetes-replicaset-sketch.svg",
+        alt: "Line drawing of a selector box above a row of pods each carrying the same mark and joined to it by a line, one pod arriving on a dashed arrow with no line of its own, one leaving with its mark struck out and its line dashed and crossed, a dashed empty slot standing in the row, a template whose arrow up to the running pods is struck through, and a crossed-out pod beside the one that replaced it",
+      },
+    },
+    definition:
+      "A ReplicaSet keeps no list of the pods it made. Every pass it counts whatever currently matches its selector, subtracts that from the number it was given, and creates or deletes the difference \u2014 so it adopts a pod it never created, and relabelling one out of the selector is enough to make it build a replacement. What makes a delete cascade is not memory of having made anything. It is an ownerReference stamped on the pod itself.",
+    keywords: [
+      "selector",
+      "reconcile",
+      "adoption",
+      "owner reference",
+      "orphan",
+    ],
+    components: [
+      {
+        name: "A selector, not a list",
+        description:
+          "matchLabels is the whole of what the controller means by mine. It lists pods by that selector, in its own namespace, every sync, from nothing \u2014 so a pod with matching labels and no controller of its own is adopted and counted as though the ReplicaSet had made it, and a pod whose labels are edited off the selector stops existing as far as the count is concerned. The selector is immutable once set, for the same reason a Deployment\u2019s is (#043): it is already written into pods that exist, so changing it would be a delete and a re-create wearing the word update.",
+      },
+      {
+        name: "ownerReferences",
+        description:
+          "The cascade lives on the pod, not in the controller. Every pod the ReplicaSet owns carries an ownerReference back to it marked controller: true, and it is the garbage collector \u2014 a separate thing entirely \u2014 that reads those references and removes the dependents once the owner goes. Delete with --cascade=orphan and the references are stripped instead: the pods keep running, owned by nothing, and the next ReplicaSet whose selector matches will adopt the lot. Two ReplicaSets with overlapping selectors are that same accident standing still, each counting the other\u2019s pods toward its own number.",
+      },
+      {
+        name: "Which pod goes",
+        description:
+          "Scaling down is not arbitrary. The controller sorts the candidates and takes from the front: pods not yet assigned to a node before scheduled ones, Pending before Running, not-Ready before Ready, those Ready for the shortest time before the long-settled, more container restarts before fewer, youngest before oldest. Almost all of that is the controller trying to spend the cheapest pod it can find. pod-deletion-cost is the one place the application gets a vote \u2014 an annotation it raises on the pod holding work it would rather not lose.",
+      },
+    ],
+    howItWorks: [
+      {
+        step: 1,
+        description:
+          "A number arrives through the one door (#042) \u2014 written by a Deployment creating this ReplicaSet for a new template (#043), by a scale command, or by an autoscaler. The controller wakes and lists the pods in its namespace matching its selector. That list is the whole of its state. Nothing is carried over from the pass before, which is why running the same reconcile twice does nothing the second time.",
+      },
+      {
+        step: 2,
+        description:
+          "It subtracts: desired minus matching. Positive, and it creates that many pods from the template \u2014 in a batch that doubles each sync, one then two then four, so a template failing at creation cannot storm the API server. Negative, and it deletes that many, taken in the sorted order. Zero, and it does nothing at all, which is precisely what a Deployment\u2019s old revisions are: ReplicaSets kept alive at zero, costing nothing, waiting to be handed a number again (#043).",
+      },
+      {
+        step: 3,
+        description:
+          "Adoption and release are that same subtraction seen from the pod\u2019s side. A matching pod with no controller is given an ownerReference and counted from that moment; a pod relabelled off the selector has its reference removed and the count falls by one, so a replacement is created in the same pass. That is the whole trick behind pulling a broken pod out to look at it \u2014 change one label and you keep the evidence, still running, while the service gets its pod back.",
+      },
+      {
+        step: 4,
+        description:
+          "Where the model stops is why the object above it exists. The template is read only when a pod is created, so editing it on a bare ReplicaSet changes nothing already running: there is no rollout here, and that gap is the entire job of a Deployment (#043). A pod also stops being counted the instant it has a deletionTimestamp rather than when it is finally gone, so the replacement is created while the old one is still draining and the two overlap \u2014 a ReplicaSet promises at least N and never at most N. Beyond that it has no notion of order, of a name that survives, or of storage that follows a pod (#024), and no eye on load at all; the number is always somebody else\u2019s to write.",
+      },
+    ],
+  },
 ] as const satisfies readonly ConceptCardData[];

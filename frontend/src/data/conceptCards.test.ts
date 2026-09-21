@@ -147,6 +147,12 @@ const expectedCards = [
     "AWS Stateful Services",
     "/images/aws-stateful-services-thumbnail.webp",
   ],
+  [
+    "kubernetes-replicaset",
+    "#046",
+    "Kubernetes ReplicaSet",
+    "/images/kubernetes-replicaset-thumbnail.webp",
+  ],
 ] as const;
 
 describe("conceptCards", () => {
@@ -174,7 +180,7 @@ describe("conceptCards", () => {
     expect(conceptCards[0].howItWorks).toHaveLength(4);
   });
 
-  it("contains all forty-five concepts in the approved order", () => {
+  it("contains all forty-six concepts in the approved order", () => {
     expect(conceptCards).toHaveLength(expectedCards.length);
     expect(
       conceptCards.map(({ id, cardNumber, title, image }) => [
@@ -1179,5 +1185,45 @@ describe("conceptCards", () => {
     // Where the model stops: the key is chosen before the data exists.
     expect(stateful?.howItWorks[3]?.description).toMatch(/hot partition/i);
     expect(stateful?.howItWorks[3]?.description).toMatch(/#044/);
+  });
+
+  it("makes the ReplicaSet\u2019s selector, rather than a list, what it owns", () => {
+    const replicaSet = conceptCards.find(
+      ({ id }) => id === "kubernetes-replicaset",
+    );
+
+    expect(replicaSet?.cardNumber).toBe("#046");
+    expect(replicaSet?.type).toBe("K8S");
+    // The thesis: no list is kept, so the count is recomputed from the selector.
+    expect(replicaSet?.definition).toMatch(/keeps no list/i);
+    expect(replicaSet?.definition).toMatch(/matches its selector/i);
+    expect(replicaSet?.definition).toMatch(/ownerReference/);
+    expect(replicaSet?.keywords).toContain("selector");
+    expect(replicaSet?.keywords).toContain("adoption");
+    // Matching labels and no controller is the whole of adoption.
+    expect(replicaSet?.components[0]?.description).toMatch(/adopted/i);
+    expect(replicaSet?.components[0]?.description).toMatch(/immutable/i);
+    expect(replicaSet?.components[0]?.description).toMatch(/#043/);
+    // The cascade is on the pod, and orphaning is what strips it.
+    expect(replicaSet?.components[1]?.description).toMatch(
+      /garbage collector/i,
+    );
+    expect(replicaSet?.components[1]?.description).toMatch(/orphan/i);
+    expect(replicaSet?.components[1]?.description).toMatch(/overlapping/i);
+    // Scaling down has an order, and one annotation to argue with it.
+    expect(replicaSet?.components[2]?.description).toMatch(/pod-deletion-cost/);
+    // The loop carries nothing between passes.
+    expect(replicaSet?.howItWorks[0]?.description).toMatch(/#042/);
+    expect(replicaSet?.howItWorks[0]?.description).toMatch(
+      /nothing is carried over/i,
+    );
+    // Zero is a real answer, which is what an old revision is.
+    expect(replicaSet?.howItWorks[1]?.description).toMatch(/#043/);
+    // Relabelling keeps the evidence and still returns the pod.
+    expect(replicaSet?.howItWorks[2]?.description).toMatch(/relabelled/i);
+    // The payload: no rollout, and never an upper bound on the count.
+    expect(replicaSet?.howItWorks[3]?.description).toMatch(/no rollout/i);
+    expect(replicaSet?.howItWorks[3]?.description).toMatch(/deletionTimestamp/);
+    expect(replicaSet?.howItWorks[3]?.description).toMatch(/#024/);
   });
 });

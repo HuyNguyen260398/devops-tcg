@@ -36,7 +36,8 @@ OpenAI image generation on 2026-08-15 and are stored locally:
 `kubernetes-cluster-thumbnail.webp` on 2026-09-18, and
 `kubernetes-deployment-thumbnail.webp` on 2026-09-19, and
 `aws-stateless-services-thumbnail.webp` with
-`aws-stateful-services-thumbnail.webp` on 2026-09-20, each as
+`aws-stateful-services-thumbnail.webp` on 2026-09-20, and
+`kubernetes-replicaset-thumbnail.webp` on 2026-09-21, each as
 an isometric SVG scene composed in-repo and rendered to WebP with headless
 Chromium. They contain no
 third-party artwork.
@@ -46,7 +47,7 @@ thumbnail in the deck that was neither drawn for it nor 16:9.
 
 ## Sketch-theme drawings
 
-The forty-five `*-sketch.svg` files are original hand-authored SVG line
+The forty-six `*-sketch.svg` files are original hand-authored SVG line
 drawings made for DevOps TCG on 2026-08-19, on 2026-08-20 for the two
 certificate authority cards, on 2026-08-21 for JWT, on 2026-08-23 for AWS
 Lambda, on 2026-08-24 for the two IAM cards, on 2026-08-25 for OIDC, on
@@ -56,8 +57,9 @@ Terraform State, on 2026-09-01 for Kubernetes Pod, on 2026-09-02 for Prometheus
 and Prometheus Federation, on 2026-09-03 for AWS ALB and AWS NLB, on
 2026-09-06 for AWS VPC, on 2026-09-07 for AWS Subnet, on 2026-09-15 for
 TCP and UDP, on 2026-09-16 for Kubernetes Node, on 2026-09-18 for
-Kubernetes Cluster, on 2026-09-19 for Kubernetes Deployment, and on 2026-09-20 for AWS
-Stateless Services and AWS Stateful Services. Their line
+Kubernetes Cluster, on 2026-09-19 for Kubernetes Deployment, on 2026-09-20 for AWS
+Stateless Services and AWS Stateful Services, and on 2026-09-21 for Kubernetes
+ReplicaSet. Their line
 work is
 plain `<path>` geometry — no tracing of any third-party image, no generator,
 and no external asset — and they are the artwork the sketch theme shows in
@@ -213,6 +215,17 @@ the endpoint, the two zones a volume may not leave, the store struck through,
 the badge travelling across to the store that now answers, the doubled line
 between them, the stack of dated copies and the reads arriving late behind a
 clock.
+
+`kubernetes-replicaset-thumbnail.webp` and `kubernetes-replicaset-sketch.svg`
+carry no official mark: what the card is about is a controller's arithmetic
+rather than any product surface, and Kubernetes' own mark names the project
+rather than this one object inside it. The selector plate, the row of pods each
+wearing the mark it names, the tie from each of them up to it, the pod arriving
+on a dashed arrow with no tie of its own, the pod leaving with its mark struck
+out and its tie dashed and crossed, the empty dashed slot the count is one
+short of, the template whose arrow to the running pods is struck through and
+the pod already crossed out standing beside the one that replaced it were all
+drawn for DevOps TCG on 2026-09-21.
 
 AWS, AWS Lambda, AWS Identity and Access Management, Elastic Load Balancing,
 Amazon VPC and AWS Transit Gateway are trademarks of Amazon.com, Inc. or its

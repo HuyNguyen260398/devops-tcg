@@ -192,6 +192,10 @@ const images = [
     "Two interchangeable callers above one endpoint plate, the link from the second of them crossed out, and below it two dashed zones side by side \u2014 the left holding a store struck through, its badge travelling over the top on a dashed arrow to the lit store in the right zone, which now wears it \u2014 while the endpoint\u2019s live arrow goes to that right store and the path it took a minute ago, to the left one, is dashed and struck out, the two stores joined by a doubled line, a stack of dated copies standing off to one side and a third store to the other behind a one-way dashed arrow marked with a clock",
     "/images/aws-stateful-services-thumbnail.webp",
   ],
+  [
+    "One selector plate above a row of pods that each wear the very mark the plate wears, every one of them tied up to it by its own line \u2014 one more pod arriving from the left on a dashed arrow wearing the mark but tied to nothing yet, one leaving to the right with its mark struck out and its line to the plate dashed and crossed through, and an empty dashed slot standing open in the row where it used to be \u2014 while off to one side a template block\u2019s arrow up to the running pods is dashed and struck through, and to the other a pod already crossed out stands beside the lit one that has taken its place, both of them there at once",
+    "/images/kubernetes-replicaset-thumbnail.webp",
+  ],
 ] as const;
 
 const card = (page: import("@playwright/test").Page) =>
