@@ -196,6 +196,10 @@ const images = [
     "One selector plate above a row of pods that each wear the very mark the plate wears, every one of them tied up to it by its own line \u2014 one more pod arriving from the left on a dashed arrow wearing the mark but tied to nothing yet, one leaving to the right with its mark struck out and its line to the plate dashed and crossed through, and an empty dashed slot standing open in the row where it used to be \u2014 while off to one side a template block\u2019s arrow up to the running pods is dashed and struck through, and to the other a pod already crossed out stands beside the lit one that has taken its place, both of them there at once",
     "/images/kubernetes-replicaset-thumbnail.webp",
   ],
+  [
+    "An identity provider on the left and an application on the right, joined over the top by a dashed line through the one certificate they swapped before anyone logged in, with the user’s browser standing between them carrying a sealed XML assertion across on two solid arrows — while off to one side a clock marks the minutes the assertion is good for, and to the other a forged assertion lies struck through with the genuine seal pulled out beside it",
+    "/images/saml-thumbnail.webp",
+  ],
 ] as const;
 
 const card = (page: import("@playwright/test").Page) =>

@@ -153,6 +153,7 @@ const expectedCards = [
     "Kubernetes ReplicaSet",
     "/images/kubernetes-replicaset-thumbnail.webp",
   ],
+  ["saml", "#047", "SAML", "/images/saml-thumbnail.webp"],
 ] as const;
 
 describe("conceptCards", () => {
@@ -180,7 +181,7 @@ describe("conceptCards", () => {
     expect(conceptCards[0].howItWorks).toHaveLength(4);
   });
 
-  it("contains all forty-six concepts in the approved order", () => {
+  it("contains all forty-seven concepts in the approved order", () => {
     expect(conceptCards).toHaveLength(expectedCards.length);
     expect(
       conceptCards.map(({ id, cardNumber, title, image }) => [
@@ -1225,5 +1226,36 @@ describe("conceptCards", () => {
     expect(replicaSet?.howItWorks[3]?.description).toMatch(/no rollout/i);
     expect(replicaSet?.howItWorks[3]?.description).toMatch(/deletionTimestamp/);
     expect(replicaSet?.howItWorks[3]?.description).toMatch(/#024/);
+  });
+
+  it("makes SAML a signed claim the browser carries between two strangers", () => {
+    const saml = conceptCards.find(({ id }) => id === "saml");
+
+    expect(saml?.cardNumber).toBe("#047");
+    expect(saml?.type).toBe("SECURITY");
+    // The thesis: the browser is the courier, so the assertion carries its own proof.
+    expect(saml?.definition).toMatch(/browser/i);
+    expect(saml?.definition).toMatch(/certificate/i);
+    expect(saml?.keywords).toContain("assertion");
+    expect(saml?.keywords).toContain("metadata");
+    // Trust is imported ahead of time, which is what makes rotation hurt.
+    expect(saml?.components[0]?.description).toMatch(/entityID/);
+    expect(saml?.components[0]?.description).toMatch(/rotates/i);
+    expect(saml?.components[0]?.description).toMatch(/#017/);
+    // The assertion bounds itself in time and audience.
+    expect(saml?.components[1]?.description).toMatch(/NotOnOrAfter/);
+    expect(saml?.components[1]?.description).toMatch(/AudienceRestriction/);
+    expect(saml?.components[1]?.description).toMatch(/#013/);
+    // Only one binding has a back channel.
+    expect(saml?.components[2]?.description).toMatch(/HTTP-POST/);
+    expect(saml?.components[2]?.description).toMatch(/Artifact/);
+    expect(saml?.components[2]?.description).toMatch(/RelayState/);
+    expect(saml?.howItWorks[0]?.description).toMatch(/AuthnRequest/);
+    expect(saml?.howItWorks[2]?.description).toMatch(/only courier/i);
+    // The payload: verify the node you read, then the provider has no say.
+    expect(saml?.howItWorks[3]?.description).toMatch(/signature wrapping/i);
+    expect(saml?.howItWorks[3]?.description).toMatch(/InResponseTo/);
+    expect(saml?.howItWorks[3]?.description).toMatch(/Single Logout/);
+    expect(saml?.howItWorks[3]?.description).toMatch(/replay/i);
   });
 });

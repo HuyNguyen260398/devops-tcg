@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 278 220">
+  <g transform="translate(139 110) scale(0.88) translate(-139 -110)">
+  <!-- the assertion is the whole of the protocol, so it takes the highlighter -->
+  <path d="M116 88 L162 87 L163 158 L117 159 Z" fill="#fff2c4" />
+  <g fill="#dbe7ff">
+    <path d="M44 79 L96 78 L97 134 L45 135 Z" />
+    <path d="M182 78 L234 79 L233 135 L181 134 Z" />
+    <path d="M120 23 L158 22 L159 48 L121 49 Z" />
+  </g>
+
+  <g fill="none" stroke="#1d1d1b" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+    <!-- metadata: one certificate, swapped before anyone logged in -->
+    <path d="M70 78 L70 36 L119 35 M160 35 L208 36 L208 78" stroke-dasharray="5 5" />
+    <path d="M120 23 L158 22 L159 48 L121 49 Z" />
+    <path d="M126 30 L148 30 M126 37 L141 37" />
+    <circle cx="150" cy="42" r="4" />
+
+    <!-- the identity provider, holding the key it signs with -->
+    <path d="M44 79 L96 78 L97 134 L45 135 Z" />
+    <circle cx="57" cy="94" r="6" />
+    <path d="M63 94 L87 94 M83 94 L83 100 M76 94 L76 99" />
+    <path d="M52 112 L88 112 M52 122 L80 122" />
+
+    <!-- the browser, the only courier between them -->
+    <path d="M108 67 L170 66 L171 167 L109 168 Z" />
+    <path d="M108 78 L170 77" />
+    <path d="M114 72 L115 72 M120 72 L121 72 M126 72 L127 72" />
+
+    <!-- the assertion it carries: XML, signed, readable by whoever holds the browser -->
+    <path d="M116 88 L162 87 L163 158 L117 159 Z" />
+    <path d="M128 96 L123 101 L128 106 M136 94 L133 108 M141 96 L146 101 L141 106" />
+    <path d="M123 117 L155 117 M123 125 L149 125 M123 133 L152 133" />
+    <circle cx="152" cy="148" r="6" />
+    <path d="M149 148 L151 151 L156 145" />
+
+    <!-- posted provider to browser to application, never fetched -->
+    <path d="M98 118 L106 118 M102 114 L106 118 L102 122" />
+    <path d="M172 118 L180 118 M176 114 L180 118 L176 122" />
+
+    <!-- the application, which trusts only what the certificate vouches for -->
+    <path d="M182 78 L234 79 L233 135 L181 134 Z" />
+    <path d="M182 89 L233 90" />
+    <path d="M200 110 L216 110 L216 124 L200 124 Z" />
+    <path d="M203 110 L203 104 C203 97 213 97 213 104 L213 110" />
+    <path d="M204 117 L207 120 L212 114" />
+
+    <!-- the minutes the assertion is good for -->
+    <circle cx="62" cy="172" r="15" />
+    <path d="M62 172 L62 162 M62 172 L69 176" />
+
+    <!-- a forged assertion, struck, its borrowed seal lying apart -->
+    <path d="M196 150 L226 149 L227 196 L197 197 Z" stroke-dasharray="4 4" />
+    <path d="M202 160 L220 160 M202 168 L216 168" />
+    <path d="M194 148 L229 199 M229 148 L194 199" />
+    <circle cx="235" cy="160" r="5" />
+    <path d="M233 160 L234.5 162 L237.5 158" />
+  </g>
+  </g>
+</svg>
