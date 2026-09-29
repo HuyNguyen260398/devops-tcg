@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import type { ConceptCardData } from "@/types/concept";
 import { conceptCards } from "./conceptCards";
 
 const expectedCards = [
@@ -155,6 +156,76 @@ const expectedCards = [
   ],
   ["saml", "#047", "SAML", "/images/saml-thumbnail.webp"],
 ] as const;
+
+// A face scrolls, but a card is meant to be read at a glance: these are the
+// most any one card may ask of its reader. Cards #001–#013 were written inside
+// them; the rest join `withinBudget` one commit at a time as they are shortened.
+const BUDGET = {
+  definition: 200,
+  componentName: 40,
+  component: 130,
+  step: 150,
+  total: 960,
+} as const;
+
+const withinBudget = new Set<string>([
+  "proxy",
+  "cdn",
+  "nginx",
+  "reverse-proxy",
+  "osi-model",
+  "dns",
+  "ssl",
+  "tls",
+  "ssh",
+  "lambda-throttle",
+  "public-ca",
+  "private-ca",
+  "jwt",
+  "aws-lambda",
+]);
+
+// Everything a reader reads past the title: the definition, the three
+// components and the four steps.
+const readingLength = (card: ConceptCardData): number =>
+  card.definition.length +
+  card.components.reduce(
+    (sum, { description }) => sum + description.length,
+    0,
+  ) +
+  card.howItWorks.reduce((sum, { description }) => sum + description.length, 0);
+
+describe("reading budget", () => {
+  it("names only cards that exist", () => {
+    const ids = new Set<string>(conceptCards.map(({ id }) => id));
+
+    expect([...withinBudget].filter((id) => !ids.has(id))).toEqual([]);
+  });
+
+  it.each(
+    conceptCards
+      .filter(({ id }) => withinBudget.has(id))
+      .map((card) => [card.cardNumber, card.title, card] as const),
+  )("keeps %s %s within the reading budget", (_number, _title, card) => {
+    expect(card.definition.length, "definition").toBeLessThanOrEqual(
+      BUDGET.definition,
+    );
+    card.components.forEach(({ name, description }, index) => {
+      expect(name.length, `component ${index} name`).toBeLessThanOrEqual(
+        BUDGET.componentName,
+      );
+      expect(description.length, `component ${index}`).toBeLessThanOrEqual(
+        BUDGET.component,
+      );
+    });
+    card.howItWorks.forEach(({ description }, index) => {
+      expect(description.length, `step ${index + 1}`).toBeLessThanOrEqual(
+        BUDGET.step,
+      );
+    });
+    expect(readingLength(card), "total").toBeLessThanOrEqual(BUDGET.total);
+  });
+});
 
 describe("conceptCards", () => {
   it("contains the complete Proxy learning contract", () => {
