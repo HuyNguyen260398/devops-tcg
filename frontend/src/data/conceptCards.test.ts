@@ -183,6 +183,7 @@ const withinBudget = new Set<string>([
   "private-ca",
   "jwt",
   "aws-lambda",
+  "aws-iam-role",
 ]);
 
 // Everything a reader reads past the title: the definition, the three

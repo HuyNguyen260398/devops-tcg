@@ -776,7 +776,7 @@ export const conceptCards = [
       },
     },
     definition:
-      "An IAM role is an identity nobody owns and nobody signs in as: a principal assumes it and is handed temporary credentials for one session, so access is borrowed for a while rather than issued as a lasting secret.",
+      "An IAM role is an identity nobody owns or signs in as: a principal assumes it and receives temporary credentials, so access is borrowed rather than issued as a lasting secret.",
     keywords: [
       "identity",
       "trust policy",
@@ -788,39 +788,38 @@ export const conceptCards = [
       {
         name: "Trust policy",
         description:
-          "Names who may assume the role — a service, another account, or a federated identity provider — and is the only policy that answers that question.",
+          "Names who may assume the role — a service, another account, or a federated identity provider.",
       },
       {
         name: "Permissions policies",
-        description:
-          "The identity policies attached to the role, which decide what an assumed session is allowed to do once it exists.",
+        description: "Decide what an assumed session may do once it exists.",
       },
       {
         name: "STS",
         description:
-          "The token service that mints the session's access key, secret, and session token, and stamps them with an expiry.",
+          "Mints the session’s temporary access key, secret, and token, stamped with an expiry.",
       },
     ],
     howItWorks: [
       {
         step: 1,
         description:
-          "A principal — an EC2 instance, a Lambda function, a user, or a workload in another account — calls AssumeRole on the role's ARN.",
+          "A principal — an EC2 instance, a Lambda function, a user, or another account — calls AssumeRole on the role’s ARN.",
       },
       {
         step: 2,
         description:
-          "IAM reads the trust policy first: unless it names that principal, the call is refused before any permission is even considered.",
+          "IAM checks the trust policy first; if it does not name that principal, the call is refused.",
       },
       {
         step: 3,
         description:
-          "STS returns a temporary credential set for the session and records when it expires, typically an hour later.",
+          "STS returns temporary credentials that expire, typically after an hour.",
       },
       {
         step: 4,
         description:
-          "Requests signed with those credentials are judged against the role's permissions, and stop working the moment the session expires rather than waiting to be revoked.",
+          "Requests signed with them are judged against the role’s permissions and stop working when the session ends.",
       },
     ],
   },
