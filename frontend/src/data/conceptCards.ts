@@ -837,7 +837,7 @@ export const conceptCards = [
       },
     },
     definition:
-      "An IAM policy is a JSON document of statements that allow or deny actions on resources, and AWS reads every policy that applies to a request together before deciding.",
+      "An IAM policy is a JSON document of statements that allow or deny actions on resources, and AWS evaluates every policy that applies to a request together.",
     keywords: [
       "JSON document",
       "statement",
@@ -849,39 +849,39 @@ export const conceptCards = [
       {
         name: "Statement",
         description:
-          "The unit AWS evaluates: an Effect of Allow or Deny, the Actions it covers, the Resources it covers, and an optional Condition.",
+          "The unit AWS evaluates: an Allow or Deny effect, the actions and resources it covers, and an optional condition.",
       },
       {
         name: "Identity and resource policies",
         description:
-          "The same document attached in two places — to a user, group, or role, or to the resource itself, which can also grant across accounts.",
+          "One document format, attached to a user, group, or role — or to the resource itself, which can grant across accounts.",
       },
       {
         name: "Condition",
         description:
-          "Keys that narrow when a statement applies at all, such as the source network, whether MFA was used, or a tag on the resource.",
+          "Keys that narrow when a statement applies, such as the source network, MFA, or a resource tag.",
       },
     ],
     howItWorks: [
       {
         step: 1,
         description:
-          "A signed request arrives naming a principal, an action, and the resource it means to act on.",
+          "A signed request names a principal, an action, and a resource.",
       },
       {
         step: 2,
         description:
-          "AWS gathers every policy in scope — the principal's identity policies, the resource's own policy, any permissions boundary, session policy, or service control policy.",
+          "AWS gathers every policy in scope: identity, resource, permissions boundary, session, and service control policies.",
       },
       {
         step: 3,
         description:
-          "An explicit deny in any one of them ends the evaluation there, and no allow anywhere else can overrule it.",
+          "An explicit deny anywhere ends evaluation, and no allow can overrule it.",
       },
       {
         step: 4,
         description:
-          "Otherwise the request still needs an allow that matches it, because the default is deny — a permission nobody granted is one the request does not have.",
+          "Otherwise the request needs a matching allow, because the default is deny.",
       },
     ],
   },

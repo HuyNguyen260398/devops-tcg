@@ -184,6 +184,7 @@ const withinBudget = new Set<string>([
   "jwt",
   "aws-lambda",
   "aws-iam-role",
+  "aws-iam-policy",
 ]);
 
 // Everything a reader reads past the title: the definition, the three
