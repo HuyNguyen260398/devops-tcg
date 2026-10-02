@@ -899,7 +899,7 @@ export const conceptCards = [
       },
     },
     definition:
-      "OpenID Connect is an identity layer over OAuth 2.0: the provider authenticates the user and returns a signed ID token saying who they are, so an application can learn the user's identity without ever handling their password.",
+      "OpenID Connect is an identity layer on OAuth 2.0: the provider authenticates the user and returns a signed ID token saying who they are, so the app never handles the password.",
     keywords: [
       "ID token",
       "identity provider",
@@ -911,39 +911,39 @@ export const conceptCards = [
       {
         name: "Identity provider",
         description:
-          "Authenticates the user, issues the ID token, and publishes the signing keys anyone verifying it needs.",
+          "Authenticates the user, issues the ID token, and publishes the keys that verify it.",
       },
       {
         name: "Relying party",
         description:
-          "The application that sends the user to the provider and reads the identity out of the token it gets back.",
+          "The application that sends the user to the provider and reads the identity from the token.",
       },
       {
         name: "ID token",
         description:
-          "A JWT of claims about the user — subject, issuer, audience, expiry — and the thing OAuth 2.0 alone never states; an access token grants access and is not proof of who is calling.",
+          "A JWT stating who the user is — what OAuth 2.0 alone never says; an access token grants access and is not proof of identity.",
       },
     ],
     howItWorks: [
       {
         step: 1,
         description:
-          "The relying party redirects the browser to the provider, asking for the openid scope.",
+          "The relying party redirects the browser to the provider with the openid scope.",
       },
       {
         step: 2,
         description:
-          "The provider authenticates the user with whatever it requires, and those credentials never reach the relying party.",
+          "The provider authenticates the user, and those credentials never reach the relying party.",
       },
       {
         step: 3,
         description:
-          "The browser returns with a short-lived authorization code, which the relying party exchanges at the token endpoint for an ID token.",
+          "The browser returns with a short-lived code, which the relying party exchanges for an ID token.",
       },
       {
         step: 4,
         description:
-          "The relying party verifies the signature against the provider's published keys and checks the issuer, audience, and expiry before believing the identity.",
+          "The relying party checks the signature, issuer, audience, and expiry before trusting the identity.",
       },
     ],
   },

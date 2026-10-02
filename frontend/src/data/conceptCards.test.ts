@@ -185,6 +185,7 @@ const withinBudget = new Set<string>([
   "aws-lambda",
   "aws-iam-role",
   "aws-iam-policy",
+  "oidc",
 ]);
 
 // Everything a reader reads past the title: the definition, the three
