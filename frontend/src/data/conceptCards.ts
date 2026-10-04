@@ -1023,7 +1023,7 @@ export const conceptCards = [
       },
     },
     definition:
-      "Redis is an in-memory data structure store: keys hold typed values \u2014 strings, hashes, lists, sets, sorted sets \u2014 that live in RAM and are served by a single command loop, so an operation takes microseconds and durability is something you turn on rather than something you get.",
+      "Redis is an in-memory data structure store: typed values live in RAM and are served by a single command loop, so operations take microseconds and durability is opt-in.",
     keywords: [
       "in-memory",
       "key-value",
@@ -1035,39 +1035,39 @@ export const conceptCards = [
       {
         name: "Keyspace",
         description:
-          "One flat namespace of keys, each holding a typed value rather than a blob of text \u2014 a hash, a list, a set, a sorted set \u2014 and each able to carry a TTL that removes it when the deadline passes.",
+          "One flat namespace of keys holding typed values — hashes, lists, sets, sorted sets — each able to expire via a TTL.",
       },
       {
         name: "Command loop",
         description:
-          "A single thread that runs one command at a time to completion, which is what makes every command atomic without a lock \u2014 and why one slow command holds up every other client.",
+          "A single thread runs one command at a time, so every command is atomic — and one slow command stalls every client.",
       },
       {
         name: "Persistence and replication",
         description:
-          "RDB snapshots and the AOF command log copy the keyspace to disk, and replicas receive the same writes, but memory stays the source of truth and both are opt-in.",
+          "RDB snapshots, the AOF log, and replicas copy the data, but memory stays the source of truth.",
       },
     ],
     howItWorks: [
       {
         step: 1,
         description:
-          "A client opens one connection and sends a command naming a key, such as setting a field on a hash.",
+          "A client sends a command naming a key, such as setting a field on a hash.",
       },
       {
         step: 2,
         description:
-          "The server takes that command into its command loop and runs it to completion against memory, so no other client observes a half-finished change.",
+          "The server runs it to completion against memory, so no client sees a half-finished change.",
       },
       {
         step: 3,
         description:
-          "The reply goes back in microseconds, while the write is passed to any replicas and, where AOF is enabled, appended to the log on disk.",
+          "The reply returns in microseconds, and the write goes on to replicas and, if enabled, the AOF.",
       },
       {
         step: 4,
         description:
-          "The key stays until it is deleted, its TTL expires, or Redis evicts it to stay under maxmemory \u2014 and with no persistence configured, a restart brings the server back empty.",
+          "The key lives until deleted, expired, or evicted under maxmemory — and without persistence a restart comes back empty.",
       },
     ],
   },

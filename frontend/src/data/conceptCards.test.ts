@@ -187,6 +187,7 @@ const withinBudget = new Set<string>([
   "aws-iam-policy",
   "oidc",
   "kafka",
+  "redis",
 ]);
 
 // Everything a reader reads past the title: the definition, the three
