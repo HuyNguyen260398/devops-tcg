@@ -188,6 +188,7 @@ const withinBudget = new Set<string>([
   "oidc",
   "kafka",
   "redis",
+  "rbac",
 ]);
 
 // Everything a reader reads past the title: the definition, the three

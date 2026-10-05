@@ -1085,7 +1085,7 @@ export const conceptCards = [
       },
     },
     definition:
-      "Role-based access control grants permissions to named roles rather than to people, then assigns roles to subjects — a subject's access is the union of the permissions its roles carry, so a change of job is a change of assignment and never a change to anyone's own permission list.",
+      "Role-based access control grants permissions to roles rather than to people, then assigns roles to subjects — so a job change is a new assignment, not an edited permission list.",
     keywords: [
       "role assignment",
       "permission",
@@ -1097,39 +1097,39 @@ export const conceptCards = [
       {
         name: "Subject",
         description:
-          "The user, group, or service account that acts. It holds role assignments and never permissions of its own — the moment one is granted directly, the model has been abandoned for that subject.",
+          "A user, group, or service account. It holds role assignments and never permissions of its own.",
       },
       {
         name: "Role",
         description:
-          "A named bundle of permissions defined by a job rather than a person, reviewed and reused as a unit; cutting roles finer than the jobs they describe is where role explosion starts.",
+          "A named bundle of permissions for a job, not a person; cutting roles too fine leads to role explosion.",
       },
       {
         name: "Permission",
         description:
-          "One operation on one resource — the smallest thing that can be granted, and under RBAC it is only ever collected into a role, never bound straight to a subject.",
+          "One operation on one resource, only ever granted through a role.",
       },
     ],
     howItWorks: [
       {
         step: 1,
         description:
-          "Permissions are written as operations on resources and gathered into roles named for the jobs people actually do.",
+          "Permissions are grouped into roles named after the jobs people actually do.",
       },
       {
         step: 2,
         description:
-          "An administrator assigns roles to a subject, and that assignment is the whole grant — nothing is handed to the person directly.",
+          "An administrator assigns roles to a subject, and that assignment is the whole grant.",
       },
       {
         step: 3,
         description:
-          "On a request the system takes the union of the subject's assigned roles and allows it only if some permission covers the operation. RBAC is additive, so there is no deny rule to write: what no role names is already refused.",
+          "A request is allowed if the union of the subject’s roles covers it. RBAC is additive: there is no deny rule to write.",
       },
       {
         step: 4,
         description:
-          "Editing one role moves every holder at once and revoking an assignment removes the access, which is also the model's limit — a rule that depends on the request itself, such as who owns the record or what time it is, needs attributes instead.",
+          "Editing a role updates every holder at once. Rules that depend on the request, such as who owns a record, need attributes.",
       },
     ],
   },
