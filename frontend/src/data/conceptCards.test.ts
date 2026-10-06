@@ -189,6 +189,7 @@ const withinBudget = new Set<string>([
   "kafka",
   "redis",
   "rbac",
+  "redis-cluster",
 ]);
 
 // Everything a reader reads past the title: the definition, the three

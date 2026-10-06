@@ -1147,45 +1147,45 @@ export const conceptCards = [
       },
     },
     definition:
-      "Redis Cluster shards one keyspace across many primaries by hashing every key into one of 16384 slots: a shard owns a range of slots and answers only for the keys inside them, so a client is redirected to the owner rather than routed through a proxy \u2014 and the scale costs you any command that touches two slots at once.",
+      "Redis Cluster shards one keyspace across many primaries by hashing each key into one of 16384 slots, and clients are redirected to a slot’s owner rather than routed through a proxy.",
     keywords: ["sharding", "hash slot", "redirect", "resharding", "failover"],
     components: [
       {
         name: "Hash slot map",
         description:
-          "The keyspace is cut into 16384 slots and a key\u2019s slot is CRC16 of the key \u2014 or of just the part inside a {\u2026} hash tag, which is how two keys are forced into the same slot on purpose. Slots, not keys, are what a shard owns and what a resharding moves.",
+          "A key’s slot is CRC16 of the key, or of its {…} hash tag, which forces related keys into the same slot.",
       },
       {
         name: "Shard",
         description:
-          "One primary and its replicas, holding a range of slots. Nodes gossip health on a second port, and when a majority of primaries agree a primary is gone one of its replicas is promoted \u2014 slots left with no live owner go out of service while the rest of the keyspace keeps serving.",
+          "A primary and its replicas own a range of slots; when a majority of primaries agree one failed, a replica is promoted.",
       },
       {
         name: "Cluster-aware client",
         description:
-          "Every node knows the whole map but serves only its own slots, so the client caches the map and follows a MOVED or ASK redirect itself. That is what lets a cluster run with no proxy in front of it, and why an old client library cannot talk to one.",
+          "Caches the slot map and follows MOVED and ASK redirects itself, so the cluster needs no proxy in front of it.",
       },
     ],
     howItWorks: [
       {
         step: 1,
         description:
-          "The client hashes the key it wants into a slot and looks up which shard owns that slot in the map it cached when it connected.",
+          "The client hashes the key to a slot and looks up its owner in its cached map.",
       },
       {
         step: 2,
         description:
-          "It sends the command straight to that shard\u2019s primary, which runs it against its own memory exactly as a single Redis does \u2014 a node that does not own the slot will not run the command.",
+          "It sends the command straight to that owner; a node that does not own the slot will not run it.",
       },
       {
         step: 3,
         description:
-          "If the slot has since moved, the node answers MOVED with its new owner and the client refreshes its map. Mid-resharding an ASK redirect sends that one key\u2019s command to the shard receiving the slot, so moving slots never has to stop writes.",
+          "If the slot moved, the node replies MOVED and the client refreshes its map; mid-resharding, ASK redirects one key.",
       },
       {
         step: 4,
         description:
-          "When a primary stops answering the heartbeats, a majority of primaries mark it failed and one of its replicas takes over its slots. What the model will not do is span them: a multi-key command whose keys hash apart is refused with CROSSSLOT, and holding them together means choosing a hash tag.",
+          "A multi-key command whose keys hash to different slots is refused with CROSSSLOT — a hash tag keeps them together.",
       },
     ],
   },
