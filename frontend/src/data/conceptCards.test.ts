@@ -190,6 +190,7 @@ const withinBudget = new Set<string>([
   "redis",
   "rbac",
   "redis-cluster",
+  "container",
 ]);
 
 // Everything a reader reads past the title: the definition, the three
