@@ -38,7 +38,7 @@
 
 ---
 
-### Task 1: Shorten #014 AWS Lambda (and add the reading budget)
+### Task 1: Shorten #014 AWS Lambda (and add the reading budget) ✅
 
 Reading length 1038 → 821 characters (definition 175 → 154).
 
@@ -208,7 +208,7 @@ git commit -m "feat: shorten the AWS Lambda concept card" -m "Reading length 103
 
 ---
 
-### Task 2: Shorten #015 AWS IAM Role
+### Task 2: Shorten #015 AWS IAM Role ✅
 
 Reading length 1110 → 788 characters (definition 212 → 175).
 
@@ -298,7 +298,7 @@ git commit -m "feat: shorten the AWS IAM Role concept card" -m "Reading length 1
 
 ---
 
-### Task 3: Shorten #016 AWS IAM Policy
+### Task 3: Shorten #016 AWS IAM Policy ✅
 
 Reading length 1066 → 800 characters (definition 166 → 154).
 
@@ -388,7 +388,7 @@ git commit -m "feat: shorten the AWS IAM Policy concept card" -m "Reading length
 
 ---
 
-### Task 4: Shorten #017 OIDC
+### Task 4: Shorten #017 OIDC ✅
 
 Reading length 1093 → 832 characters (definition 224 → 175).
 
@@ -478,7 +478,7 @@ git commit -m "feat: shorten the OIDC concept card" -m "Reading length 1093 -> 8
 
 ---
 
-### Task 5: Shorten #018 Kafka
+### Task 5: Shorten #018 Kafka ✅
 
 Reading length 1150 → 792 characters (definition 231 → 187).
 
@@ -568,7 +568,7 @@ git commit -m "feat: shorten the Kafka concept card" -m "Reading length 1150 -> 
 
 ---
 
-### Task 6: Shorten #019 Redis
+### Task 6: Shorten #019 Redis ✅
 
 Reading length 1351 → 864 characters (definition 276 → 167).
 
@@ -658,7 +658,7 @@ git commit -m "feat: shorten the Redis concept card" -m "Reading length 1351 -> 
 
 ---
 
-### Task 7: Shorten #020 RBAC
+### Task 7: Shorten #020 RBAC ✅
 
 Reading length 1513 → 835 characters (definition 280 → 177).
 
@@ -748,7 +748,7 @@ git commit -m "feat: shorten the RBAC concept card" -m "Reading length 1513 -> 8
 
 ---
 
-### Task 8: Shorten #021 Redis Cluster
+### Task 8: Shorten #021 Redis Cluster ✅
 
 Reading length 1935 → 911 characters (definition 318 → 181).
 
@@ -838,7 +838,7 @@ git commit -m "feat: shorten the Redis Cluster concept card" -m "Reading length 
 
 ---
 
-### Task 9: Shorten #022 Container
+### Task 9: Shorten #022 Container ✅
 
 Reading length 2314 → 877 characters (definition 383 → 166).
 
