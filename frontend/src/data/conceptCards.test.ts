@@ -191,6 +191,7 @@ const withinBudget = new Set<string>([
   "rbac",
   "redis-cluster",
   "container",
+  "terraform-state",
 ]);
 
 // Everything a reader reads past the title: the definition, the three
