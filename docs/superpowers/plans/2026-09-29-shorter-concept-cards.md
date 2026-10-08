@@ -928,7 +928,7 @@ git commit -m "feat: shorten the Container concept card" -m "Reading length 2314
 
 ---
 
-### Task 10: Shorten #023 Terraform State
+### Task 10: Shorten #023 Terraform State ✅
 
 Reading length 2840 → 906 characters (definition 382 → 175).
 
