@@ -192,6 +192,7 @@ const withinBudget = new Set<string>([
   "redis-cluster",
   "container",
   "terraform-state",
+  "kubernetes-pod",
 ]);
 
 // Everything a reader reads past the title: the definition, the three
