@@ -193,6 +193,7 @@ const withinBudget = new Set<string>([
   "container",
   "terraform-state",
   "kubernetes-pod",
+  "prometheus",
 ]);
 
 // Everything a reader reads past the title: the definition, the three
