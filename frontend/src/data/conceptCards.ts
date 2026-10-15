@@ -1427,7 +1427,7 @@ export const conceptCards = [
       },
     },
     definition:
-      "Federation is one Prometheus scraping another. A global server treats each leaf server\u2019s /federate endpoint as an ordinary scrape target and copies a selected subset of its series into its own storage. Nothing new is invented for it \u2014 the transport, the schedule and the store are the same pull the leaves already use, which is why what arrives is a copy taken at the global\u2019s resolution rather than a window onto the leaf.",
+      "Federation is one Prometheus scraping another: a global server scrapes each leaf’s /federate endpoint and copies a chosen subset of series into its own storage.",
     keywords: [
       "/federate",
       "match[]",
@@ -1439,39 +1439,39 @@ export const conceptCards = [
       {
         name: "Leaf and global server",
         description:
-          "A leaf is an ordinary Prometheus doing the real scraping, close to what it watches; the global one scrapes leaves instead of scraping targets. The relationship exists only in the global\u2019s configuration \u2014 a leaf is never told it has been federated, does not know the global exists, and carries on unchanged when the global is down. That is the property worth having: losing the aggregate never costs you the detail.",
+          "Leaves scrape targets; the global scrapes leaves. A leaf does not know the global exists, so losing it costs no detail.",
       },
       {
         name: "The /federate endpoint and match[]",
         description:
-          "Every Prometheus already serves /federate, and it returns exactly the series matching the selectors passed in match[] \u2014 nothing at all by default, because an empty selector matches nothing rather than everything. That parameter is the entire control surface, and it is wrong in both directions: too narrow and the global is missing the series an alert is written against, too broad and one process has been handed the summed cardinality of every leaf beneath it.",
+          "Returns series matching match[]; an empty selector matches nothing. Too broad and the global takes every leaf’s cardinality.",
       },
       {
         name: "honor_labels and external_labels",
         description:
-          "A federated response carries the leaf\u2019s own labels, and an ordinary scrape would overwrite them with the global\u2019s target labels \u2014 so federation sets honor_labels: true to keep what the leaf actually said. The external_labels each leaf attaches on the way out are then what hold two datacentres apart: without them the same metric name from two leaves is the same series arriving twice, and each scrape quietly overwrites the other.",
+          "honor_labels keeps the leaf’s own labels, and external_labels tell leaves apart so their series never collide.",
       },
     ],
     howItWorks: [
       {
         step: 1,
         description:
-          "Each leaf scrapes its own targets and stores them as usual, at whatever interval it was given. Recording rules on the leaf pre-aggregate what the level above will ask for, and this is the step that decides whether federation is cheap: whatever a rule collapses into one series down here is what never has to cross to the global at all.",
+          "Each leaf scrapes its targets, and recording rules pre-aggregate what the global will ask for.",
       },
       {
         step: 2,
         description:
-          "The global scrapes each leaf the way it would scrape anything else, requesting /federate?match[]=\u2026 on its own schedule. The leaf evaluates those selectors against what it holds at that moment and returns the most recent sample of every series that matched, each still carrying its original timestamp, in one response.",
+          "The global requests /federate?match[]=… on its own schedule and gets the latest sample of each match.",
       },
       {
         step: 3,
         description:
-          "The global appends those samples to its own storage. Because it asked on its own schedule, the copy has the global\u2019s resolution and not the leaf\u2019s \u2014 a leaf scraping every fifteen seconds but federated once a minute yields one sample a minute, and every sample between them stays where it was recorded. Federation moves aggregates, and it cannot reconstruct detail somewhere else.",
+          "The copy has the global’s resolution, not the leaf’s, so detail between its scrapes stays on the leaf.",
       },
       {
         step: 4,
         description:
-          "So the limits follow from it being a copy and a hierarchy. The global trails each leaf by up to one scrape and goes stale for a leaf it cannot reach, and a global scraping a hundred leaves is still one server carrying whatever cardinality they hand it. Long retention and a genuinely global view are what remote write and a store built for it are for \u2014 federation only lifts a summary one level.",
+          "The global lags by up to one scrape and is still one server; long retention and a global view need remote write.",
       },
     ],
   },
