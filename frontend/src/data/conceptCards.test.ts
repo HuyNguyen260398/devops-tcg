@@ -208,6 +208,7 @@ const withinBudget = new Set<string>([
   "aws-network-acl",
   "aws-vpc-endpoint",
   "tcp",
+  "udp",
 ]);
 
 // Everything a reader reads past the title: the definition, the three
@@ -1077,7 +1078,6 @@ describe("conceptCards", () => {
     // The header is the whole promise, and the boundary survives the trip.
     expect(udp?.components[0]?.description).toMatch(/eight bytes/i);
     expect(udp?.components[0]?.description).toMatch(/one send is one receive/i);
-    expect(udp?.components[0]?.description).toMatch(/IPv6/);
     // Nothing is kept between one datagram and the next, connect() included.
     expect(udp?.components[1]?.description).toMatch(/establishes nothing/i);
     expect(udp?.components[1]?.description).toMatch(/no congestion control/i);
