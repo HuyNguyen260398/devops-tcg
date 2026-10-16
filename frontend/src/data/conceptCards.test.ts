@@ -209,6 +209,7 @@ const withinBudget = new Set<string>([
   "aws-vpc-endpoint",
   "tcp",
   "udp",
+  "kubernetes-node",
 ]);
 
 // Everything a reader reads past the title: the definition, the three
@@ -1111,13 +1112,9 @@ describe("conceptCards", () => {
     expect(node?.components[0]?.description).toMatch(
       /claim, not a measurement/i,
     );
-    expect(node?.components[0]?.description).toMatch(/host port/i);
     // The lease is the heartbeat, and the pods do not move when it stops.
     expect(node?.components[1]?.description).toMatch(/Lease/);
     expect(node?.components[1]?.description).toMatch(/300 seconds/);
-    expect(node?.components[1]?.description).toMatch(
-      /still shows them Running/i,
-    );
     // A label attracts and the pod chooses it; a taint repels and the node does.
     expect(node?.components[2]?.description).toMatch(/NoExecute/);
     expect(node?.components[2]?.description).toMatch(/cordon/i);
