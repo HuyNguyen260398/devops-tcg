@@ -202,6 +202,7 @@ const withinBudget = new Set<string>([
   "aws-cidr",
   "aws-route-table",
   "aws-nat-gateway",
+  "aws-internet-gateway",
 ]);
 
 // Everything a reader reads past the title: the definition, the three
