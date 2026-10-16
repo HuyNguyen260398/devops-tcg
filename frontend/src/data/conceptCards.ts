@@ -2587,7 +2587,7 @@ export const conceptCards = [
       },
     },
     definition:
-      "A stateful service holds data whose identity outlives any process, so it cannot be replaced by creating another one \u2014 a new instance is a new empty thing. Failure is therefore a promotion, not a replacement: a standby is made primary and the endpoint re-pointed, and every open connection breaks. Scaling is not a number either. Read replicas buy reads and inherit lag; writes scale only by a bigger primary or by a key that splits them. This is where everything #044 handed away went.",
+      "A stateful service holds data that outlives any process, so a new instance is empty. Failure is a promotion, not a replacement — the counterpart of #044.",
     keywords: [
       "durability",
       "failover",
@@ -2599,39 +2599,39 @@ export const conceptCards = [
       {
         name: "Identity that outlives the process",
         description:
-          "What you address is a name, not a count \u2014 an RDS endpoint, an EBS volume id, a slot range on a Redis node (#021), a DynamoDB partition. That is the whole difference, and every operational fact on this card follows from it: because the name is what holds the data, standing up another instance recovers nothing, and recovery can only be restore-or-promote \u2014 point a surviving copy at the name the callers already use.",
+          "You address a name, not a count — an RDS endpoint, a volume, a slot range (#021) — so recovery is restore or promote.",
       },
       {
-        name: "Scaling that isn\u2019t a slider",
+        name: "Scaling that isn’t a slider",
         description:
-          "There are three moves and they are not interchangeable. Vertical: a bigger primary, paid for with a restart. Read replicas: more read capacity, applied asynchronously, so a read issued straight after a write can return the old value \u2014 replication lag is a correctness question wearing a performance question\u2019s clothes. Sharding: the only one of the three that adds write capacity, and it is a data-model decision \u2014 a DynamoDB partition key, a Redis slot range \u2014 taken long before the load that needs it arrives.",
+          "A bigger primary needs a restart, read replicas add reads with lag, and only sharding adds write capacity.",
       },
       {
         name: "The blast radius",
         description:
-          "An EBS volume lives in one Availability Zone and cannot be attached across one, and that single constraint is what decides where the tier above it may run. Multi-AZ RDS buys a synchronous standby you are not allowed to read from; DynamoDB and S3 write to three zones and never show you the choice. Underneath all of it are the backups: automated snapshots and point-in-time recovery are what bound how much you can lose, and deletion protection exists because this is the one piece of the estate a destroy cannot re-create (#023).",
+          "An EBS volume lives in one Availability Zone. Backups bound your losses; deletion protection guards what #023 cannot rebuild.",
       },
     ],
     howItWorks: [
       {
         step: 1,
         description:
-          "A write arrives and has to be durable before it is acknowledged. Multi-AZ RDS commits it to a synchronous standby in a second Availability Zone; DynamoDB replicates it to three; EBS lands it on a volume replicated within its own zone. The latency you notice on a stateful write is mostly this \u2014 not the work, but the wait to be able to promise the work survives.",
+          "A write must be durable before it is acknowledged, and that wait is most of the latency.",
       },
       {
         step: 2,
         description:
-          "The data now has an address. The volume is in one zone, the primary is one instance, the row belongs to one partition. The tier above may float freely (#044), but it has to reach this \u2014 which is why its subnets, its security groups (#036) and how it spreads across zones are all, underneath, decisions about where the state already sits.",
+          "The data has a fixed location, so the floating tier above it (#044) is placed around it.",
       },
       {
         step: 3,
         description:
-          "Failure is a promotion. The standby is made primary and the endpoint\u2019s DNS record re-pointed \u2014 tens of seconds in which writes fail and every open connection is dropped. None of that is transparent: the application must reconnect and retry, and a transaction in flight is gone. This is the bill the tier above pays for having nothing to lose, and it is due at the worst possible moment.",
+          "Failover promotes a standby and repoints DNS; open connections drop, so apps must reconnect and retry.",
       },
       {
         step: 4,
         description:
-          "Growth is a schema decision, not a slider. Read replicas add reads and lag; only a bigger primary or a partition key that splits the traffic adds writes \u2014 and the key is chosen before the data exists. Get it wrong and one hot partition throttles while the table sits far below its provisioned capacity, which is the failure no amount of added instances can fix. Where the model stops is worth saying plainly: none of this is a flaw in AWS\u2019s managed services. It is the part of the problem they took on, and the reason #044 gets to look easy.",
+          "Writes scale by partition key, chosen early. A bad key makes a hot partition, and more of #044 cannot fix it.",
       },
     ],
   },

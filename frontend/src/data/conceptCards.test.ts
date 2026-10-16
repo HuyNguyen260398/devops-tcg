@@ -213,6 +213,7 @@ const withinBudget = new Set<string>([
   "kubernetes-cluster",
   "kubernetes-deployment",
   "aws-stateless-services",
+  "aws-stateful-services",
 ]);
 
 // Everything a reader reads past the title: the definition, the three
