@@ -196,6 +196,7 @@ const withinBudget = new Set<string>([
   "prometheus",
   "prometheus-federation",
   "aws-alb",
+  "aws-nlb",
 ]);
 
 // Everything a reader reads past the title: the definition, the three

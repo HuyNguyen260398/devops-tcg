@@ -1551,7 +1551,7 @@ export const conceptCards = [
       },
     },
     definition:
-      "A Network Load Balancer works at layer 4: it forwards TCP and UDP flows to targets without reading what they carry. There is no request to parse and no connection terminated on the client\u2019s behalf, so it holds enormous numbers of flows at very low latency \u2014 and it decides where each one goes from the connection\u2019s addresses and ports alone, never from anything inside it.",
+      "A Network Load Balancer works at layer 4: it forwards TCP and UDP flows without reading them, choosing a target from addresses and ports alone, at very low latency.",
     keywords: [
       "layer 4",
       "flow hash",
@@ -1563,39 +1563,39 @@ export const conceptCards = [
       {
         name: "A listener is a port",
         description:
-          "A listener here is a protocol and a port, and it has no rules: everything arriving on it goes to the one target group it names. There is nothing to match on, because nothing is ever opened \u2014 no host, no path, no header, no method. That absence is the whole trade, and it is worth stating as a cost: every routing decision a layer 7 balancer would have made for you has to be made somewhere else, or not at all.",
+          "A protocol and port with no rules: everything goes to one target group, so any content routing happens elsewhere.",
       },
       {
         name: "The flow hash",
         description:
-          "A target is chosen once per flow, by hashing the connection\u2019s protocol, source address and port, and destination address and port. Every packet of that connection then lands on the same target for as long as it lives, with no cookie and nothing stored. So stickiness here is to a flow and not to a client: a fresh connection from the same client hashes again and may land elsewhere, while one long-lived connection can never be moved off a target that has become busy.",
+          "Picks a target by hashing the flow’s five-tuple, so stickiness is to a flow, not to a client.",
       },
       {
         name: "Fixed addresses, real client addresses",
         description:
-          "The balancer takes one address per availability zone and keeps it, and it can be given an Elastic IP, so a firewall elsewhere can be written against an address rather than a name. Targets registered by instance ID or by IP also see the client\u2019s own source address rather than the balancer\u2019s, because packets are forwarded rather than re-originated \u2014 which is a gift and a trap, since a target reachable directly as well can no longer tell the two paths apart by address.",
+          "One static address per zone, optionally an Elastic IP, and targets see the client’s real source address.",
       },
     ],
     howItWorks: [
       {
         step: 1,
         description:
-          "A client opens a connection to one of the balancer\u2019s zonal addresses. Nothing is terminated: the balancer sits in the path as a forwarding element rather than as the far end of the conversation, so there is no handshake and no request parse standing between the client and a target that has not even been chosen yet.",
+          "A client connects to a zonal address. Nothing is terminated, so there is no handshake at the balancer.",
       },
       {
         step: 2,
         description:
-          "The flow\u2019s five fields \u2014 protocol, source address, source port, destination address, destination port \u2014 are hashed, and the result selects one healthy target. That decision is taken once, and every later packet of the same flow repeats it for free instead of being decided again, which is most of where the latency advantage comes from.",
+          "The five-tuple is hashed once to choose a healthy target, and every later packet of the flow follows it.",
       },
       {
         step: 3,
         description:
-          "Packets are forwarded on to that target with the client\u2019s source address intact, so as far as the target\u2019s own socket is concerned it is talking to the client. Health checks run alongside as TCP, HTTP or HTTPS probes; a target that starts failing is taken out of the hash for new flows, while the flows already on it are drained rather than cut.",
+          "Packets arrive with the client’s address intact. A failing target gets no new flows, and existing ones are drained.",
       },
       {
         step: 4,
         description:
-          "Where the model stops is where layer 7 begins. Content routing, redirects, request rewriting and a target group per path have nowhere to live here, and no header can be added to a packet nobody opened \u2014 so the client\u2019s protocol and port reach the application only if it already knew to expect them, or if the proxy protocol is turned on to carry them ahead of the stream.",
+          "No content routing, redirects, or headers — client details reach the app only through the proxy protocol.",
       },
     ],
   },
