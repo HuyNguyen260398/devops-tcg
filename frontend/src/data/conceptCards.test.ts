@@ -206,6 +206,7 @@ const withinBudget = new Set<string>([
   "aws-transit-gateway",
   "aws-security-group",
   "aws-network-acl",
+  "aws-vpc-endpoint",
 ]);
 
 // Everything a reader reads past the title: the definition, the three

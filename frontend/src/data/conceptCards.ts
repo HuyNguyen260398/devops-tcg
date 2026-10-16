@@ -2171,7 +2171,7 @@ export const conceptCards = [
       },
     },
     definition:
-      "A VPC endpoint is what lets a private subnet with no way out reach S3 anyway. Two mechanisms share the name and share almost nothing else: one is a row in a route table, costs nothing, and serves two services; the other is an interface standing in your own subnet, found by name rather than by route, which adds no row anywhere and is charged by the hour.",
+      "A VPC endpoint lets a private subnet with no way out reach a service. A gateway endpoint is a row in a route table; an interface endpoint is an address found by name.",
     keywords: [
       "gateway endpoint",
       "interface endpoint",
@@ -2181,41 +2181,41 @@ export const conceptCards = [
     ],
     components: [
       {
-        name: "The gateway endpoint is a row, and it is free",
+        name: "Gateway endpoint: a free row",
         description:
-          "It serves S3 and DynamoDB and nothing else. Associating it writes a row into the route tables you choose, and the destination of that row is a managed prefix list rather than a range you type — so the traffic is picked out by the ordinary longest-prefix match and handed to the endpoint instead of to whatever 0.0.0.0/0 was going to carry it. There is no hourly charge and no processing charge, which is precisely the charge a NAT gateway levies on every gigabyte bound for those same two services. What it cannot do is travel: a route table in another network cannot name it, so it is unreachable from on-premises over a VPN or Direct Connect, across a peering connection, or through a Transit Gateway.",
+          "For S3 and DynamoDB only: a route to a prefix list, no hourly charge. Unreachable from a VPN, a peer, or a Transit Gateway.",
       },
       {
-        name: "The interface endpoint is an address, and it is metered",
+        name: "Interface endpoint: a metered address",
         description:
-          "It is an elastic network interface placed in the subnets you name, holding a private address out of each subnet's own range, and it is how every other service is reached. Nothing routes to it: it is found because a name resolved to its address, which is why it appears in no route table and why looking for one is the usual way of failing to find it. It takes a security group, making it the only one of the two that can be filtered, and it is charged for each interface by the hour and again per gigabyte. Being merely an address in your VPC is also what makes it reachable from everywhere your VPC is — over a VPN, across a peering connection, through a Transit Gateway.",
+          "An elastic network interface in your subnets, filtered by a security group and billed hourly and per gigabyte.",
       },
       {
         name: "Private DNS is what makes it invisible",
         description:
-          "The option that matters most is the one that changes nothing in the application: private DNS makes the service's ordinary public hostname resolve, inside the VPC, to the endpoint's private address, so no client is reconfigured and no SDK is told. Switch it off and the same call resolves to the service's public addresses and leaves by whatever route it can find — which is the NAT gateway, at the charge the endpoint was installed to avoid, with nothing broken and nothing to notice. It needs DNS hostnames and DNS support switched on for the VPC. Beside it sits the endpoint policy, a policy on the endpoint itself that narrows what may be reached through it and is judged in addition to IAM rather than instead of it.",
+          "Private DNS points the service’s usual name at the endpoint, so clients need no change. An endpoint policy narrows access.",
       },
     ],
     howItWorks: [
       {
         step: 1,
         description:
-          "The service decides the kind. S3 and DynamoDB will take either, and everything else is an interface endpoint — so the choice is rarely a preference. It settles where the thing lives, whether that is a row in a table or an address in a subnet, what it costs, and who outside this VPC can use it.",
+          "The service decides the type: S3 and DynamoDB allow either, and everything else needs an interface endpoint.",
       },
       {
         step: 2,
         description:
-          "Create a gateway endpoint and associate route tables, and a row appears in each one naming the service's prefix list. Nothing else changes: the traffic still carries the service's public addresses and still resolves the same public name, and all that happened is that one lookup now matches a narrower row. Remove the endpoint and the rows leave with it, which is the one tidy deletion in this part of the deck.",
+          "A gateway endpoint adds a row naming the service’s prefix list to each chosen route table.",
       },
       {
         step: 3,
         description:
-          "Create an interface endpoint and you get an interface, a private address in each subnet you chose, and a set of DNS names. The packet reaches it because a name resolved to an address in the same subnet, so no route was consulted at all — an instance in a subnet whose table holds nothing but the local row still reaches the service, which is the sentence the whole card exists to make true.",
+          "An interface endpoint is reached because a name resolved to it — no route was involved.",
       },
       {
         step: 4,
         description:
-          "Where the model stops is that an endpoint reaches a service, not a network. Nothing transits it, it is no kind of way to the internet, and it reaches its service in its own region only. It also removes no charge by existing: until the route that was carrying that traffic is taken away, or private DNS is switched on so the client stops asking for the public name, the NAT gateway is still in the path and still metering — the endpoint is installed, and the bill is unchanged.",
+          "It reaches a service, not a network. Until the old route or DNS name stops being used, the NAT gateway is still metering.",
       },
     ],
   },
