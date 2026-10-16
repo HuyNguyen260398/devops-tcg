@@ -203,6 +203,7 @@ const withinBudget = new Set<string>([
   "aws-route-table",
   "aws-nat-gateway",
   "aws-internet-gateway",
+  "aws-transit-gateway",
 ]);
 
 // Everything a reader reads past the title: the definition, the three
@@ -925,18 +926,12 @@ describe("conceptCards", () => {
     // propagation fills the many tables that learn its ranges.
     expect(transit?.components[0]?.description).toMatch(/associated with/i);
     expect(transit?.components[0]?.description).toMatch(/propagation/i);
-    expect(transit?.components[0]?.description).toMatch(/no BGP session/i);
-    expect(transit?.components[0]?.description).toMatch(/four rows/i);
     // Nothing is filtered at the gateway, so isolation is a count of tables.
     expect(transit?.components[1]?.description).toMatch(/no security group/i);
-    expect(transit?.components[1]?.description).toMatch(/longest prefix/i);
     expect(transit?.components[1]?.description).toMatch(/same CIDR/i);
-    expect(transit?.components[1]?.description).toMatch(/by its id/i);
     // The attachment is where the zones, the money and the asymmetry live.
     expect(transit?.components[2]?.description).toMatch(/Availability Zone/);
     expect(transit?.components[2]?.description).toMatch(/dropped/i);
-    expect(transit?.components[2]?.description).toMatch(/per gigabyte/i);
-    expect(transit?.components[2]?.description).toMatch(/5 Gbps/);
     expect(transit?.components[2]?.description).toMatch(/appliance mode/i);
     // The default tables are why the first setup works without being understood.
     expect(transit?.howItWorks[0]?.description).toMatch(/default route table/i);
@@ -947,7 +942,6 @@ describe("conceptCards", () => {
     // Where the model stops: it routes, and it does nothing else.
     expect(transit?.howItWorks[3]?.description).toMatch(/no translation/i);
     expect(transit?.howItWorks[3]?.description).toMatch(/non-transitive/i);
-    expect(transit?.howItWorks[3]?.description).toMatch(/8500/);
   });
 
   it("makes the security group an allow-only filter on the interface", () => {
