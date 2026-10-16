@@ -2407,45 +2407,45 @@ export const conceptCards = [
       },
     },
     definition:
-      "A cluster is two planes and one door. The control plane decides — an API server standing in front of etcd, with a scheduler and a controller manager that are merely its clients — and the nodes run whatever was decided. Nothing in the architecture addresses anything but the API server: not the scheduler to a kubelet, not one node to another, not any component to etcd. What every whiteboard draws as a mesh is a star, and each spoke is dialled outward from its own end.",
+      "A cluster is two planes and one door: the control plane decides, the nodes run, and everything talks only to the API server — a star, not a mesh.",
     keywords: ["control plane", "api server", "etcd", "scheduler", "kubelet"],
     components: [
       {
         name: "The control plane",
         description:
-          "etcd holds the whole of the cluster’s state, and the API server is the only process permitted to read or write it — so a backup of etcd is a backup of the cluster, and a lost quorum is a cluster that can no longer be changed, since Raft needs a majority and an even number of members buys nothing over the odd one below it. The scheduler and the controller manager keep no state and hold no privileged channel: they watch the API server like any other client and write their decisions back through it, which is why each can be killed and restarted, run three deep behind a leader election, or be swapped for one you wrote yourself.",
+          "etcd holds all state and the API server is the only process that touches it; losing etcd quorum freezes the cluster.",
       },
       {
         name: "The node side",
         description:
-          "A kubelet, a runtime behind the CRI, and kube-proxy programming the machine’s own dataplane for Services. The kubelet is never commanded: it watches the API server for pods whose nodeName is its own and pulls that work down, so the control plane opens no connection to place a pod and a node needs no listening port for one. The exception is worth knowing precisely because it is the exception — logs, exec and port-forward are the API server dialling the kubelet, which is why they fail on their own while everything else about the node is fine.",
+          "The kubelet, with a CRI runtime, watches for pods carrying its nodeName and pulls the work, so it has no listening port for it.",
       },
       {
         name: "The wiring",
         description:
-          "One hub, every spoke outbound, and every loop level-triggered: a component re-reads the state it cares about rather than reacting to a message, so a watch it missed costs nothing and no delivery has to be guaranteed. That buys a system where any part can crash and rejoin without a handshake with any other, and it is paid for twice — the API server is the chokepoint every component in the cluster goes through, and etcd’s quorum, not the number of machines, is the availability figure that actually describes the cluster.",
+          "Every loop is level-triggered, rereading state rather than trusting messages, and the API server is the chokepoint.",
       },
     ],
     howItWorks: [
       {
         step: 1,
         description:
-          "A request arrives at the one door. The API server authenticates it, authorises it against RBAC, runs the mutating and then the validating admission chain, validates the object and writes it to etcd — and only then acknowledges it. What came back is a record of intent: the object exists, and nothing whatsoever is running yet.",
+          "A request passes authentication, RBAC, and admission, then lands in etcd — a record of intent, with nothing running yet.",
       },
       {
         step: 2,
         description:
-          "The scheduler is watching that store rather than waiting to be called. It sees a pod carrying no nodeName, filters and scores the nodes against what each has published about itself (#041), and writes one field — the binding — back through the API server. It never speaks to the machine it picked, and having written that field it is finished with the pod for good.",
+          "The scheduler sees an unbound pod, scores nodes (#041), and writes the binding. It never contacts the node.",
       },
       {
         step: 3,
         description:
-          "The kubelet on that machine is watching for its own name, and it is the one that acts. It pulls the spec down, has the runtime fetch images and start the containers in the shared sandbox (#024), and reports status back up through the same door; kube-proxy and the endpoint controllers are watching the same store and are meanwhile updating routing rules for it. Every one of them learned what to do by reading, and none of them was told.",
+          "The kubelet sees its name, starts the containers in a sandbox (#024), and reports status back.",
       },
       {
         step: 4,
         description:
-          "Steady state is those loops running, which is also where the shape of the diagram pays off: the architecture fails static. Take the entire control plane away and running pods keep running, kube-proxy keeps routing on the rules it already has, and a crashed container is still restarted by the kubelet that owns it — what stops is deciding. Nothing new is scheduled, nothing is rescheduled off a node that has died, nothing scales. Where the model stops is the gap between a cluster that is down and a cluster that has merely stopped changing its mind, and that gap is the whole reason this is drawn as a star.",
+          "The design fails static: without the control plane, pods keep running, but nothing new is scheduled.",
       },
     ],
   },

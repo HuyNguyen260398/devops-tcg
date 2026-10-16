@@ -210,6 +210,7 @@ const withinBudget = new Set<string>([
   "tcp",
   "udp",
   "kubernetes-node",
+  "kubernetes-cluster",
 ]);
 
 // Everything a reader reads past the title: the definition, the three
