@@ -2525,7 +2525,7 @@ export const conceptCards = [
       },
     },
     definition:
-      "A stateless service keeps nothing between requests that a later request will need, so any instance can serve any caller and every instance is disposable. The state did not disappear: it arrived with the request, or it sits in a service whose whole job is holding it (#045). Statelessness is a contract the code keeps rather than a property the platform enforces \u2014 AWS reuses a warm Lambda sandbox, so a global written by one invocation is still there for the next.",
+      "A stateless service keeps nothing between requests, so any instance can serve any caller and every instance is disposable. The state moved — into the request, or a store (#045).",
     keywords: [
       "disposable",
       "horizontal scaling",
@@ -2537,39 +2537,39 @@ export const conceptCards = [
       {
         name: "Where the state went",
         description:
-          "Every fact a request needs has to arrive with it or be fetched: the caller\u2019s identity travels in a token the service verifies by itself rather than looks up (#013), the session row comes from DynamoDB or ElastiCache, the upload goes to S3. The service is stateless; the system is not. What you bought is not less state but state in one place, and every other claim on this card is really a claim about having moved it there.",
+          "Identity travels in a token (#013), and data lives in DynamoDB or S3. The service is stateless; the system is not.",
       },
       {
         name: "The disposable instance",
         description:
-          "An instance\u2019s identity is a count, not a name \u2014 an Auto Scaling group\u2019s desired capacity, a Lambda\u2019s concurrency, an ECS task count. Because no instance is distinguishable from another, scale-in, a failed ALB health check, a rolling deploy and a two-minute spot interruption notice are one event with four causes, and the response to all four is identical: stop sending it traffic and stop it. The only thing at risk is the request already in flight, which is what the target group\u2019s deregistration delay is for.",
+          "Capacity is a count, not a name. Any instance can be stopped, and the deregistration delay protects in-flight requests.",
       },
       {
         name: "The leak",
         description:
-          "Nothing enforces the contract, so it leaks quietly. A Lambda execution environment is reused between invocations, so a module-level global or a file written to /tmp survives into the next invocation on that sandbox and is invisible to every other \u2014 fine for a cached database client, a bug for a counter. ALB target-group stickiness pins a caller to one target with a cookie and re-creates by hand exactly what the tier was built to avoid. An in-process cache does the same without announcing it. Each works perfectly until the next request lands elsewhere, so the failure arrives as a fraction of traffic rather than as an outage.",
+          "Nothing enforces it: Lambda sandboxes are reused, so globals and /tmp persist, and ALB stickiness pins callers.",
       },
     ],
     howItWorks: [
       {
         step: 1,
         description:
-          "A request reaches the load balancer (#027), which picks a healthy target by its own algorithm. Nothing in it knows or asks which target served this caller before, and nothing needs to. The choice is free precisely because the answer does not depend on it \u2014 that freedom is the whole return on the tier, and everything below is what it costs.",
+          "The load balancer (#027) picks any healthy target; none is special.",
       },
       {
         step: 2,
         description:
-          "The target answers from what arrived plus what it can fetch. The token is verified with a public key instead of being looked up in a session table (#013); the row is read from DynamoDB; the object is read from S3. Local disk carries the deployment artifact and the logs on their way out, and is never the only copy of anything.",
+          "The target uses the request plus fetched data, verifying tokens rather than looking up sessions (#013).",
       },
       {
         step: 3,
         description:
-          "Because nothing is on it, the instance can be taken away mid-afternoon without ceremony. Deregister it, wait out the in-flight requests, terminate. There is no drain because there is no data \u2014 and that is also the honest test of whether a service is stateless: not whether it was designed to be, but whether killing one instance at random during business hours is uninteresting.",
+          "With no data on it, an instance can be removed at any time: deregister, finish in-flight requests, terminate.",
       },
       {
         step: 4,
         description:
-          "What that buys is that capacity becomes a number and a retry becomes safe: a second attempt is indistinguishable from the first, so a timeout can simply be tried again \u2014 provided the work itself is idempotent, which is a property of the operation and not of the tier, and is the part a stateless design does not give you for free. The difficulty did not vanish either. It was handed, whole, to the service that took the state (#045).",
+          "Retries are safe only if the operation is idempotent, and the hard part has moved to the stateful tier (#045).",
       },
     ],
   },
