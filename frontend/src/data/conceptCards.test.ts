@@ -200,6 +200,7 @@ const withinBudget = new Set<string>([
   "aws-vpc",
   "aws-subnet",
   "aws-cidr",
+  "aws-route-table",
 ]);
 
 // Everything a reader reads past the title: the definition, the three
@@ -844,9 +845,6 @@ describe("conceptCards", () => {
     expect(table?.components[2]?.description).toMatch(/gateway route table/i);
     // Undeletable and unbeatable turn out to be different words.
     expect(table?.components[2]?.description).toMatch(/undeletable/i);
-    expect(table?.components[2]?.description).toMatch(
-      /Gateway Load Balancer endpoint/i,
-    );
     // Where the model stops: the other kind of route table entirely.
     expect(table?.howItWorks[3]?.description).toMatch(/Transit Gateway/i);
   });

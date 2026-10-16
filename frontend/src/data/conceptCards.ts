@@ -1799,7 +1799,7 @@ export const conceptCards = [
       },
     },
     definition:
-      "A route table is not a list read from the top down. It is a lookup, and the most specific matching row wins \u2014 whatever order the console prints them in, and whoever put them there. Some of them you did not put there.",
+      "A route table is not a list read from the top down. It is a lookup where the most specific matching row wins — and some rows you never wrote.",
     keywords: [
       "longest prefix match",
       "route priority",
@@ -1809,41 +1809,41 @@ export const conceptCards = [
     ],
     components: [
       {
-        name: "Longest prefix, and the two places that is not the rule",
+        name: "Longest prefix wins, with two exceptions",
         description:
-          "The narrowest row that matches decides, so a /24 you add takes that slice out of your 0.0.0.0/0 without either row being aware of the other, and no amount of reordering changes anything. Two exceptions are written down. The local route wins even when a propagated route is more specific than it \u2014 you cannot advertise your way inside the VPC\u2019s own range from the far end of a tunnel. And where two rows are equally specific, so that the prefix cannot decide, a static route beats a propagated one, with Direct Connect ahead of a static VPN route ahead of one learned over BGP.",
+          "The local route wins even when a propagated route is more specific, and on a tie a static route beats a propagated one.",
       },
       {
         name: "The rows you never wrote",
         description:
-          "Turn on propagation and a virtual private gateway writes rows into the table itself: they appear as the far end advertises them, change as it changes them, and disappear when the session drops \u2014 so part of what your table contains is somebody else\u2019s operational state, and reading the table tells you what is true this minute rather than what you decided. Delete a route\u2019s target and the row does not follow it out. It goes to blackhole, where it still matches, still wins against everything broader, and drops what it wins. A Transit Gateway propagates none of this: it keeps route tables of its own, so the VPC side of a Transit Gateway attachment is always a row somebody typed.",
+          "Propagated rows follow somebody else’s BGP. Delete a target and its row turns blackhole, still matching and dropping.",
       },
       {
         name: "Tables that hang off no subnet at all",
         description:
-          "A route table can be associated with the internet gateway rather than with a subnet, and a gateway route table is the only way ingress is made to pass through an inspection appliance before it reaches whatever it was addressed to \u2014 the subnet\u2019s own table is consulted far too late for that. The local route is the other half of the same idea. It is undeletable, exactly as the VPC card says, and it is nonetheless beatable: a static row more specific than the VPC range, pointing at a network interface or a Gateway Load Balancer endpoint, takes subnet-to-subnet traffic through a middlebox on the way. Undeletable and unbeatable are different words.",
+          "A gateway route table sends ingress through inspection first. The local route is undeletable, but a narrower row beats it.",
       },
     ],
     howItWorks: [
       {
         step: 1,
         description:
-          "A packet leaves an interface and the table associated with its subnet is consulted \u2014 or the VPC\u2019s main table, if nobody associated one. Every row is compared against the destination at once rather than walked in sequence, and the longest matching prefix takes it. The order rows appear in the console is presentation, so a row cannot be moved up, and a row that never matches cannot be shadowed by one above it either.",
+          "Every row is compared at once and the longest matching prefix wins; console order means nothing.",
       },
       {
         step: 2,
         description:
-          "When the prefix cannot decide, because two rows carry the very same destination, the documented order does. The local route sits above the question entirely. Otherwise static beats propagated, and among propagated rows Direct Connect comes before a statically configured VPN route, which comes before one learned over BGP \u2014 which is how the same range reached over two circuits ends up preferring one of them without anybody choosing.",
+          "On equal prefixes static beats propagated; among propagated rows, Direct Connect beats VPN, then BGP.",
       },
       {
         step: 3,
         description:
-          "Rows arrive and leave without you. Propagation fills them in from the gateway, and they follow the far end\u2019s advertisements rather than your intentions. A target that is deleted leaves its row behind in blackhole, matching and winning and dropping, which looks like a firewall and is nothing of the kind \u2014 no rule refused the packet, a row simply pointed at something that is no longer there. It is the one failure in this card that a security group audit will never find.",
+          "A blackhole row drops traffic. It looks like a firewall but is not, so a security group audit will not find it.",
       },
       {
         step: 4,
         description:
-          "Where the model stops is at the other kind of route table. A Transit Gateway has its own, with its own associations and its own propagations, and a route added to a VPC table has no effect on what the Transit Gateway does with the packet once it arrives \u2014 nor the reverse. Two tables, two lookups, and the traffic has to satisfy both. Adding the row and finding nothing changed is nearly always the sound of having added it to whichever table was not being consulted.",
+          "A Transit Gateway has route tables of its own; a VPC row does not change them, and traffic must satisfy both.",
       },
     ],
   },
