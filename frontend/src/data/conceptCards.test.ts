@@ -198,6 +198,7 @@ const withinBudget = new Set<string>([
   "aws-alb",
   "aws-nlb",
   "aws-vpc",
+  "aws-subnet",
 ]);
 
 // Everything a reader reads past the title: the definition, the three

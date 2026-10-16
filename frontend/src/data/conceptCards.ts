@@ -1675,7 +1675,7 @@ export const conceptCards = [
       },
     },
     definition:
-      "There is no public or private setting on a subnet to switch. \u201cPublic\u201d describes a subnet whose route table carries a row to an internet gateway and whose interfaces carry public addresses \u2014 two separate things, and neither one works alone. \u201cPrivate\u201d describes every other subnet, and how one of those reaches out is a choice between three mechanisms that have almost nothing in common.",
+      "A subnet has no public or private setting. “Public” means a route to an internet gateway plus public addresses on its interfaces — neither one works alone.",
     keywords: [
       "public subnet",
       "private subnet",
@@ -1687,39 +1687,39 @@ export const conceptCards = [
       {
         name: "The association you may never have made",
         description:
-          "A subnet is associated with one route table, but associating it is optional: a subnet nobody associated falls through to the VPC\u2019s main route table, so its behaviour is decided by rows in a table it was never explicitly given. One table can serve many subnets, which is why adding a single 0.0.0.0/0 row to the main table turns every unassociated subnet in the VPC public at once, and why moving one subnet\u2019s association changes what that subnet is without touching the subnet at all. Auditing reach means reading associations first and rows second \u2014 the console\u2019s \u201cpublic\u201d label is computed from exactly that pair, not read off the subnet.",
+          "A subnet never explicitly associated uses the VPC’s main route table, so one row there can make many subnets public.",
       },
       {
-        name: "Auto-assign public IPv4, and the route beside it",
+        name: "Auto-assign public IPv4",
         description:
-          "The one public-sounding setting that genuinely lives on the subnet is auto-assign public IPv4, and it grants no reach whatsoever: it decides only whether an interface launched here is handed a public address. The address without the route is unreachable, and the route without the address is equally unreachable, because the internet gateway works by one-to-one NAT between the two. That last fact is why the instance never sees its own public address \u2014 the operating system holds the private one, the translation happens at the gateway, and the public address is discoverable only through instance metadata or the API.",
+          "Grants an address, not reach: the gateway’s one-to-one NAT needs a route too, and an address alone is equally unreachable.",
       },
       {
-        name: "NAT gateway, egress-only gateway, and VPC endpoints",
+        name: "Three ways out of a private subnet",
         description:
-          "A private subnet has three quite different ways out. A NAT gateway is a resource that itself stands in a public subnet with its own Elastic IP and its own route to the internet gateway, so the one hop people draw is really two subnets and two tables. An egress-only internet gateway is the IPv6 answer, and exists because IPv6 has no NAT and every IPv6 address is already globally routable \u2014 outbound-only has to be enforced by the gateway rather than by translation. A VPC endpoint reaches AWS services without any of that: a gateway endpoint is one more row, naming a prefix list, while an interface endpoint is an ENI in the subnet found through DNS, adding no row anywhere.",
+          "A NAT gateway (which stands in a public subnet), an egress-only gateway for IPv6, or a VPC endpoint.",
       },
     ],
     howItWorks: [
       {
         step: 1,
         description:
-          "You cut the subnet and it has no character yet \u2014 a range of addresses in one Availability Zone, and nothing that says which side of the boundary it is on. If you associate a route table, that table decides; if you do not, the VPC\u2019s main route table decides, and it decides for every other unassociated subnet in the same breath. Nothing so far has been named public or private, because nothing in the API takes that word.",
+          "A new subnet is just an address range in one zone, using its own route table or the main one.",
       },
       {
         step: 2,
         description:
-          "Make it public and both halves have to be present. The table needs 0.0.0.0/0 pointing at an internet gateway attached to the VPC, and the interface needs a public or Elastic address, whether from auto-assign or attached afterwards. The gateway then does one-to-one NAT in both directions, which is why the machine\u2019s own configuration never mentions the public address it answers on, and why a packet arrives at a private address that the instance believed was the only one it had.",
+          "Public needs a 0.0.0.0/0 row to an internet gateway plus a public address, which the instance’s config never mentions.",
       },
       {
         step: 3,
         description:
-          "Make it private with egress and the row points at a NAT gateway instead \u2014 a gateway that lives in a public subnet of its own, holds an Elastic IP, and routes onward through the internet gateway. Nothing inbound can start, because the translation table has no entry until the private side opens one. The gateway is also zonal: a private subnet routing to a NAT in another Availability Zone pays cross-zone data charges for every byte and loses its egress entirely when that zone does, which is the argument for one NAT gateway per zone rather than one per VPC.",
+          "Private with egress routes to a NAT gateway; one per zone avoids cross-zone charges and zonal outages.",
       },
       {
         step: 4,
         description:
-          "Where the model stops is at the vocabulary. Public and private are descriptions of a route table\u2019s contents, so one row edited flips a subnet from either to the other with no change to the subnet, its addresses or anything running in it \u2014 and an interface endpoint reaches a service from a \u201cprivate\u201d subnet with no route at all. IPv6 breaks the pair outright: every address is globally routable from birth, so what holds an IPv6 subnet in is an egress-only gateway rather than the absence of a public address, and auto-assign public IPv4 has nothing to say about it.",
+          "An interface endpoint works with no route at all. IPv6 addresses are always routable, so an egress-only gateway holds them in.",
       },
     ],
   },
