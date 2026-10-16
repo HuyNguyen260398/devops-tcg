@@ -1489,7 +1489,7 @@ export const conceptCards = [
       },
     },
     definition:
-      "An Application Load Balancer works at layer 7: it terminates the client\u2019s connection, reads the HTTP request, and picks where to send it from what the request actually says. Nothing is forwarded blind. The balancer is one end of two separate conversations \u2014 one it holds with the client, one it opens to a target \u2014 which is the single fact the rest of the card follows from.",
+      "An Application Load Balancer works at layer 7: it terminates the client’s connection, reads the HTTP request, and routes it by what the request says.",
     keywords: [
       "layer 7",
       "listener rule",
@@ -1501,39 +1501,39 @@ export const conceptCards = [
       {
         name: "Listener and its rules",
         description:
-          "A listener is a port the balancer answers on; the rules hanging off it are an ordered list evaluated by priority, and the first match wins while every later rule never runs \u2014 which is why a broad rule sitting above a narrow one silently swallows it. A rule matches on host, path, header, method, query string or source IP, and that list is the whole routing surface: anything not in the request is something no rule can see. The listener also carries a default action, so a request matching nothing still gets an answer.",
+          "Rules run in priority order and the first match wins; a default action answers anything unmatched.",
       },
       {
         name: "Target group and its health check",
         description:
-          "A rule\u2019s action names a target group, never a server. The group holds the targets \u2014 instances, IP addresses or a Lambda function \u2014 and owns the health check that decides which of them are eligible: its own path, its own interval, and a set number of consecutive passes before a target is used again. Only healthy targets are sent to, so a group with nothing healthy left in it is what turns into a 503 rather than a slow page.",
+          "Holds the targets and health-checks them; with no healthy target left in the target group, clients get a 503.",
       },
       {
         name: "Two connections, not one",
         description:
-          "The balancer terminates TLS and the client\u2019s TCP connection, then opens its own connection to the target and keeps it warm across requests. The target therefore sees the balancer as its peer, and everything about the original caller survives only as X-Forwarded-For, X-Forwarded-Proto and X-Forwarded-Port. Those are headers, so an application reading them without knowing for certain that the request came through the balancer is trusting whatever a client chose to send.",
+          "The target sees only the balancer; the caller’s IP travels in X-Forwarded-For, worth trusting only when the balancer set it.",
       },
     ],
     howItWorks: [
       {
         step: 1,
         description:
-          "The client opens a connection and the balancer answers it. TLS is terminated here, against the certificate on the listener, so by the time any rule is evaluated the request is plain HTTP the balancer can read. Nothing has been chosen yet \u2014 there is no target to pick before the request has been parsed.",
+          "The client connects and TLS is terminated at the listener, so rules can read the plain request.",
       },
       {
         step: 2,
         description:
-          "The listener\u2019s rules are evaluated in priority order until one matches, and the request is then committed to the target group that rule names. Priorities are the whole control surface here: two rules that overlap are not merged or scored, the higher one simply takes everything.",
+          "Rules are checked in priority order, and the first match picks the target group.",
       },
       {
         step: 3,
         description:
-          "One target is chosen from the healthy members of that group \u2014 round robin by default, or least outstanding requests \u2014 and the request goes out over a connection the balancer holds to it, with the X-Forwarded-* headers added on the way. Sticky sessions, if enabled, override that choice using a cookie the balancer itself issues.",
+          "A healthy target is chosen — round robin or least outstanding requests — and X-Forwarded-* headers are added.",
       },
       {
         step: 4,
         description:
-          "The response returns on that connection and is written back to the client on the original one. Where the model stops is where it started: all of this assumes HTTP. A protocol the balancer cannot parse leaves a rule with nothing to match on, and the parsing itself is latency every request pays for the routing it makes possible.",
+          "The response returns the same way. A protocol it cannot parse gives rules nothing to match, and parsing adds latency.",
       },
     ],
   },

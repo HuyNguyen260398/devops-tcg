@@ -195,6 +195,7 @@ const withinBudget = new Set<string>([
   "kubernetes-pod",
   "prometheus",
   "prometheus-federation",
+  "aws-alb",
 ]);
 
 // Everything a reader reads past the title: the definition, the three
