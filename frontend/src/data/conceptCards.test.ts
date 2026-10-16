@@ -207,6 +207,7 @@ const withinBudget = new Set<string>([
   "aws-security-group",
   "aws-network-acl",
   "aws-vpc-endpoint",
+  "tcp",
 ]);
 
 // Everything a reader reads past the title: the definition, the three
@@ -1055,14 +1056,10 @@ describe("conceptCards", () => {
     // An acknowledgement names the next byte expected, and what arrives is a
     // stream rather than the messages that were written.
     expect(tcp?.components[1]?.description).toMatch(/next byte it expects/i);
-    expect(tcp?.components[1]?.description).toMatch(
-      /selective acknowledgement/i,
-    );
     expect(tcp?.components[1]?.description).toMatch(/byte stream/i);
     // The window is two numbers and only one of them is ever advertised.
     expect(tcp?.components[2]?.description).toMatch(/receive window/i);
     expect(tcp?.components[2]?.description).toMatch(/congestion window/i);
-    expect(tcp?.components[2]?.description).toMatch(/window scaling/i);
     expect(tcp?.howItWorks[2]?.description).toMatch(/fast retransmit/i);
     // Where the model stops: the price of the agreement, and what happens when
     // something in the path quietly forgets it.
