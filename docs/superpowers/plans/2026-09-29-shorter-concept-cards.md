@@ -1288,7 +1288,7 @@ git commit -m "feat: shorten the Prometheus Federation concept card" -m "Reading
 
 ---
 
-### Task 14: Shorten #027 AWS ALB
+### Task 14: Shorten #027 AWS ALB ✅
 
 Reading length 3028 → 881 characters (definition 374 → 149).
 
@@ -1378,7 +1378,7 @@ git commit -m "feat: shorten the AWS ALB concept card" -m "Reading length 3028 -
 
 ---
 
-### Task 15: Shorten #028 AWS NLB
+### Task 15: Shorten #028 AWS NLB ✅
 
 Reading length 3088 → 900 characters (definition 372 → 164).
 
@@ -1468,7 +1468,7 @@ git commit -m "feat: shorten the AWS NLB concept card" -m "Reading length 3088 -
 
 ---
 
-### Task 16: Shorten #029 AWS VPC
+### Task 16: Shorten #029 AWS VPC ✅
 
 Reading length 3758 → 952 characters (definition 295 → 161).
 
@@ -1558,7 +1558,7 @@ git commit -m "feat: shorten the AWS VPC concept card" -m "Reading length 3758 -
 
 ---
 
-### Task 17: Shorten #030 AWS Subnet
+### Task 17: Shorten #030 AWS Subnet ✅
 
 Reading length 4347 → 932 characters (definition 385 → 155).
 Component names shortened: `Auto-assign public IPv4, and the route beside it` → `Auto-assign public IPv4`; `NAT gateway, egress-only gateway, and VPC endpoints` → `Three ways out of a private subnet`.
@@ -1649,7 +1649,7 @@ git commit -m "feat: shorten the AWS Subnet concept card" -m "Reading length 434
 
 ---
 
-### Task 18: Shorten #031 AWS CIDR
+### Task 18: Shorten #031 AWS CIDR ✅
 
 Reading length 4291 → 868 characters (definition 270 → 152).
 
@@ -1739,7 +1739,7 @@ git commit -m "feat: shorten the AWS CIDR concept card" -m "Reading length 4291 
 
 ---
 
-### Task 19: Shorten #032 AWS Route Table
+### Task 19: Shorten #032 AWS Route Table ✅
 
 Reading length 3914 → 916 characters (definition 216 → 141).
 Component names shortened: `Longest prefix, and the two places that is not the rule` → `Longest prefix wins, with two exceptions`.
@@ -1842,7 +1842,7 @@ git commit -m "feat: shorten the AWS Route Table concept card" -m "Reading lengt
 
 ---
 
-### Task 20: Shorten #033 AWS NAT Gateway
+### Task 20: Shorten #033 AWS NAT Gateway ✅
 
 Reading length 3954 → 889 characters (definition 268 → 140).
 Component names shortened: `Charged twice, and usually for the wrong traffic` → `Charged twice`; `Not a filter, and not always an internet device` → `Not a filter, not always public`.
@@ -1933,7 +1933,7 @@ git commit -m "feat: shorten the AWS NAT Gateway concept card" -m "Reading lengt
 
 ---
 
-### Task 21: Shorten #034 AWS Internet Gateway
+### Task 21: Shorten #034 AWS Internet Gateway ✅
 
 Reading length 4663 → 924 characters (definition 264 → 155).
 Component names shortened: `The public address is never on the interface` → `The public address isn’t on the instance`; `Nothing to size, nothing to filter, and not free to use` → `Nothing to size or filter`.
@@ -2024,7 +2024,7 @@ git commit -m "feat: shorten the AWS Internet Gateway concept card" -m "Reading 
 
 ---
 
-### Task 22: Shorten #035 AWS Transit Gateway
+### Task 22: Shorten #035 AWS Transit Gateway ✅
 
 Reading length 5438 → 949 characters (definition 289 → 156).
 Component names shortened: `Two tables, and the second one belongs to the gateway` → `The gateway’s own route tables`; `Segmentation is a count of route tables, not a filter` → `Segmentation by route tables`; `The attachment is an interface in each zone, and it is metered` → `One interface per zone, metered`.
@@ -2131,7 +2131,7 @@ git commit -m "feat: shorten the AWS Transit Gateway concept card" -m "Reading l
 
 ---
 
-### Task 23: Shorten #036 AWS Security Group
+### Task 23: Shorten #036 AWS Security Group ✅
 
 Reading length 4497 → 871 characters (definition 312 → 141).
 Component names shortened: `Attached to an interface, and counted together` → `Unioned on the interface`.
@@ -2260,7 +2260,7 @@ git commit -m "feat: shorten the AWS Security Group concept card" -m "Reading le
 
 ---
 
-### Task 24: Shorten #037 AWS Network ACL
+### Task 24: Shorten #037 AWS Network ACL ✅
 
 Reading length 4141 → 805 characters (definition 355 → 155).
 Component names shortened: `Numbered, ordered, and finished at the first match` → `Numbered and first-match`.
@@ -2361,7 +2361,7 @@ git commit -m "feat: shorten the AWS Network ACL concept card" -m "Reading lengt
 
 ---
 
-### Task 25: Shorten #038 AWS VPC Endpoint
+### Task 25: Shorten #038 AWS VPC Endpoint ✅
 
 Reading length 4021 → 927 characters (definition 355 → 166).
 Component names shortened: `The gateway endpoint is a row, and it is free` → `Gateway endpoint: a free row`; `The interface endpoint is an address, and it is metered` → `Interface endpoint: a metered address`.
@@ -2452,7 +2452,7 @@ git commit -m "feat: shorten the AWS VPC Endpoint concept card" -m "Reading leng
 
 ---
 
-### Task 26: Shorten #039 TCP
+### Task 26: Shorten #039 TCP ✅
 
 Reading length 4967 → 919 characters (definition 358 → 166).
 Component names shortened: `An acknowledgement is a statement about numbers` → `Acknowledgements`.
@@ -2556,7 +2556,7 @@ git commit -m "feat: shorten the TCP concept card" -m "Reading length 4967 -> 91
 
 ---
 
-### Task 27: Shorten #040 UDP
+### Task 27: Shorten #040 UDP ✅
 
 Reading length 4728 → 861 characters (definition 283 → 163).
 
@@ -2656,7 +2656,7 @@ git commit -m "feat: shorten the UDP concept card" -m "Reading length 4728 -> 86
 
 ---
 
-### Task 28: Shorten #041 Kubernetes Node
+### Task 28: Shorten #041 Kubernetes Node ✅
 
 Reading length 3774 → 914 characters (definition 414 → 189).
 
@@ -2759,7 +2759,7 @@ git commit -m "feat: shorten the Kubernetes Node concept card" -m "Reading lengt
 
 ---
 
-### Task 29: Shorten #042 Kubernetes Cluster
+### Task 29: Shorten #042 Kubernetes Cluster ✅
 
 Reading length 3906 → 924 characters (definition 470 → 145).
 
@@ -2849,7 +2849,7 @@ git commit -m "feat: shorten the Kubernetes Cluster concept card" -m "Reading le
 
 ---
 
-### Task 30: Shorten #043 Kubernetes Deployment
+### Task 30: Shorten #043 Kubernetes Deployment ✅
 
 Reading length 3928 → 883 characters (definition 437 → 143).
 
@@ -2939,7 +2939,7 @@ git commit -m "feat: shorten the Kubernetes Deployment concept card" -m "Reading
 
 ---
 
-### Task 31: Shorten #044 AWS Stateless Services
+### Task 31: Shorten #044 AWS Stateless Services ✅
 
 Reading length 3510 → 910 characters (definition 464 → 177).
 
@@ -3029,7 +3029,7 @@ git commit -m "feat: shorten the AWS Stateless Services concept card" -m "Readin
 
 ---
 
-### Task 32: Shorten #045 AWS Stateful Services
+### Task 32: Shorten #045 AWS Stateful Services ✅
 
 Reading length 3568 → 888 characters (definition 485 → 153).
 
@@ -3119,7 +3119,7 @@ git commit -m "feat: shorten the AWS Stateful Services concept card" -m "Reading
 
 ---
 
-### Task 33: Shorten #046 Kubernetes ReplicaSet
+### Task 33: Shorten #046 Kubernetes ReplicaSet ✅
 
 Reading length 4144 → 925 characters (definition 431 → 170).
 
@@ -3209,7 +3209,7 @@ git commit -m "feat: shorten the Kubernetes ReplicaSet concept card" -m "Reading
 
 ---
 
-### Task 34: Shorten #047 SAML
+### Task 34: Shorten #047 SAML ✅
 
 Reading length 3716 → 953 characters (definition 479 → 178).
 
@@ -3321,7 +3321,7 @@ git commit -m "feat: shorten the SAML concept card" -m "Reading length 3716 -> 9
 ```
 
 ---
-### Task 35: Hold every card to the reading budget
+### Task 35: Hold every card to the reading budget ✅
 
 Once all 34 cards are in `withinBudget`, the set is just a list of every card. This task swaps it for the whole deck, so a card added later is held to the budget without anyone remembering to add it. It also pins cross-references and runs the full gate, e2e included.
 
