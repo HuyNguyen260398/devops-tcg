@@ -255,7 +255,10 @@ so push only when asked.
 Adding a concept card: commit an optimized local WebP under
 `frontend/public/images/`, record its source/license in
 `public/images/ATTRIBUTION.md`, append one `ConceptCardData` object with a
-unique `id` and card number, then extend both the content-contract test
+unique `id` and card number — its copy inside the reading budget the
+content-contract test enforces (definition ≤ 200 characters, component names
+≤ 40, each component ≤ 130, each step ≤ 150, ≤ 960 in all), which is what keeps
+a card readable at a glance — then extend both the content-contract test
 (`src/data/conceptCards.test.ts`) and the e2e image/title tables in
 `e2e/concept-deck.spec.ts`. A card needs artwork for both themes: the WebP
 photograph plus a hand-authored `*-sketch.svg` line drawing at the same

@@ -158,8 +158,8 @@ const expectedCards = [
 ] as const;
 
 // A face scrolls, but a card is meant to be read at a glance: these are the
-// most any one card may ask of its reader. Cards #001–#013 were written inside
-// them; the rest join `withinBudget` one commit at a time as they are shortened.
+// most any one card may ask of its reader, and a new card is held to them from
+// its first commit.
 const BUDGET = {
   definition: 200,
   componentName: 40,
@@ -167,56 +167,6 @@ const BUDGET = {
   step: 150,
   total: 960,
 } as const;
-
-const withinBudget = new Set<string>([
-  "proxy",
-  "cdn",
-  "nginx",
-  "reverse-proxy",
-  "osi-model",
-  "dns",
-  "ssl",
-  "tls",
-  "ssh",
-  "lambda-throttle",
-  "public-ca",
-  "private-ca",
-  "jwt",
-  "aws-lambda",
-  "aws-iam-role",
-  "aws-iam-policy",
-  "oidc",
-  "kafka",
-  "redis",
-  "rbac",
-  "redis-cluster",
-  "container",
-  "terraform-state",
-  "kubernetes-pod",
-  "prometheus",
-  "prometheus-federation",
-  "aws-alb",
-  "aws-nlb",
-  "aws-vpc",
-  "aws-subnet",
-  "aws-cidr",
-  "aws-route-table",
-  "aws-nat-gateway",
-  "aws-internet-gateway",
-  "aws-transit-gateway",
-  "aws-security-group",
-  "aws-network-acl",
-  "aws-vpc-endpoint",
-  "tcp",
-  "udp",
-  "kubernetes-node",
-  "kubernetes-cluster",
-  "kubernetes-deployment",
-  "aws-stateless-services",
-  "aws-stateful-services",
-  "kubernetes-replicaset",
-  "saml",
-]);
 
 // Everything a reader reads past the title: the definition, the three
 // components and the four steps.
@@ -229,16 +179,8 @@ const readingLength = (card: ConceptCardData): number =>
   card.howItWorks.reduce((sum, { description }) => sum + description.length, 0);
 
 describe("reading budget", () => {
-  it("names only cards that exist", () => {
-    const ids = new Set<string>(conceptCards.map(({ id }) => id));
-
-    expect([...withinBudget].filter((id) => !ids.has(id))).toEqual([]);
-  });
-
   it.each(
-    conceptCards
-      .filter(({ id }) => withinBudget.has(id))
-      .map((card) => [card.cardNumber, card.title, card] as const),
+    conceptCards.map((card) => [card.cardNumber, card.title, card] as const),
   )("keeps %s %s within the reading budget", (_number, _title, card) => {
     expect(card.definition.length, "definition").toBeLessThanOrEqual(
       BUDGET.definition,
@@ -343,6 +285,23 @@ describe("conceptCards", () => {
       // one description would misdescribe whichever artwork is on screen.
       expect(card.image.sketch.alt).not.toBe(card.image.alt);
     }
+  });
+
+  it("points every #NNN cross-reference at a card in the deck", () => {
+    const numbers = new Set<string>(
+      conceptCards.map(({ cardNumber }) => cardNumber),
+    );
+    const references = conceptCards.flatMap((card) =>
+      [
+        card.definition,
+        ...card.components.map(({ description }) => description),
+        ...card.howItWorks.map(({ description }) => description),
+      ].flatMap((text) => text.match(/#\d{3}/g) ?? []),
+    );
+
+    expect(references.filter((reference) => !numbers.has(reference))).toEqual(
+      [],
+    );
   });
 
   it("distinguishes deprecated SSL from modern TLS", () => {
