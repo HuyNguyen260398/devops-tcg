@@ -214,6 +214,7 @@ const withinBudget = new Set<string>([
   "kubernetes-deployment",
   "aws-stateless-services",
   "aws-stateful-services",
+  "kubernetes-replicaset",
 ]);
 
 // Everything a reader reads past the title: the definition, the three
