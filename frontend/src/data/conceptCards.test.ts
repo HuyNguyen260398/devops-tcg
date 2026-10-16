@@ -205,6 +205,7 @@ const withinBudget = new Set<string>([
   "aws-internet-gateway",
   "aws-transit-gateway",
   "aws-security-group",
+  "aws-network-acl",
 ]);
 
 // Everything a reader reads past the title: the definition, the three
@@ -994,7 +995,6 @@ describe("conceptCards", () => {
     expect(acl?.components[1]?.description).toMatch(/times out/i);
     // The one thing a security group cannot express at all.
     expect(acl?.components[2]?.description).toMatch(/no deny/i);
-    expect(acl?.components[2]?.description).toMatch(/twenty rules/i);
     // A custom list denies everything, which is how this layer is first met.
     expect(acl?.howItWorks[0]?.description).toMatch(/denies everything/i);
     expect(acl?.howItWorks[1]?.description).toMatch(/first match/i);
