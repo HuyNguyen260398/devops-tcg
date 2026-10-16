@@ -1861,7 +1861,7 @@ export const conceptCards = [
       },
     },
     definition:
-      "A NAT gateway is not a property of the subnet it stands in. It is a resource that is charged by the hour and again per gigabyte it processes, and the ceiling that stops it is not bandwidth \u2014 it is how many connections it can hold open to any one destination at a time.",
+      "A NAT gateway is a resource billed by the hour and per gigabyte, and what limits it is not bandwidth but connections to any one destination.",
     keywords: [
       "data processing charge",
       "port allocation",
@@ -1871,41 +1871,41 @@ export const conceptCards = [
     ],
     components: [
       {
-        name: "Charged twice, and usually for the wrong traffic",
+        name: "Charged twice",
         description:
-          "There is an hourly charge for the gateway standing there and a second charge for every gigabyte it processes, and that second one lands on top of the ordinary data transfer charge rather than instead of it. It applies just as much to traffic bound for S3 or DynamoDB, which is where most surprising bills come from: a gateway endpoint carries that traffic free of charge, takes it off the NAT gateway entirely, and is a single row in a route table. Cross-zone charges stack on top again whenever the private subnet sits in a different Availability Zone from the gateway it routes to, so the cheapest arrangement and the most available one happen to be the same one.",
+          "Hourly plus per gigabyte, even for S3 and DynamoDB traffic — which a free gateway endpoint takes off it entirely.",
       },
       {
         name: "It runs out of ports, not of bandwidth",
         description:
-          "A NAT gateway scales itself from 5 Gbps to 100 Gbps without being asked, so bandwidth is rarely what fails. What is finite is 55,000 simultaneous connections to each unique destination \u2014 destination address, port and protocol together \u2014 which is why an entire fleet browsing the internet is comfortable and the same fleet calling one API endpoint is not. The failure surfaces as the ErrorPortAllocation metric and as connections that simply will not establish, and the fix is more addresses rather than a bigger gateway: secondary IPv4 addresses each bring their own allowance to the same destination.",
+          "About 55,000 connections per unique destination. Exhaustion shows as ErrorPortAllocation; secondary IPs add more.",
       },
       {
-        name: "Not a filter, and not always an internet device",
+        name: "Not a filter, not always public",
         description:
-          "You cannot attach a security group to a NAT gateway. The only filter within reach of it is the network ACL on the subnet it stands in, and that judges each direction separately, so a NAT gateway is not the place anybody\u2019s egress policy actually lives \u2014 it belongs on the interfaces behind it, or on a firewall built for the job. The other thing it can be is a private NAT gateway: no Elastic IP, no route to an internet gateway, no internet at any point. It translates into a private address instead, so two networks with overlapping ranges can reach each other across a Transit Gateway or a VPN \u2014 which is the working answer to the collision the CIDR card says you can never undo.",
+          "You cannot attach a security group — only the subnet’s network ACL. A private NAT gateway joins overlapping networks.",
       },
     ],
     howItWorks: [
       {
         step: 1,
         description:
-          "The gateway is a managed resource with an interface in exactly one subnet in exactly one Availability Zone. Nothing reaches it by being near it: traffic arrives because a route table sent it, and what it does on arrival is rewrite the source of each connection to its own address and a port it picks, remembering the pairing in a table of its own.",
+          "Routed traffic arrives, and each connection’s source is rewritten to the gateway’s address and a port.",
       },
       {
         step: 2,
         description:
-          "The reply comes back to that address and port, is matched against the remembered pairing, and is rewritten back to the machine that started it. Nothing inbound can begin, because until the private side opens a connection there is no entry to match against \u2014 which is the whole of the protection a NAT gateway offers, and all of it is a side effect of how translation works rather than a policy anybody wrote.",
+          "Replies match the stored pairing and are rewritten back. Nothing inbound can start a connection.",
       },
       {
         step: 3,
         description:
-          "The limits arrive in that table. Each remembered pairing is one of 55,000 available to that destination, and an idle connection is discarded after 350 seconds \u2014 not quietly, either: a resumed connection is answered with an RST rather than being allowed to continue, which is why long-lived and mostly silent connections need keepalives shorter than the timeout. Meanwhile every gigabyte through the table is charged, including all the gigabytes that a free gateway endpoint would have kept off it.",
+          "Each pairing uses one of 55,000 ports per destination; an idle one expires after 350 seconds and gets an RST.",
       },
       {
         step: 4,
         description:
-          "Where the model stops is IPv6, which has no NAT here at all \u2014 every address is globally routable from birth, so outbound-only is enforced by an egress-only internet gateway instead, and none of this card\u2019s translation, ports or timeouts apply to it. And a NAT gateway is never a destination: it cannot be the target of anything arriving, cannot publish a service, and cannot be reached by its Elastic IP from outside for any purpose at all. Everything it does begins on the private side.",
+          "IPv6 uses an egress-only gateway instead. A NAT gateway is never a destination for inbound traffic.",
       },
     ],
   },

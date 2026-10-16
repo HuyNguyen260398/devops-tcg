@@ -201,6 +201,7 @@ const withinBudget = new Set<string>([
   "aws-subnet",
   "aws-cidr",
   "aws-route-table",
+  "aws-nat-gateway",
 ]);
 
 // Everything a reader reads past the title: the definition, the three
