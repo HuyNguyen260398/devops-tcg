@@ -215,6 +215,7 @@ const withinBudget = new Set<string>([
   "aws-stateless-services",
   "aws-stateful-services",
   "kubernetes-replicaset",
+  "saml",
 ]);
 
 // Everything a reader reads past the title: the definition, the three
@@ -1334,10 +1335,8 @@ describe("conceptCards", () => {
     expect(saml?.components[2]?.description).toMatch(/RelayState/);
     expect(saml?.howItWorks[0]?.description).toMatch(/AuthnRequest/);
     expect(saml?.howItWorks[2]?.description).toMatch(/only courier/i);
-    // The payload: verify the node you read, then the provider has no say.
+    // The payload: verify the very node you read, and the request it answers.
     expect(saml?.howItWorks[3]?.description).toMatch(/signature wrapping/i);
     expect(saml?.howItWorks[3]?.description).toMatch(/InResponseTo/);
-    expect(saml?.howItWorks[3]?.description).toMatch(/Single Logout/);
-    expect(saml?.howItWorks[3]?.description).toMatch(/replay/i);
   });
 });

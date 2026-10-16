@@ -2711,7 +2711,7 @@ export const conceptCards = [
       },
     },
     definition:
-      "Security Assertion Markup Language is browser single sign-on built from signed XML. The identity provider writes an assertion saying who the user is and hands it to the application through the user’s own browser, and the application believes it only because it imported that provider’s certificate before anyone logged in. In the usual binding nothing travels server to server, so the signature, the audience and the clock window on the assertion are the whole of the protection.",
+      "SAML is browser single sign-on built from signed XML: the identity provider’s assertion reaches the app through the user’s browser, trusted via a certificate imported beforehand.",
     keywords: [
       "assertion",
       "identity provider",
@@ -2724,39 +2724,39 @@ export const conceptCards = [
       {
         name: "Metadata",
         description:
-          "Trust is set up ahead of time, by hand. Each side publishes an XML metadata document — its entityID, its endpoints and the X.509 certificate it signs with — and the other side imports it. Many service providers load it once and never fetch it again, unlike the keys an OIDC provider publishes for anyone to read at runtime (#017), so when the identity provider rotates its signing certificate every application still holding the old one stops accepting logins. That is why a provider lists the next certificate beside the current one well before the switch.",
+          "Each side imports the other’s entityID, endpoints, and certificate. When a provider rotates its key, logins break — unlike #017.",
       },
       {
         name: "Assertion",
         description:
-          "The claim itself: a Subject carrying the NameID, Conditions bounding when it holds (NotBefore, NotOnOrAfter) and for whom (an AudienceRestriction naming the application’s entityID), an AuthnStatement saying how and when the user signed in, and an AttributeStatement with the email, groups and whatever else was mapped. It is signed with XML Signature by the provider’s private key — over the assertion, the Response wrapping it, or both — and can be encrypted to the application’s certificate, because unlike a JWT fetched from a token endpoint (#013) it passes through the browser, readable by anyone at the keyboard.",
+          "Signed XML naming the user, bounded by NotOnOrAfter and an AudienceRestriction; unlike a JWT (#013), it crosses the browser.",
       },
       {
         name: "Bindings",
         description:
-          "How a message rides HTTP. HTTP-Redirect deflates the application’s small AuthnRequest into a query string; HTTP-POST puts the provider’s large signed Response into a hidden form the browser submits to the Assertion Consumer Service URL; the Artifact binding sends only a reference and lets the application resolve it server to server, the one variant with a back channel. RelayState rides along untouched, so the user lands back on the page they first asked for.",
+          "HTTP-Redirect carries the request and HTTP-POST the response; Artifact uses a back channel. RelayState returns the user.",
       },
     ],
     howItWorks: [
       {
         step: 1,
         description:
-          "The user opens the application with no session of its own. The application builds an AuthnRequest with a fresh ID, remembers that ID, and redirects the browser to the provider’s single sign-on URL with the page it was asked for tucked into RelayState.",
+          "The app redirects the browser to the provider with an AuthnRequest and remembers its ID.",
       },
       {
         step: 2,
         description:
-          "The provider authenticates the user however it requires — password, a second factor, or a session it already holds, which is what makes the second application in a morning a silent login. The credentials never reach the application, the same promise OIDC makes (#017).",
+          "The provider authenticates the user, and the credentials never reach the app (as with #017).",
       },
       {
         step: 3,
         description:
-          "The provider answers with a page holding the signed Response in a hidden form, and the browser posts it to the Assertion Consumer Service URL. The browser is the only courier, which is why everything the application needs to trust has to sit inside the signature.",
+          "The browser posts the signed response to the app. It is the only courier, so trust rests on the signature.",
       },
       {
         step: 4,
         description:
-          "The application checks before it believes: the signature against the certificate from metadata, and on the very element it goes on to read — signature wrapping hides a forged assertion beside a genuinely signed one, and a parser that verifies one node and reads another accepts it. Then the Issuer, the Audience, the Destination, an InResponseTo matching the request it sent, the time window with a little skew, and an assertion ID it has not seen before. Only then does it mint a session of its own, and from that moment the provider has no say: disabling the user there ends nothing already issued unless Single Logout reaches every application, which it often does not. A provider-initiated login skips step one, so there is no InResponseTo to check, and an unsolicited Response is exactly what a replay looks like.",
+          "The app checks the signature on the element it reads (signature wrapping), then the audience, time, and InResponseTo.",
       },
     ],
   },
