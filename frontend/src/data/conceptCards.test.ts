@@ -204,6 +204,7 @@ const withinBudget = new Set<string>([
   "aws-nat-gateway",
   "aws-internet-gateway",
   "aws-transit-gateway",
+  "aws-security-group",
 ]);
 
 // Everything a reader reads past the title: the definition, the three
@@ -958,13 +959,12 @@ describe("conceptCards", () => {
     expect(group?.components[0]?.description).toMatch(/union/i);
     expect(group?.components[0]?.description).toMatch(/no order/i);
     expect(group?.components[0]?.description).toMatch(/deletion/i);
-    // Stateful is a memory of flows, and the memory has consequences.
-    expect(group?.components[1]?.description).toMatch(/untracked/i);
-    expect(group?.components[1]?.description).toMatch(/tears down/i);
-    // A rule can name a group, and #034 and #035 are where that stops working.
+    // Stateful means the reply needs no rule, and a new group admits nothing.
+    expect(group?.components[1]?.description).toMatch(/automatically/i);
+    expect(group?.components[1]?.description).toMatch(/no inbound/i);
+    // A rule can name a group, and a Transit Gateway is where that stops working.
     expect(group?.components[2]?.description).toMatch(/prefix list/i);
     expect(group?.components[2]?.description).toMatch(/Transit Gateway/i);
-    expect(group?.components[2]?.description).toMatch(/public source/i);
     // A new group is already a complete filter before anybody edits it.
     expect(group?.howItWorks[0]?.description).toMatch(/no inbound rule/i);
     expect(group?.howItWorks[1]?.description).toMatch(/no first match/i);
