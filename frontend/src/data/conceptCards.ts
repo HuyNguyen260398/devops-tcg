@@ -2760,4 +2760,67 @@ export const conceptCards = [
       },
     ],
   },
+  {
+    id: "grpc",
+    cardNumber: "#048",
+    type: "NETWORK",
+    title: "gRPC",
+    image: {
+      src: "/images/grpc-thumbnail.webp",
+      alt: "A client holding a generated function stub on the left and a server on the right, joined over the top by a dashed line through the one .proto contract both were generated from, with a single glowing connection between them carrying three streams of binary frames at once — one call and its reply, a run of replies streaming back, and frames flowing both ways — and a status check hanging below it, while off to one side a clock marks the deadline the client set, and to the other a browser window lies struck through",
+      sketch: {
+        src: "/images/grpc-sketch.svg",
+        alt: "Line drawing of a client box marked f() and a server box joined by a dashed line through a document marked with angle brackets, a single highlighted pipe between them holding three rows of small frames with arrows in both directions, a ticked box hanging below the pipe, a small clock, and a crossed-out browser window",
+      },
+    },
+    definition:
+      "gRPC makes a remote call look local: both ends are generated from one .proto contract and multiplexed over HTTP/2.",
+    keywords: [
+      "remote procedure call",
+      "protobuf",
+      "protocol buffers",
+      "HTTP/2",
+      "streaming",
+      "deadline",
+    ],
+    components: [
+      {
+        name: "Proto contract",
+        description:
+          "A .proto file declares services, methods, and messages. Field numbers, not names, go on the wire, so never reuse one.",
+      },
+      {
+        name: "HTTP/2 channel",
+        description:
+          "One long-lived connection carries every call as its own stream, so an L4 balancer (#028) pins all of them to one backend.",
+      },
+      {
+        name: "Four call shapes",
+        description:
+          "Unary, server streaming, client streaming, and bidirectional: each is one stream of length-prefixed messages.",
+      },
+    ],
+    howItWorks: [
+      {
+        step: 1,
+        description:
+          "The client calls a method on its generated stub, as if it were local.",
+      },
+      {
+        step: 2,
+        description:
+          "The stub opens a stream on the shared connection, usually over TLS (#008), sending the method path and a grpc-timeout header.",
+      },
+      {
+        step: 3,
+        description:
+          "The server runs the handler it implemented and streams replies back.",
+      },
+      {
+        step: 4,
+        description:
+          "Trailers end the call with grpc-status, so HTTP 200 can still be a failure. Browsers cannot read trailers, hence gRPC-Web.",
+      },
+    ],
+  },
 ] as const satisfies readonly ConceptCardData[];

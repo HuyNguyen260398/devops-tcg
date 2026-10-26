@@ -200,6 +200,10 @@ const images = [
     "An identity provider on the left and an application on the right, joined over the top by a dashed line through the one certificate they swapped before anyone logged in, with the user’s browser standing between them carrying a sealed XML assertion across on two solid arrows — while off to one side a clock marks the minutes the assertion is good for, and to the other a forged assertion lies struck through with the genuine seal pulled out beside it",
     "/images/saml-thumbnail.webp",
   ],
+  [
+    "A client holding a generated function stub on the left and a server on the right, joined over the top by a dashed line through the one .proto contract both were generated from, with a single glowing connection between them carrying three streams of binary frames at once — one call and its reply, a run of replies streaming back, and frames flowing both ways — and a status check hanging below it, while off to one side a clock marks the deadline the client set, and to the other a browser window lies struck through",
+    "/images/grpc-thumbnail.webp",
+  ],
 ] as const;
 
 const card = (page: import("@playwright/test").Page) =>

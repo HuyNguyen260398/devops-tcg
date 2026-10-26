@@ -155,6 +155,7 @@ const expectedCards = [
     "/images/kubernetes-replicaset-thumbnail.webp",
   ],
   ["saml", "#047", "SAML", "/images/saml-thumbnail.webp"],
+  ["grpc", "#048", "gRPC", "/images/grpc-thumbnail.webp"],
 ] as const;
 
 // A face scrolls, but a card is meant to be read at a glance: these are the
@@ -227,7 +228,7 @@ describe("conceptCards", () => {
     expect(conceptCards[0].howItWorks).toHaveLength(4);
   });
 
-  it("contains all forty-seven concepts in the approved order", () => {
+  it("contains all forty-eight concepts in the approved order", () => {
     expect(conceptCards).toHaveLength(expectedCards.length);
     expect(
       conceptCards.map(({ id, cardNumber, title, image }) => [
@@ -1297,5 +1298,28 @@ describe("conceptCards", () => {
     // The payload: verify the very node you read, and the request it answers.
     expect(saml?.howItWorks[3]?.description).toMatch(/signature wrapping/i);
     expect(saml?.howItWorks[3]?.description).toMatch(/InResponseTo/);
+  });
+
+  it("makes gRPC a local-looking call over one shared HTTP/2 connection", () => {
+    const grpc = conceptCards.find(({ id }) => id === "grpc");
+
+    expect(grpc?.cardNumber).toBe("#048");
+    expect(grpc?.type).toBe("NETWORK");
+    // The thesis: one contract, generated on both ends, multiplexed on one connection.
+    expect(grpc?.definition).toMatch(/\.proto/);
+    expect(grpc?.definition).toMatch(/HTTP\/2/);
+    expect(grpc?.keywords).toContain("protobuf");
+    expect(grpc?.keywords).toContain("streaming");
+    // Field numbers are the wire format, which is what makes reuse dangerous.
+    expect(grpc?.components[0]?.description).toMatch(/Field numbers/);
+    // One long-lived connection defeats a connection-level balancer.
+    expect(grpc?.components[1]?.description).toMatch(/#028/);
+    expect(grpc?.components[2]?.description).toMatch(/bidirectional/i);
+    expect(grpc?.howItWorks[1]?.description).toMatch(/grpc-timeout/);
+    expect(grpc?.howItWorks[1]?.description).toMatch(/#008/);
+    // The payload: the status rides in trailers, which a browser cannot read.
+    expect(grpc?.howItWorks[3]?.description).toMatch(/grpc-status/);
+    expect(grpc?.howItWorks[3]?.description).toMatch(/HTTP 200/);
+    expect(grpc?.howItWorks[3]?.description).toMatch(/gRPC-Web/);
   });
 });

@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 278 220">
+  <g transform="translate(139 110) scale(0.88) translate(-139 -110)">
+  <!-- the one connection every call shares, so it takes the highlighter -->
+  <path d="M97 90 L181 89 L182 130 L98 131 Z" fill="#fff2c4" />
+  <g fill="#dbe7ff">
+    <path d="M44 72 L92 71 L93 140 L45 141 Z" />
+    <path d="M186 71 L234 72 L233 141 L185 140 Z" />
+    <path d="M120 23 L158 22 L159 52 L121 53 Z" />
+  </g>
+
+  <g fill="none" stroke="#1d1d1b" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+    <!-- the .proto contract both ends are generated from -->
+    <path d="M68 71 L68 37 L119 36 M160 36 L210 37 L210 71" stroke-dasharray="5 5" />
+    <path d="M120 23 L158 22 L159 52 L121 53 Z" />
+    <path d="M128 31 L124 35 L128 39 M150 31 L154 35 L150 39" />
+    <path d="M131 35 L147 35 M128 45 L148 45" />
+
+    <!-- the client, calling a stub as if it were local -->
+    <path d="M44 72 L92 71 L93 140 L45 141 Z" />
+    <path d="M58 82 C53 82 53 86 53 90 L53 100 M50 91 L58 91" />
+    <path d="M64 82 C60 87 60 96 64 101 M74 82 C78 87 78 96 74 101" />
+    <path d="M52 115 L84 115 M52 124 L78 124" />
+
+    <!-- one HTTP/2 connection, three streams interleaved inside it -->
+    <path d="M97 90 L181 89 L182 130 L98 131 Z" />
+    <path d="M101 103 L178 103 M101 117 L178 117" stroke-dasharray="3 4" stroke-width="1.4" />
+    <path d="M104 93 L114 93 L114 100 L104 100 Z M164 93 L174 93 L174 100 L164 100 Z" />
+    <path d="M118 96.5 L126 96.5 M123 94 L126 96.5 L123 99 M160 96.5 L152 96.5 M155 94 L152 96.5 L155 99" />
+    <path d="M122 107 L132 107 L132 114 L122 114 Z M137 107 L147 107 L147 114 L137 114 Z M152 107 L162 107 L162 114 L152 114 Z" />
+    <path d="M117 110.5 L107 110.5 M110 108 L107 110.5 L110 113" />
+    <path d="M104 121 L114 121 L114 128 L104 128 Z M117 121 L127 121 L127 128 L117 128 Z M152 121 L162 121 L162 128 L152 128 Z M165 121 L175 121 L175 128 L165 128 Z" />
+    <path d="M131 124.5 L138 124.5 M136 122 L138 124.5 L136 127 M148 124.5 L141 124.5 M143 122 L141 124.5 L143 127" />
+
+    <!-- the server, implementing the generated base -->
+    <path d="M186 71 L234 72 L233 141 L185 140 Z" />
+    <path d="M193 80 L227 80 L227 93 L193 93 Z M193 99 L227 99 L227 112 L193 112 Z" />
+    <circle cx="221" cy="86.5" r="1.6" />
+    <circle cx="221" cy="105.5" r="1.6" />
+    <path d="M196 124 L224 124 M196 132 L216 132" />
+
+    <!-- the status, sent in trailers after the last frame -->
+    <path d="M139 131 L139 150" stroke-dasharray="4 4" />
+    <path d="M124 151 L154 150 L155 165 L125 166 Z" />
+    <path d="M133 158 L137 162 L146 153" />
+
+    <!-- the deadline the client set, carried with the call -->
+    <circle cx="62" cy="172" r="15" />
+    <path d="M62 172 L62 162 M62 172 L69 176" />
+    <path d="M70 158 L76 145" stroke-dasharray="3 4" />
+
+    <!-- a browser that cannot read trailers, struck -->
+    <path d="M194 156 L232 155 L233 194 L195 195 Z" stroke-dasharray="4 4" />
+    <path d="M194 165 L232 164" />
+    <path d="M201 175 L224 175 M201 183 L218 183" />
+    <path d="M190 152 L237 199 M237 152 L190 199" />
+  </g>
+  </g>
+</svg>

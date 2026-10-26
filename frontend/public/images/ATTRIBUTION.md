@@ -38,7 +38,8 @@ OpenAI image generation on 2026-08-15 and are stored locally:
 `aws-stateless-services-thumbnail.webp` with
 `aws-stateful-services-thumbnail.webp` on 2026-09-20, and
 `kubernetes-replicaset-thumbnail.webp` on 2026-09-21, and
-`saml-thumbnail.webp` on 2026-09-27, each as
+`saml-thumbnail.webp` on 2026-09-27, and
+`grpc-thumbnail.webp` on 2026-10-27, each as
 an isometric SVG scene composed in-repo and rendered to WebP with headless
 Chromium. They contain no
 third-party artwork.
@@ -48,7 +49,7 @@ thumbnail in the deck that was neither drawn for it nor 16:9.
 
 ## Sketch-theme drawings
 
-The forty-seven `*-sketch.svg` files are original hand-authored SVG line
+The forty-eight `*-sketch.svg` files are original hand-authored SVG line
 drawings made for DevOps TCG on 2026-08-19, on 2026-08-20 for the two
 certificate authority cards, on 2026-08-21 for JWT, on 2026-08-23 for AWS
 Lambda, on 2026-08-24 for the two IAM cards, on 2026-08-25 for OIDC, on
@@ -60,7 +61,7 @@ and Prometheus Federation, on 2026-09-03 for AWS ALB and AWS NLB, on
 TCP and UDP, on 2026-09-16 for Kubernetes Node, on 2026-09-18 for
 Kubernetes Cluster, on 2026-09-19 for Kubernetes Deployment, on 2026-09-20 for AWS
 Stateless Services and AWS Stateful Services, on 2026-09-21 for Kubernetes
-ReplicaSet, and on 2026-09-27 for SAML. Their line
+ReplicaSet, on 2026-09-27 for SAML, and on 2026-10-27 for gRPC. Their line
 work is
 plain `<path>` geometry — no tracing of any third-party image, no generator,
 and no external asset — and they are the artwork the sketch theme shows in
@@ -235,6 +236,13 @@ lock, the certificate joining them over the top on a dashed line, the browser
 between them carrying a sealed XML assertion on two solid arrows, the clock
 beside it, and the forged assertion struck through with the genuine seal pulled
 out beside it were all drawn for DevOps TCG on 2026-09-27.
+
+`grpc-thumbnail.webp` and `grpc-sketch.svg` carry no official mark: what the
+card is about is one contract and one connection. The client with its generated
+stub, the server, the `.proto` document joining them over the top on a dashed
+line, the single connection carrying three streams of frames between them, the
+status hanging below it, the deadline clock beside it, and the browser struck
+through were all drawn for DevOps TCG on 2026-10-27.
 
 AWS, AWS Lambda, AWS Identity and Access Management, Elastic Load Balancing,
 Amazon VPC and AWS Transit Gateway are trademarks of Amazon.com, Inc. or its
