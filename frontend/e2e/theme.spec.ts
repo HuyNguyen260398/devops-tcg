@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { arrive } from "./arrive";
 
 const toSketch = (page: import("@playwright/test").Page) =>
   page.getByRole("button", { name: "Switch to the sketch theme" });
@@ -20,7 +21,7 @@ test.describe("theme switching", () => {
   });
 
   test("starts on neon and switches to sketch", async ({ page }) => {
-    await page.goto("/");
+    await arrive(page);
 
     await expect(page.locator("html")).toHaveAttribute("data-theme", "neon");
 
@@ -31,7 +32,7 @@ test.describe("theme switching", () => {
   });
 
   test("switches back to neon", async ({ page }) => {
-    await page.goto("/");
+    await arrive(page);
     await toSketch(page).click();
     await toNeon(page).click();
 
@@ -42,7 +43,7 @@ test.describe("theme switching", () => {
   test("remembers the theme across a reload without a neon frame", async ({
     page,
   }) => {
-    await page.goto("/");
+    await arrive(page);
     await toSketch(page).click();
     await page.reload();
 
@@ -60,7 +61,7 @@ test.describe("theme switching", () => {
     await page.addInitScript(() => {
       window.localStorage.setItem("devops-tcg-theme", "chartreuse");
     });
-    await page.goto("/");
+    await arrive(page);
 
     await expect(page.locator("html")).toHaveAttribute("data-theme", "neon");
     await expect(toSketch(page)).toBeVisible();
@@ -69,7 +70,7 @@ test.describe("theme switching", () => {
   test("restyles the card surface and swaps in the drawn artwork", async ({
     page,
   }) => {
-    await page.goto("/");
+    await arrive(page);
     const face = card(page).getByTestId("card-front");
     const photo = face.locator(".card-thumbnail-neon");
     const drawing = face.locator(".card-thumbnail-sketch");
@@ -95,7 +96,7 @@ test.describe("theme switching", () => {
   test("leaves Space flipping the card after the toggle is clicked", async ({
     page,
   }) => {
-    await page.goto("/");
+    await arrive(page);
     await toSketch(page).click();
 
     await expect(card(page)).toHaveAttribute("data-face", "front");
@@ -106,7 +107,7 @@ test.describe("theme switching", () => {
   });
 
   test("keeps the flip working under the sketch theme", async ({ page }) => {
-    await page.goto("/");
+    await arrive(page);
     await toSketch(page).click();
 
     await expect(card(page)).toHaveAttribute("data-face", "front");
@@ -117,7 +118,7 @@ test.describe("theme switching", () => {
   test("adds no horizontal overflow under the sketch theme", async ({
     page,
   }) => {
-    await page.goto("/");
+    await arrive(page);
     await toSketch(page).click();
 
     const overflows = await page.evaluate(

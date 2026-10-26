@@ -1,8 +1,9 @@
 import { expect, test } from "@playwright/test";
+import { arrive } from "./arrive";
 
 // A wide viewport now opens on the grid, so this suite asks for the carousel
 // before the page loads. Seeding the preference rather than clicking the toggle
-// keeps every test in the file at one `page.goto("/")`, and it means the
+// keeps every test in the file at one `arrive(page)`, and it means the
 // chromium project still exercises the multi-rank spread that only exists above
 // 1110px.
 test.beforeEach(async ({ page }) => {
@@ -255,7 +256,7 @@ async function navigateToCard(
 }
 
 test("loads front-first and flips both directions", async ({ page }) => {
-  await page.goto("/");
+  await arrive(page);
   const activeCard = card(page);
   const title = await activeTitle(page);
 
@@ -278,7 +279,7 @@ test("loads front-first and flips both directions", async ({ page }) => {
 test("supports flip keys and looping directional arrow-key navigation", async ({
   page,
 }) => {
-  await page.goto("/");
+  await arrive(page);
   const activeCard = card(page);
   const initialTitle = await activeTitle(page);
 
@@ -305,7 +306,7 @@ test("supports flip keys and looping directional arrow-key navigation", async ({
 });
 
 test("navigates the shipped deck infinitely", async ({ page }) => {
-  await page.goto("/");
+  await arrive(page);
   const previous = page.getByRole("button", { name: "Previous card" });
   const next = page.getByRole("button", { name: "Next card" });
 
@@ -345,7 +346,7 @@ test("navigates the shipped deck infinitely", async ({ page }) => {
 });
 
 test("centers the deck and shows faded adjacent cards", async ({ page }) => {
-  await page.goto("/");
+  await arrive(page);
   await expect(card(page)).toBeVisible();
 
   const [cardBounds, viewportWidth] = await Promise.all([
@@ -391,7 +392,7 @@ test("stacks a centred title above the card on a phone", async ({
 }, testInfo) => {
   test.skip(testInfo.project.name !== "mobile");
 
-  await page.goto("/");
+  await arrive(page);
   await expect(card(page)).toBeVisible();
 
   const title = page.getByRole("heading", { name: "DevOps TCG" });
@@ -414,7 +415,7 @@ test("stacks a centred title above the card on a phone", async ({
 test("spreads the deck across the width it is given", async ({
   page,
 }, testInfo) => {
-  await page.goto("/");
+  await arrive(page);
 
   const painted = page.locator(".deck-slot:not([data-staged])");
   const viewportWidth = await page.evaluate(
@@ -460,7 +461,7 @@ test("spreads the deck across the width it is given", async ({
 test("leaves the same gap between every pair of adjacent cards", async ({
   page,
 }) => {
-  await page.goto("/");
+  await arrive(page);
   // page.evaluate does not wait for anything, and the deck holds a
   // slot-less placeholder until its shuffle runs after mount, so the read
   // below has to be gated on the dealt deck or it can measure nothing at all.
@@ -501,7 +502,7 @@ test("leaves the same gap between every pair of adjacent cards", async ({
 test("shows keyboard focus on the card edge, not as a panel around it", async ({
   page,
 }) => {
-  await page.goto("/");
+  await arrive(page);
   const active = card(page);
   await expect(active).toBeVisible(); // The card only exists after hydration.
 
@@ -535,7 +536,7 @@ test("shows keyboard focus on the card edge, not as a panel around it", async ({
 test("flips against the page background with nothing bright behind the faces", async ({
   page,
 }) => {
-  await page.goto("/");
+  await arrive(page);
   const active = card(page);
   await expect(active).toBeVisible();
 
@@ -574,7 +575,7 @@ test("flips against the page background with nothing bright behind the faces", a
 test("paints only one card face at a time through the flip", async ({
   page,
 }) => {
-  await page.goto("/");
+  await arrive(page);
   const active = card(page);
   await expect(active).toBeVisible();
 
@@ -610,7 +611,7 @@ test("paints only one card face at a time through the flip", async ({
 test("scrolls the card faces without drawing a scrollbar over them", async ({
   page,
 }) => {
-  await page.goto("/");
+  await arrive(page);
   const face = scroller(page);
   await expect(face).toBeVisible();
 
@@ -630,7 +631,7 @@ test("scrolls the card faces without drawing a scrollbar over them", async ({
 test("keeps the card's own surface still while its content scrolls", async ({
   page,
 }) => {
-  await page.goto("/");
+  await arrive(page);
   const active = card(page);
   await expect(active).toBeVisible();
 
@@ -661,7 +662,7 @@ test("keeps the card's own surface still while its content scrolls", async ({
 test("never parks a neighbouring card behind the centred card", async ({
   page,
 }) => {
-  await page.goto("/");
+  await arrive(page);
 
   const centre = await slot(page, 0).boundingBox();
   expect(centre).not.toBeNull();
@@ -680,7 +681,7 @@ test("never parks a neighbouring card behind the centred card", async ({
 test("flips the centred card with Space after the pointer scrolls it", async ({
   page,
 }) => {
-  await page.goto("/");
+  await arrive(page);
   const active = card(page);
 
   await active.hover();
@@ -699,7 +700,7 @@ test("flips the centred card with Space after the pointer scrolls it", async ({
 test("travels the neighbouring card into the centre without remounting it", async ({
   page,
 }) => {
-  await page.goto("/");
+  await arrive(page);
 
   const motion = await slot(page, 1).evaluate((node) => ({
     property: getComputedStyle(node).transitionProperty,
@@ -740,7 +741,7 @@ test("loads a unique local image for every card", async ({ page }) => {
     }
   });
 
-  await page.goto("/");
+  await arrive(page);
   const loadedSources = new Set<string>();
 
   for (let position = 1; position <= images.length; position += 1) {
@@ -775,7 +776,7 @@ test("loads a unique local sketch drawing for every card", async ({ page }) => {
     }
   });
 
-  await page.goto("/");
+  await arrive(page);
   await page
     .getByRole("button", { name: "Switch to the sketch theme" })
     .click();
@@ -810,7 +811,7 @@ test("loads a unique local sketch drawing for every card", async ({ page }) => {
 });
 
 test("serves a card-themed tab icon", async ({ page }) => {
-  await page.goto("/");
+  await arrive(page);
 
   const href = await page
     .locator('link[rel~="icon"]')
@@ -834,7 +835,7 @@ test("stands the control bar clear of the card at phone widths", async ({
 
   for (const width of [320, 375, 390, 412]) {
     await page.setViewportSize({ width, height: 700 });
-    await page.goto("/");
+    await arrive(page);
     await expect(card(page)).toBeVisible();
 
     const centre = await slot(page, 0).boundingBox();
@@ -877,7 +878,7 @@ test("centres the card vertically on a phone screen", async ({
     [412, 915],
   ]) {
     await page.setViewportSize({ width, height });
-    await page.goto("/");
+    await arrive(page);
     await expect(card(page)).toBeVisible();
 
     const bounds = await card(page).boundingBox();
@@ -907,7 +908,7 @@ test("spaces the control bar evenly and centres it", async ({
 
   for (const width of [320, 375, 412]) {
     await page.setViewportSize({ width, height: 700 });
-    await page.goto("/");
+    await arrive(page);
     await expect(card(page)).toBeVisible();
 
     const centres: number[] = [];
@@ -942,7 +943,7 @@ test("spaces the control bar evenly and centres it", async ({
 
 test("navigates the deck with a touch swipe", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== "mobile");
-  await page.goto("/");
+  await arrive(page);
   await expect(card(page)).toBeVisible();
   const start = await activeTitle(page);
 
@@ -973,7 +974,7 @@ test("trails the finger while a swipe is in progress", async ({
   page,
 }, testInfo) => {
   test.skip(testInfo.project.name !== "mobile");
-  await page.goto("/");
+  await arrive(page);
   await expect(card(page)).toBeVisible();
   const start = await activeTitle(page);
 
@@ -1051,7 +1052,7 @@ const cardCentre = async (page: import("@playwright/test").Page) => {
 
 test("swipes with a finger on the card itself", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== "mobile");
-  await page.goto("/");
+  await arrive(page);
   await expect(card(page)).toBeVisible();
   const start = await activeTitle(page);
 
@@ -1068,7 +1069,7 @@ test("still scrolls the card face under a vertical finger", async ({
   page,
 }, testInfo) => {
   test.skip(testInfo.project.name !== "mobile");
-  await page.goto("/");
+  await arrive(page);
   await expect(card(page)).toBeVisible();
   const start = await activeTitle(page);
 
@@ -1088,7 +1089,7 @@ test("keeps a vertical drag from dragging the deck sideways", async ({
   page,
 }, testInfo) => {
   test.skip(testInfo.project.name !== "mobile");
-  await page.goto("/");
+  await arrive(page);
   await expect(card(page)).toBeVisible();
   const start = await activeTitle(page);
 
@@ -1116,7 +1117,7 @@ test("keeps a vertical drag from dragging the deck sideways", async ({
 
 test("does not overflow at 320 pixels", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== "mobile");
-  await page.goto("/");
+  await arrive(page);
   // Gated for the same reason: the pre-shuffle placeholder is layout-stable, so
   // measuring it would pass without ever testing the deck it stands in for.
   await expect(card(page)).toBeVisible();
@@ -1132,7 +1133,7 @@ test("does not overflow at 320 pixels", async ({ page }, testInfo) => {
 test("keeps the complete deck navigation inside the viewport", async ({
   page,
 }, testInfo) => {
-  await page.goto("/");
+  await arrive(page);
 
   const dimensions = await page.evaluate(() => ({
     viewportWidth: document.documentElement.clientWidth,
@@ -1201,7 +1202,7 @@ test("keeps the Reverse Proxy card readable at 200 percent text zoom", async ({
   page,
 }, testInfo) => {
   test.skip(testInfo.project.name !== "mobile");
-  await page.goto("/");
+  await arrive(page);
 
   await navigateToCard(page, "Reverse Proxy");
   await page.evaluate(() => {
@@ -1254,7 +1255,7 @@ test("keeps the Reverse Proxy card readable at 200 percent text zoom", async ({
 test("leaves space under the last line when a face scrolls", async ({
   page,
 }) => {
-  await page.goto("/");
+  await arrive(page);
   await navigateToCard(page, "Reverse Proxy");
 
   const gapAtScrollEnd = async (face: "card-front" | "card-back") => {
@@ -1282,20 +1283,23 @@ test("leaves space under the last line when a face scrolls", async ({
   expect(await gapAtScrollEnd("card-back")).toBeGreaterThan(16);
 });
 
-// Eight to eleven cards fly past a shuffle, so from the top of a twenty-card
-// deck the reel can only come to rest on one of these four positions. Direction
-// is checked on the track itself rather than here: a backwards reel of the same
-// length would land on this very set, 9 through 12, so the position alone
-// cannot tell the two apart.
-const LANDINGS = ["9", "10", "11", "12"];
+// Eight to eleven cards fly past a shuffle. The page's own entrance has already
+// reeled the deck to wherever it landed, so a shuffle is measured as the
+// distance it travelled from there rather than as a fixed set of positions.
+// Direction is checked on the track itself rather than here: a backwards reel
+// of the same length could land on the same position.
+const REEL_STEPS = [8, 9, 10, 11];
 
-const landedAt = (page: import("@playwright/test").Page) =>
-  page.getByTestId("deck-track").getAttribute("data-position");
+const positionOf = async (page: import("@playwright/test").Page) =>
+  Number(await page.getByTestId("deck-track").getAttribute("data-position"));
+
+const travelled = (from: number, to: number) =>
+  (((to - from) % images.length) + images.length) % images.length;
 
 test("shuffles the deck from a control centred under the cards", async ({
   page,
 }) => {
-  await page.goto("/");
+  await arrive(page);
   // The pre-shuffle placeholder carries an inert Shuffle button of its own, and
   // dealing the deck destroys that node rather than reusing it — the control
   // moves from a lone child of the section into the fragment it shares with the
@@ -1325,12 +1329,13 @@ test("shuffles the deck from a control centred under the cards", async ({
   ).toBeLessThan(2);
   expect(shuffleBounds!.height).toBeGreaterThanOrEqual(44);
 
+  const from = await positionOf(page);
   await shuffle.click();
 
   // The reel runs, then brakes to a stop on the card it dealt itself.
   await expect(track).toHaveAttribute("data-spinning", "true");
   await expect(track).not.toHaveAttribute("data-spinning", "true");
-  expect(LANDINGS).toContain(await landedAt(page));
+  expect(REEL_STEPS).toContain(travelled(from, await positionOf(page)));
   await expect(card(page)).toHaveAttribute("data-face", "front");
   await expect(slot(page, 0)).toBeVisible();
 
@@ -1346,7 +1351,7 @@ test("shuffles the deck from a control centred under the cards", async ({
 test("slides the deck leftwards from the card already in hand", async ({
   page,
 }) => {
-  await page.goto("/");
+  await arrive(page);
 
   const inHand = await slot(page, 0).getAttribute("data-testid");
   expect(inHand).not.toBeNull();
@@ -1385,8 +1390,9 @@ test("ignores a finger on the deck while the reel is running", async ({
   page,
 }, testInfo) => {
   test.skip(testInfo.project.name !== "mobile");
-  await page.goto("/");
+  await arrive(page);
   const track = page.getByTestId("deck-track");
+  const from = await positionOf(page);
 
   await page.getByRole("button", { name: "Shuffle" }).click();
   await expect(track).toHaveAttribute("data-spinning", "true");
@@ -1399,24 +1405,25 @@ test("ignores a finger on the deck while the reel is running", async ({
   await expect(track).not.toHaveAttribute("data-dragging", "true");
   await expect(track).not.toHaveAttribute("data-spinning", "true");
   await expect(card(page)).toHaveAttribute("data-face", "front");
-  expect(LANDINGS).toContain(await landedAt(page));
+  expect(REEL_STEPS).toContain(travelled(from, await positionOf(page)));
 });
 
 test("lands the shuffle at once for reduced motion", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
-  await page.goto("/");
+  await arrive(page);
 
   const track = page.getByTestId("deck-track");
+  const from = await positionOf(page);
   await page.getByRole("button", { name: "Shuffle" }).click();
 
   // Same destination, no reel: the counter is already there.
-  expect(LANDINGS).toContain(await landedAt(page));
+  expect(REEL_STEPS).toContain(travelled(from, await positionOf(page)));
   await expect(track).not.toHaveAttribute("data-spinning", "true");
 });
 
 test("removes transition for reduced motion", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
-  await page.goto("/");
+  await arrive(page);
 
   // The slot animates two properties, so its duration list has two entries.
   const durations = (node: Element) =>

@@ -197,6 +197,26 @@ Non-obvious mechanisms worth knowing before editing `ConceptDeck.tsx`:
   so the swap lands exactly where both faces are edge-on. `--flip-half` must
   stay half of `--flip`, and a card leaving the centre resets its flip with no
   transition because its back face unmounts in the same render.
+- **The page has an entrance, and only a page load plays it.**
+  `ConceptExplorer` holds a one-way phase, `holding → arriving → done`, stamped
+  on `.app-stage` as `data-intro`. While holding, it renders `DeckLoader` (three
+  card backs riffling on CSS keyframes alone, so the server's HTML is already
+  animating before hydration) in place of the old "Preparing the deck" beat,
+  with an inert `DeckToolbar` under it on a phone so the card does not jump.
+  The hold is `INTRO_HOLD` (800ms) counted from `performance.now()`, i.e. from
+  the start of the page load, and it also waits for the viewport measurement.
+  Arriving, the grid gets `data-arriving` for `GRID_ARRIVE` (a CSS fade) and
+  the deck gets `dealOnArrival`, which calls its own `shuffle()` once and
+  reports back through `onArrived` when the reel stops — the entrance *is* the
+  Shuffle button's reel, not a second animation. Under reduced motion there is
+  no hold, no reel and no fade. Nothing but mounting restarts it, so a filter,
+  a view switch or a resize never replays it. Unit tests opt out with
+  `intro={false}` or shorten it with `introHold`; e2e specs open the page with
+  `arrive(page)` from `e2e/arrive.ts`, which waits for `data-intro="done"`,
+  and only `loading-intro.spec.ts` uses a bare `goto`. Because the deck now
+  opens mid-order, an off-centre card's face carries `tabIndex={-1}`: Chromium
+  makes a scroller with nothing focusable inside it a tab stop, `aria-hidden`
+  or not, and those faces would otherwise take Tab before the card in hand.
 
 Behavioral contracts the tests enforce (don't regress them silently):
 card click / Enter / Space all flip; arrow buttons are named `Previous card`
@@ -214,7 +234,9 @@ is a polite live region; a grid tile opens a dialog whose Escape returns focus
 to that tile, Escape being its only announced way out; the dialog's
 Previous/Next wrap through the filtered results only;
 a dismissed search sheet keeps its filter and marks the header trigger; the grid
-scrolls inside the locked shell rather than scrolling the document.
+scrolls inside the locked shell rather than scrolling the document; a page
+load shows the `Loading the deck` wheel for at least 0.8s, then reels the deck
+once or fades the grid in, and nothing else ever replays it.
 
 ## Infrastructure
 

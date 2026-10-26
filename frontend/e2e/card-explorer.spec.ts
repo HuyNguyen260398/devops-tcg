@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { arrive } from "./arrive";
 
 const tiles = (page: import("@playwright/test").Page) =>
   page.getByRole("button", { name: /^Open the .+ card$/ });
@@ -12,7 +13,7 @@ const phoneOnly = (testInfo: import("@playwright/test").TestInfo) =>
 test("opens on a grid of every card", async ({ page }, testInfo) => {
   wideOnly(testInfo);
 
-  await page.goto("/");
+  await arrive(page);
 
   await expect(tiles(page)).toHaveCount(48);
   await expect(page.getByText("48 / 48")).toBeVisible();
@@ -21,7 +22,7 @@ test("opens on a grid of every card", async ({ page }, testInfo) => {
 test("filters the grid on every keystroke", async ({ page }, testInfo) => {
   wideOnly(testInfo);
 
-  await page.goto("/");
+  await arrive(page);
   await expect(tiles(page)).toHaveCount(48);
 
   const field = page.getByRole("searchbox", { name: "Search cards" });
@@ -48,7 +49,7 @@ test("finds a card by its category and by a keyword", async ({
 }, testInfo) => {
   wideOnly(testInfo);
 
-  await page.goto("/");
+  await arrive(page);
 
   const field = page.getByRole("searchbox", { name: "Search cards" });
 
@@ -72,7 +73,7 @@ test("stands every category chip on one row on a wide screen", async ({
 }, testInfo) => {
   wideOnly(testInfo);
 
-  await page.goto("/");
+  await arrive(page);
 
   const strip = page.locator(".search-chips");
   await expect(strip).toBeVisible();
@@ -90,7 +91,7 @@ test("collects the Kubernetes cards under their own chip", async ({
 }, testInfo) => {
   wideOnly(testInfo);
 
-  await page.goto("/");
+  await arrive(page);
 
   // The chip row is derived from the data, so the newest category is simply
   // the last chip rather than anything a component had to be told about.
@@ -119,7 +120,7 @@ test("deals every tile the same height, whatever the filter", async ({
 }, testInfo) => {
   wideOnly(testInfo);
 
-  await page.goto("/");
+  await arrive(page);
   await expect(tiles(page)).toHaveCount(48);
 
   const heights = () =>
@@ -146,7 +147,7 @@ test("deals every tile the same height, whatever the filter", async ({
 test("offers a way back when nothing matches", async ({ page }, testInfo) => {
   wideOnly(testInfo);
 
-  await page.goto("/");
+  await arrive(page);
 
   await page.getByRole("searchbox", { name: "Search cards" }).fill("zzzzz");
 
@@ -162,7 +163,7 @@ test("opens a tile as a flippable card and returns focus on Escape", async ({
 }, testInfo) => {
   wideOnly(testInfo);
 
-  await page.goto("/");
+  await arrive(page);
 
   const tile = page.getByRole("button", { name: "Open the Kafka card" });
 
@@ -188,7 +189,7 @@ test("walks the filtered results from inside the dialog", async ({
 }, testInfo) => {
   wideOnly(testInfo);
 
-  await page.goto("/");
+  await arrive(page);
 
   await page.getByRole("searchbox", { name: "Search cards" }).fill("redis");
   await expect(tiles(page)).toHaveCount(2);
@@ -211,7 +212,7 @@ test("keeps the opened card the same size as it walks the deck", async ({
 }, testInfo) => {
   wideOnly(testInfo);
 
-  await page.goto("/");
+  await arrive(page);
   await page.getByRole("button", { name: "Open the Proxy card" }).click();
 
   const opened = page.locator("[role=dialog] .concept-card[data-face]");
@@ -247,7 +248,7 @@ test("switches to the carousel and remembers it across a reload", async ({
 }, testInfo) => {
   wideOnly(testInfo);
 
-  await page.goto("/");
+  await arrive(page);
 
   await page.getByRole("button", { name: "Show the deck view" }).click();
 
@@ -265,7 +266,7 @@ test("keeps the phone layout on the carousel with a search button", async ({
 }, testInfo) => {
   phoneOnly(testInfo);
 
-  await page.goto("/");
+  await arrive(page);
 
   await expect(page.locator(".concept-card[data-face]")).toBeVisible();
   await expect(tiles(page)).toHaveCount(0);
@@ -280,7 +281,7 @@ test("filters the deck from the sheet and keeps the filter once dismissed", asyn
 }, testInfo) => {
   phoneOnly(testInfo);
 
-  await page.goto("/");
+  await arrive(page);
   await expect(page.locator(".concept-card[data-face]")).toBeVisible();
 
   await page.getByRole("button", { name: "Search the deck" }).click();
@@ -308,7 +309,7 @@ test("takes a typed space rather than flipping the card behind", async ({
 }, testInfo) => {
   phoneOnly(testInfo);
 
-  await page.goto("/");
+  await arrive(page);
   await expect(page.locator(".concept-card[data-face]")).toBeVisible();
 
   await page.getByRole("button", { name: "Search the deck" }).click();
@@ -329,7 +330,7 @@ test("keeps the document free of horizontal overflow while searching", async ({
 }, testInfo) => {
   phoneOnly(testInfo);
 
-  await page.goto("/");
+  await arrive(page);
 
   await page.getByRole("button", { name: "Search the deck" }).click();
   await page.getByRole("searchbox", { name: "Search cards" }).fill("a");
@@ -348,7 +349,7 @@ test("scrolls the grid inside the shell rather than scrolling the page", async (
 }, testInfo) => {
   wideOnly(testInfo);
 
-  await page.goto("/");
+  await arrive(page);
   await expect(tiles(page)).toHaveCount(48);
 
   const documentOverflow = await page.evaluate(
