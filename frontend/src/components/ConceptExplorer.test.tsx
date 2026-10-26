@@ -417,6 +417,69 @@ describe("ConceptExplorer intro", () => {
     });
   });
 
+  const neverSpins = async () => {
+    const track = screen.getByTestId("deck-track");
+    let spun = false;
+    const observer = new MutationObserver(() => {
+      if (track.getAttribute("data-spinning") === "true") spun = true;
+    });
+
+    observer.observe(track, { attributes: true });
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    observer.disconnect();
+
+    expect(spun).toBe(false);
+    expect(track).not.toHaveAttribute("data-spinning");
+  };
+
+  it("reels the deck once on load, then finishes", async () => {
+    setViewportWidth(375);
+    mountIntro();
+
+    await waitFor(() =>
+      expect(screen.getByTestId("deck-track")).toHaveAttribute(
+        "data-spinning",
+        "true",
+      ),
+    );
+    await waitFor(() => expect(stage()).toHaveAttribute("data-intro", "done"), {
+      timeout: 4000,
+    });
+  });
+
+  it("does not reel again when the filter changes after arrival", async () => {
+    const user = userEvent.setup();
+
+    setViewportWidth(375);
+    mountIntro();
+    await waitFor(() => expect(stage()).toHaveAttribute("data-intro", "done"), {
+      timeout: 4000,
+    });
+
+    await user.click(screen.getByRole("button", { name: "Search the deck" }));
+    await user.type(await screen.findByRole("searchbox"), "redis");
+    await user.click(screen.getByTestId("dialog-backdrop"));
+    await screen.findByRole("button", { name: /^Redis card, front shown$/ });
+
+    await neverSpins();
+  });
+
+  it("shows the deck without a reel when switching from the grid after load", async () => {
+    const user = userEvent.setup();
+
+    mountIntro();
+    await waitFor(() => expect(stage()).toHaveAttribute("data-intro", "done"), {
+      timeout: 1500,
+    });
+
+    await user.click(
+      screen.getByRole("button", { name: "Show the deck view" }),
+    );
+    await screen.findByTestId("deck-track");
+
+    await neverSpins();
+  });
+
   it("shows an inert toolbar under the wheel on a narrow viewport", () => {
     setViewportWidth(375);
     mountIntro({ introHold: 60_000 });

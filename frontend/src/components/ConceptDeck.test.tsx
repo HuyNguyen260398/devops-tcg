@@ -1,5 +1,12 @@
 import { renderToStaticMarkup } from "react-dom/server";
-import { act, fireEvent, render, screen, within } from "@testing-library/react";
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { conceptCards } from "@/data/conceptCards";
@@ -902,6 +909,82 @@ describe("ConceptDeck", () => {
       render(<ConceptDeck cards={conceptCards.slice(0, 1)} random={() => 0} />);
 
       expect(shuffleButton()).toBeDisabled();
+    });
+  });
+
+  describe("arrival", () => {
+    const deckTrack = () => screen.getByTestId("deck-track");
+
+    it("reels once on arrival and reports when it stops", async () => {
+      const onArrived = vi.fn();
+
+      render(
+        <ConceptDeck
+          cards={conceptCards}
+          random={() => 0.999999}
+          dealOnArrival
+          onArrived={onArrived}
+        />,
+      );
+
+      await waitFor(() =>
+        expect(deckTrack()).toHaveAttribute("data-spinning", "true"),
+      );
+      expect(onArrived).not.toHaveBeenCalled();
+
+      await waitFor(() => expect(onArrived).toHaveBeenCalledTimes(1), {
+        timeout: 4000,
+      });
+      expect(deckTrack()).not.toHaveAttribute("data-spinning");
+      expect(
+        document.querySelector(".concept-card[data-face]"),
+      ).toHaveAttribute("data-face", "front");
+    });
+
+    it("does not reel without dealOnArrival", async () => {
+      render(<ConceptDeck cards={conceptCards} random={() => 0.999999} />);
+
+      await screen.findByRole("button", { name: "Proxy card, front shown" });
+      expect(deckTrack()).not.toHaveAttribute("data-spinning");
+    });
+
+    it("still reports arrival for a single card", async () => {
+      const onArrived = vi.fn();
+
+      render(
+        <ConceptDeck
+          cards={conceptCards.slice(0, 1)}
+          dealOnArrival
+          onArrived={onArrived}
+        />,
+      );
+
+      await waitFor(() => expect(onArrived).toHaveBeenCalledTimes(1));
+    });
+
+    it("arrives at once under reduced motion", async () => {
+      const onArrived = vi.fn();
+
+      vi.stubGlobal(
+        "matchMedia",
+        vi.fn(() => ({ matches: true })),
+      );
+
+      try {
+        render(
+          <ConceptDeck
+            cards={conceptCards}
+            random={() => 0.999999}
+            dealOnArrival
+            onArrived={onArrived}
+          />,
+        );
+
+        await waitFor(() => expect(onArrived).toHaveBeenCalledTimes(1));
+        expect(deckTrack()).not.toHaveAttribute("data-spinning");
+      } finally {
+        vi.unstubAllGlobals();
+      }
     });
   });
 });

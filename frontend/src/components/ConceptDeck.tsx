@@ -23,6 +23,11 @@ interface ConceptDeckProps {
   // Passed straight through to the bar: the search button belongs to whoever
   // owns the filter, which is never the deck.
   readonly searchControl?: ReactNode;
+  // The page's entrance: deal the first order with one reel, exactly as the
+  // Shuffle button would, and say when it has stopped. Off by default, so only
+  // the first deal after a page load ever runs it.
+  readonly dealOnArrival?: boolean;
+  readonly onArrived?: () => void;
 }
 
 const wrapIndex = (index: number, length: number) =>
@@ -191,6 +196,8 @@ export function ConceptDeck({
   random = Math.random,
   compactControls = false,
   searchControl,
+  dealOnArrival = false,
+  onArrived,
 }: ConceptDeckProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [deckOrder, setDeckOrder] = useState<DeckOrder | null>(null);
@@ -208,6 +215,12 @@ export function ConceptDeck({
   const gesture = useRef<SwipeGesture | null>(null);
   const suppressFlip = useRef(false);
   const spinTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // The entrance runs once per deck, however often the prop stays true, and
+  // reports through the latest callback rather than the one it started with.
+  const hasArrived = useRef(false);
+  const isArrivalReel = useRef(false);
+  const onArrivedRef = useRef(onArrived);
+  onArrivedRef.current = onArrived;
   const deckLength = deckOrder?.cards.length ?? 0;
 
   const navigate = useCallback(
@@ -302,6 +315,10 @@ export function ConceptDeck({
         trackRef.current?.style.removeProperty("--travel-ease");
         spinTimer.current = null;
         setIsSpinning(false);
+        if (isArrivalReel.current) {
+          isArrivalReel.current = false;
+          onArrivedRef.current?.();
+        }
         return;
       }
 
@@ -317,6 +334,25 @@ export function ConceptDeck({
     setIsSpinning(true);
     advance(steps);
   }, [deckOrder, deckLength, activeIndex, isSpinning, random]);
+
+  // The entrance waits for the first order to be dealt for these cards, then
+  // reels it like a press of Shuffle. With motion turned down, or with nothing
+  // to reel, shuffle() settles at once and the deck has arrived already.
+  useEffect(() => {
+    if (!dealOnArrival || hasArrived.current) return;
+    if (deckOrder === null || deckOrder.sourceCards !== cards) return;
+
+    hasArrived.current = true;
+
+    if (deckLength < 2 || prefersReducedMotion()) {
+      shuffle();
+      onArrivedRef.current?.();
+      return;
+    }
+
+    isArrivalReel.current = true;
+    shuffle();
+  }, [dealOnArrival, deckOrder, cards, deckLength, shuffle]);
 
   // A reel left in flight by an unmount must not wake up to set state.
   useEffect(

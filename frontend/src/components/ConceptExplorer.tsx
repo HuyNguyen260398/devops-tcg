@@ -120,11 +120,18 @@ export function ConceptExplorer({
 
   // How the cards arrive depends on what is on screen when the hold ends. The
   // grid's fade is CSS, so the phase only has to outlast it; an empty result
-  // has nothing to bring in, and neither has the deck yet.
+  // has nothing to bring in, and the deck says for itself when its reel stops.
   useEffect(() => {
     if (introPhase !== "arriving") return;
 
-    if (!showGrid || visibleCards.length === 0 || prefersReducedMotion()) {
+    if (visibleCards.length === 0) {
+      setIntroPhase("done");
+      return;
+    }
+
+    if (!showGrid) return;
+
+    if (prefersReducedMotion()) {
       setIntroPhase("done");
       return;
     }
@@ -237,6 +244,8 @@ export function ConceptExplorer({
             random={random}
             compactControls={isWide === false}
             searchControl={searchControl}
+            dealOnArrival={introPhase === "arriving"}
+            onArrived={() => setIntroPhase("done")}
           />
         )}
       </div>
