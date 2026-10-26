@@ -203,7 +203,7 @@ Non-obvious mechanisms worth knowing before editing `ConceptDeck.tsx`:
   card backs riffling on CSS keyframes alone, so the server's HTML is already
   animating before hydration) in place of the old "Preparing the deck" beat,
   with an inert `DeckToolbar` under it on a phone so the card does not jump.
-  The hold is `INTRO_HOLD` (800ms) counted from `performance.now()`, i.e. from
+  The hold is `INTRO_HOLD` (1000ms) counted from `performance.now()`, i.e. from
   the start of the page load, and it also waits for the viewport measurement.
   Arriving, the grid gets `data-arriving` for `GRID_ARRIVE` (a CSS fade) and
   the deck gets `dealOnArrival`, which calls its own `shuffle()` once and
@@ -235,7 +235,7 @@ to that tile, Escape being its only announced way out; the dialog's
 Previous/Next wrap through the filtered results only;
 a dismissed search sheet keeps its filter and marks the header trigger; the grid
 scrolls inside the locked shell rather than scrolling the document; a page
-load shows the `Loading the deck` wheel for at least 0.8s, then reels the deck
+load shows the `Loading the deck` wheel for at least 1s, then reels the deck
 once or fades the grid in, and nothing else ever replays it.
 
 ## Infrastructure

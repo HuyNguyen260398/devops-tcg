@@ -38,7 +38,7 @@ export const GRID_MEDIA_QUERY = "(min-width: 1024px)";
 // wheel the reader actually sees lasts about that long. Then the cards arrive:
 // the grid fades in over GRID_ARRIVE, and the deck deals itself with one reel.
 // Only mounting starts it — a filter, a view switch or a resize never does.
-export const INTRO_HOLD = 800;
+export const INTRO_HOLD = 1000;
 export const GRID_ARRIVE = 400;
 
 export type IntroPhase = "holding" | "arriving" | "done";

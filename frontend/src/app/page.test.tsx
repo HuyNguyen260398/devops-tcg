@@ -16,7 +16,7 @@ describe("Home", () => {
         expect(
           screen.getAllByRole("button", { name: /^Open the .* card$/ }),
         ).toHaveLength(48),
-      // Home runs the real entrance: a 0.8s wheel before the grid.
+      // Home runs the real entrance: a one-second wheel before the grid.
       { timeout: 3000 },
     );
 

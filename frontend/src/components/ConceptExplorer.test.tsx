@@ -380,6 +380,18 @@ describe("ConceptExplorer intro", () => {
     expect(wheel()).not.toBeInTheDocument();
   });
 
+  it("holds the wheel for one second by default", () => {
+    vi.useFakeTimers();
+    vi.spyOn(performance, "now").mockReturnValue(0);
+    render(<ConceptExplorer cards={conceptCards} random={() => 0.999999} />);
+
+    act(() => vi.advanceTimersByTime(950));
+    expect(wheel()).toBeInTheDocument();
+
+    act(() => vi.advanceTimersByTime(50));
+    expect(wheel()).not.toBeInTheDocument();
+  });
+
   it("fades the grid in once and then finishes", async () => {
     mountIntro();
 
