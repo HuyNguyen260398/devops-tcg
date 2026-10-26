@@ -808,6 +808,29 @@ button,
   }
 }
 
+/* The page's entrance on a wide screen: the grid fades in once, after the
+   loading wheel. The attribute is set only during the entrance, so a later view
+   switch brings the grid back without it. */
+.card-grid[data-arriving] {
+  animation: card-grid-arrive 400ms ease both;
+}
+
+@keyframes card-grid-arrive {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card-grid[data-arriving] {
+    animation: none;
+  }
+}
+
 /* The dialog gives the card the same kind of stage a deck slot does: a flex
    column with a height, so `.concept-card` can fill it and both faces can
    scroll. */

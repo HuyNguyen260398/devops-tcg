@@ -11,10 +11,13 @@ describe("Home", () => {
       screen.getByRole("heading", { name: "DevOps TCG" }),
     ).toBeInTheDocument();
 
-    await waitFor(() =>
-      expect(
-        screen.getAllByRole("button", { name: /^Open the .* card$/ }),
-      ).toHaveLength(48),
+    await waitFor(
+      () =>
+        expect(
+          screen.getAllByRole("button", { name: /^Open the .* card$/ }),
+        ).toHaveLength(48),
+      // Home runs the real entrance: a 0.8s wheel before the grid.
+      { timeout: 3000 },
     );
 
     expect(screen.getByText("48 / 48")).toBeInTheDocument();

@@ -1,6 +1,8 @@
-import { render, screen, waitFor, within } from "@testing-library/react";
+import { act, render, screen, waitFor, within } from "@testing-library/react";
+import type { ComponentProps } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
 import userEvent from "@testing-library/user-event";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { conceptCards } from "@/data/conceptCards";
 import { VIEW_MODE_STORAGE_KEY } from "@/lib/viewMode";
 import { ConceptExplorer } from "./ConceptExplorer";
@@ -15,8 +17,16 @@ const setViewportWidth = (width: number) => {
   });
 };
 
+// Every suite but "intro" asks for the explorer as it was before the
+// entrance existed, so their timings are not a wheel and a reel long.
 const mount = () =>
-  render(<ConceptExplorer cards={conceptCards} random={() => 0.999999} />);
+  render(
+    <ConceptExplorer
+      cards={conceptCards}
+      random={() => 0.999999}
+      intro={false}
+    />,
+  );
 
 const tiles = () =>
   screen.getAllByRole("button", { name: /^Open the .* card$/ });
@@ -313,5 +323,107 @@ describe("ConceptExplorer on a narrow viewport", () => {
     await user.type(field, "reverse proxy");
 
     expect(field).toHaveValue("reverse proxy");
+  });
+});
+
+describe("ConceptExplorer intro", () => {
+  const mountIntro = (
+    props: Partial<ComponentProps<typeof ConceptExplorer>> = {},
+  ) =>
+    render(
+      <ConceptExplorer
+        cards={conceptCards}
+        random={() => 0.999999}
+        introHold={0}
+        {...props}
+      />,
+    );
+
+  const stage = () => document.querySelector(".app-stage")!;
+  const wheel = () =>
+    screen.queryByRole("status", { name: "Loading the deck" });
+
+  // The setup stub leaves every non-width query unmatched; this one also
+  // answers yes to reduced motion, as a reader who asked for less would.
+  const preferReducedMotion = () => {
+    const original = window.matchMedia;
+
+    vi.spyOn(window, "matchMedia").mockImplementation((query: string) => {
+      const list = original(query);
+
+      if (!query.includes("prefers-reduced-motion")) return list;
+      return { ...list, matches: true } as MediaQueryList;
+    });
+  };
+
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.restoreAllMocks();
+  });
+
+  it("server-renders the loading wheel and no cards", () => {
+    const html = renderToStaticMarkup(<ConceptExplorer cards={conceptCards} />);
+
+    expect(html).toContain("Loading the deck");
+    expect(html).not.toContain("Open the Proxy card");
+  });
+
+  it("holds the wheel until the hold has passed", () => {
+    vi.useFakeTimers();
+    vi.spyOn(performance, "now").mockReturnValue(100);
+    mountIntro({ introHold: 800 });
+
+    act(() => vi.advanceTimersByTime(650));
+    expect(wheel()).toBeInTheDocument();
+
+    act(() => vi.advanceTimersByTime(100));
+    expect(wheel()).not.toBeInTheDocument();
+  });
+
+  it("fades the grid in once and then finishes", async () => {
+    mountIntro();
+
+    await waitFor(() =>
+      expect(
+        screen.getByRole("list", { name: "Concept cards" }),
+      ).toHaveAttribute("data-arriving", "true"),
+    );
+    await waitFor(() => expect(stage()).toHaveAttribute("data-intro", "done"), {
+      timeout: 1500,
+    });
+    expect(
+      screen.getByRole("list", { name: "Concept cards" }),
+    ).not.toHaveAttribute("data-arriving");
+  });
+
+  it("ends at once on an empty filter typed during the hold", async () => {
+    const user = userEvent.setup();
+
+    mountIntro({ introHold: 300 });
+    await user.type(await screen.findByRole("searchbox"), "zzz");
+
+    await waitFor(() => expect(stage()).toHaveAttribute("data-intro", "done"));
+    expect(
+      screen.getByRole("button", { name: "Clear the filters" }),
+    ).toBeInTheDocument();
+  });
+
+  it("skips the hold and the fade under reduced motion", async () => {
+    preferReducedMotion();
+    mountIntro({ introHold: 800 });
+
+    await waitFor(() => expect(stage()).toHaveAttribute("data-intro", "done"), {
+      timeout: 200,
+    });
+  });
+
+  it("shows an inert toolbar under the wheel on a narrow viewport", () => {
+    setViewportWidth(375);
+    mountIntro({ introHold: 60_000 });
+
+    expect(wheel()).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Previous card" }),
+    ).toBeDisabled();
   });
 });

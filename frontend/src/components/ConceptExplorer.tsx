@@ -20,6 +20,7 @@ import { AppHeader } from "./AppHeader";
 import { CardDialog } from "./CardDialog";
 import { CardGrid } from "./CardGrid";
 import { ConceptDeck } from "./ConceptDeck";
+import { DeckLoader } from "./DeckLoader";
 import { DeckToolbar } from "./DeckToolbar";
 import { EmptyResults } from "./EmptyResults";
 import { SearchBar } from "./SearchBar";
@@ -32,12 +33,37 @@ import { SearchTrigger } from "./SearchTrigger";
 // view stays reachable at every width.
 export const GRID_MEDIA_QUERY = "(min-width: 1024px)";
 
+// The page's entrance. A load holds the loading wheel for at least INTRO_HOLD,
+// counted from the start of the page load rather than from hydration, so the
+// wheel the reader actually sees lasts about that long. Then the cards arrive:
+// the grid fades in over GRID_ARRIVE, and the deck deals itself with one reel.
+// Only mounting starts it — a filter, a view switch or a resize never does.
+export const INTRO_HOLD = 800;
+export const GRID_ARRIVE = 400;
+
+export type IntroPhase = "holding" | "arriving" | "done";
+
+// An entrance is an animation with a delayed payload, so with motion turned
+// down the payload lands as soon as it is ready.
+const prefersReducedMotion = () =>
+  typeof window.matchMedia === "function" &&
+  window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
 interface ConceptExplorerProps {
   readonly cards: readonly ConceptCardData[];
   readonly random?: RandomSource;
+  // Tests only: `false` starts the explorer as if the entrance had already
+  // played, and `introHold` replaces the real hold.
+  readonly intro?: boolean;
+  readonly introHold?: number;
 }
 
-export function ConceptExplorer({ cards, random }: ConceptExplorerProps) {
+export function ConceptExplorer({
+  cards,
+  random,
+  intro = true,
+  introHold = INTRO_HOLD,
+}: ConceptExplorerProps) {
   const [filter, setFilter] = useState<CardFilter>(EMPTY_FILTER);
   const [viewMode, setViewMode] = useState<ViewMode>(DEFAULT_VIEW_MODE);
   // null until the viewport has been measured. The server cannot know it, so
@@ -46,6 +72,9 @@ export function ConceptExplorer({ cards, random }: ConceptExplorerProps) {
   const [isWide, setIsWide] = useState<boolean | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [introPhase, setIntroPhase] = useState<IntroPhase>(
+    intro ? "holding" : "done",
+  );
   const searchSlotRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -64,6 +93,19 @@ export function ConceptExplorer({ cards, random }: ConceptExplorerProps) {
 
   useEffect(() => setViewMode(readStoredViewMode()), []);
 
+  // The hold is a minimum: the wheel also waits for the viewport measurement,
+  // since nothing it would give way to can render before that.
+  useEffect(() => {
+    if (introPhase !== "holding" || isWide === null) return;
+
+    const remaining = prefersReducedMotion()
+      ? 0
+      : Math.max(0, introHold - performance.now());
+    const timer = setTimeout(() => setIntroPhase("arriving"), remaining);
+
+    return () => clearTimeout(timer);
+  }, [introPhase, isWide, introHold]);
+
   // Identity matters: the deck re-deals whenever its `cards` prop changes
   // identity, so this must not produce a fresh array on every render.
   const visibleCards = useMemo(
@@ -74,6 +116,23 @@ export function ConceptExplorer({ cards, random }: ConceptExplorerProps) {
 
   const isFilterActive = filter.query !== "" || filter.type !== null;
   const showGrid = isWide === true && viewMode === "grid";
+  const isHolding = isWide === null || introPhase === "holding";
+
+  // How the cards arrive depends on what is on screen when the hold ends. The
+  // grid's fade is CSS, so the phase only has to outlast it; an empty result
+  // has nothing to bring in, and neither has the deck yet.
+  useEffect(() => {
+    if (introPhase !== "arriving") return;
+
+    if (!showGrid || visibleCards.length === 0 || prefersReducedMotion()) {
+      setIntroPhase("done");
+      return;
+    }
+
+    const timer = setTimeout(() => setIntroPhase("done"), GRID_ARRIVE);
+
+    return () => clearTimeout(timer);
+  }, [introPhase, showGrid, visibleCards.length]);
 
   const chooseView = useCallback((mode: ViewMode) => {
     setViewMode(mode);
@@ -125,7 +184,10 @@ export function ConceptExplorer({ cards, random }: ConceptExplorerProps) {
     (showGrid && selectedIndex >= 0) || (isWide === false && isSearchOpen);
 
   return (
-    <div className="app-stage relative z-10 flex min-h-0 w-full flex-col">
+    <div
+      data-intro={introPhase}
+      className="app-stage relative z-10 flex min-h-0 w-full flex-col"
+    >
       {/* Everything behind an open modal leaves the accessibility tree. The
           dialog's own trap already keeps Tab inside it; this is what stops a
           screen reader wandering the grid underneath. */}
@@ -148,13 +210,14 @@ export function ConceptExplorer({ cards, random }: ConceptExplorerProps) {
           )}
         </AppHeader>
 
-        {isWide === null ? (
-          <div
-            role="status"
-            aria-busy="true"
-            aria-label="Preparing the deck"
-            className="min-h-0 w-full flex-1"
-          />
+        {isHolding ? (
+          <>
+            <DeckLoader />
+            {/* Inert, as the deck's own placeholder renders it: the bar keeps
+                its height under the wheel so the card does not jump when the
+                deck arrives. */}
+            {isWide === false && <DeckToolbar searchControl={searchControl} />}
+          </>
         ) : visibleCards.length === 0 ? (
           <>
             <EmptyResults query={filter.query} onClear={clearFilter} />
@@ -165,6 +228,7 @@ export function ConceptExplorer({ cards, random }: ConceptExplorerProps) {
         ) : showGrid ? (
           <CardGrid
             cards={visibleCards}
+            arriving={introPhase === "arriving"}
             onSelect={(card) => setSelectedId(card.id)}
           />
         ) : (
