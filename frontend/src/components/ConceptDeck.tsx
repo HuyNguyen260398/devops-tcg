@@ -239,6 +239,22 @@ export function ConceptDeck({
   );
 
   useEffect(() => {
+    // A reel still in flight was dealt from the old cards and steps through
+    // the old length, so on a shorter deck it would walk the index off every
+    // card. It stops here instead; the new order is the one that counts, and an
+    // entrance cut short this way has still arrived.
+    if (spinTimer.current !== null) {
+      clearTimeout(spinTimer.current);
+      spinTimer.current = null;
+      trackRef.current?.style.removeProperty("--travel");
+      trackRef.current?.style.removeProperty("--travel-ease");
+      setIsSpinning(false);
+      if (isArrivalReel.current) {
+        isArrivalReel.current = false;
+        onArrivedRef.current?.();
+      }
+    }
+
     if (cards.length === 0) return;
 
     setDeckOrder({

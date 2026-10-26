@@ -947,6 +947,33 @@ describe("ConceptDeck", () => {
       ).toHaveAttribute("data-face", "front");
     });
 
+    it("stops the reel and still arrives when the cards change mid-reel", async () => {
+      const onArrived = vi.fn();
+      const props = { random: () => 0.999999, dealOnArrival: true, onArrived };
+      const { rerender } = render(
+        <ConceptDeck cards={conceptCards} {...props} />,
+      );
+
+      await waitFor(() =>
+        expect(deckTrack()).toHaveAttribute("data-spinning", "true"),
+      );
+
+      // A search typed while the entrance is still reeling.
+      const filtered = conceptCards.slice(0, 3);
+      rerender(<ConceptDeck cards={filtered} {...props} />);
+
+      await waitFor(() => expect(onArrived).toHaveBeenCalledTimes(1));
+      // Long enough for any reel step left in flight to have fired.
+      await act(() => new Promise((resolve) => setTimeout(resolve, 500)));
+
+      expect(deckTrack()).not.toHaveAttribute("data-spinning");
+      expect(deckTrack().style.getPropertyValue("--travel")).toBe("");
+      expect(
+        Number(deckTrack().getAttribute("data-position")),
+      ).toBeLessThanOrEqual(filtered.length);
+      expect(document.querySelector(".concept-card[data-face]")).not.toBeNull();
+    });
+
     it("does not reel without dealOnArrival", async () => {
       render(<ConceptDeck cards={conceptCards} random={() => 0.999999} />);
 
