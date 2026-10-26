@@ -35,7 +35,11 @@ export const ConceptCard = forwardRef<HTMLDivElement, ConceptCardProps>(
         <div ref={ref} aria-hidden="true" className={baseClassName}>
           <div className="deck-slot-veil" />
           <div className="concept-card-inner">
-            <section className="card-face-front">
+            {/* The face scrolls, and Chromium makes a scroller with nothing
+                focusable inside it a tab stop of its own — aria-hidden does
+                not stop that, so an off-centre card would take Tab before the
+                card in hand. */}
+            <section className="card-face-front" tabIndex={-1}>
               <CardFront card={card} />
             </section>
           </div>

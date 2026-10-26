@@ -483,6 +483,12 @@ describe("ConceptDeck", () => {
       expect(card).toHaveAttribute("aria-hidden", "true");
       expect(card).not.toHaveAttribute("tabindex");
       expect(card).not.toHaveAttribute("role", "button");
+      // A face is a scroller, and Chromium puts a scroller with nothing
+      // focusable inside it into the tab order unless told otherwise.
+      expect(card.querySelector(".card-face-front")).toHaveAttribute(
+        "tabindex",
+        "-1",
+      );
     }
 
     const active = slot("proxy")!.querySelector(".concept-card")!;
