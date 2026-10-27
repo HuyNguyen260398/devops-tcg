@@ -205,6 +205,10 @@ const images = [
     "A client holding a generated function stub on the left and a server on the right, joined over the top by a dashed line through the one .proto contract both were generated from, with a single glowing connection between them carrying three streams of binary frames at once — one call and its reply, a run of replies streaming back, and frames flowing both ways — and a status check hanging below it, while off to one side a clock marks the deadline the client set, and to the other a browser window lies struck through",
     "/images/grpc-thumbnail.webp",
   ],
+  [
+    "An identity provider at the top holding the one session cookie it set, with three application windows in a row beneath it, each joined to it by a line ending in a tick — the first marked with the single password prompt the user answered, the other two let straight in — while off to one side the user holds one key, and to the other a stack of separate passwords lies struck through",
+    "/images/sso-thumbnail.webp",
+  ],
 ] as const;
 
 const card = (page: import("@playwright/test").Page) =>

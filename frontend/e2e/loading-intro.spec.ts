@@ -47,7 +47,7 @@ test("opens on the wheel, then fades in the full grid", async ({
 
   await expect(
     page.getByRole("button", { name: /^Open the .* card$/ }),
-  ).toHaveCount(48);
+  ).toHaveCount(49);
 });
 
 test("skips the reel under reduced motion", async ({ page }, testInfo) => {

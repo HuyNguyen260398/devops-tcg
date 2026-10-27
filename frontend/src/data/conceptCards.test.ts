@@ -156,6 +156,7 @@ const expectedCards = [
   ],
   ["saml", "#047", "SAML", "/images/saml-thumbnail.webp"],
   ["grpc", "#048", "gRPC", "/images/grpc-thumbnail.webp"],
+  ["sso", "#049", "SSO", "/images/sso-thumbnail.webp"],
 ] as const;
 
 // A face scrolls, but a card is meant to be read at a glance: these are the
@@ -228,7 +229,7 @@ describe("conceptCards", () => {
     expect(conceptCards[0].howItWorks).toHaveLength(4);
   });
 
-  it("contains all forty-eight concepts in the approved order", () => {
+  it("contains all forty-nine concepts in the approved order", () => {
     expect(conceptCards).toHaveLength(expectedCards.length);
     expect(
       conceptCards.map(({ id, cardNumber, title, image }) => [
@@ -1321,5 +1322,24 @@ describe("conceptCards", () => {
     expect(grpc?.howItWorks[3]?.description).toMatch(/grpc-status/);
     expect(grpc?.howItWorks[3]?.description).toMatch(/HTTP 200/);
     expect(grpc?.howItWorks[3]?.description).toMatch(/gRPC-Web/);
+  });
+
+  it("makes SSO one provider session that every app reuses", () => {
+    const sso = conceptCards.find(({ id }) => id === "sso");
+
+    expect(sso?.cardNumber).toBe("#049");
+    expect(sso?.type).toBe("SECURITY");
+    // The thesis: the provider's own session is what spares the second login.
+    expect(sso?.definition).toMatch(/identity provider/);
+    expect(sso?.definition).toMatch(/session/);
+    expect(sso?.keywords).toContain("single sign-on");
+    expect(sso?.keywords).toContain("single logout");
+    expect(sso?.components[0]?.description).toMatch(/provider’s own domain/);
+    // SSO is the pattern; the protocols that carry it have their own cards.
+    expect(sso?.components[1]?.description).toMatch(/#047/);
+    expect(sso?.components[1]?.description).toMatch(/#017/);
+    expect(sso?.howItWorks[2]?.description).toMatch(/no prompt/);
+    // The payload: revoking at the provider does not end live app sessions.
+    expect(sso?.howItWorks[3]?.description).toMatch(/until it expires/);
   });
 });

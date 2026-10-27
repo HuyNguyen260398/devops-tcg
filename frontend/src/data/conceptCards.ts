@@ -2823,4 +2823,67 @@ export const conceptCards = [
       },
     ],
   },
+  {
+    id: "sso",
+    cardNumber: "#049",
+    type: "SECURITY",
+    title: "SSO",
+    image: {
+      src: "/images/sso-thumbnail.webp",
+      alt: "An identity provider at the top holding the one session cookie it set, with three application windows in a row beneath it, each joined to it by a line ending in a tick — the first marked with the single password prompt the user answered, the other two let straight in — while off to one side the user holds one key, and to the other a stack of separate passwords lies struck through",
+      sketch: {
+        src: "/images/sso-sketch.svg",
+        alt: "Line drawing of a provider box holding a key and a cookie, three small application windows beneath it joined to it by lines, the first with a password field and the other two with ticks, a person with one key, and a crossed-out stack of password cards",
+      },
+    },
+    definition:
+      "Single sign-on lets one login open many apps: each app sends the user to one identity provider, which finds its own session and vouches for them without asking again.",
+    keywords: [
+      "single sign-on",
+      "identity provider",
+      "session",
+      "federation",
+      "single logout",
+      "MFA",
+    ],
+    components: [
+      {
+        name: "Provider session",
+        description:
+          "A cookie on the provider’s own domain, not the app’s. It is what the second app finds, so the password is asked once.",
+      },
+      {
+        name: "Federation protocol",
+        description:
+          "SAML (#047) or OIDC (#017) carries the signed proof to each app. SSO is the pattern; they are the wire format.",
+      },
+      {
+        name: "App sessions",
+        description:
+          "Each app sets its own cookie once the proof checks out, so logging out of one app leaves the rest signed in.",
+      },
+    ],
+    howItWorks: [
+      {
+        step: 1,
+        description:
+          "The user opens app A, which has no session, so it redirects the browser to the identity provider.",
+      },
+      {
+        step: 2,
+        description:
+          "The provider asks for the password and MFA once, sets its own session, and sends A a signed assertion.",
+      },
+      {
+        step: 3,
+        description:
+          "The user opens app B. It redirects too, but the provider finds its session and answers at once, with no prompt.",
+      },
+      {
+        step: 4,
+        description:
+          "Disabling the account at the provider stops new logins everywhere, but each app session lives until it expires.",
+      },
+    ],
+  },
 ] as const satisfies readonly ConceptCardData[];

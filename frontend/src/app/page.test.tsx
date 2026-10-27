@@ -15,12 +15,12 @@ describe("Home", () => {
       () =>
         expect(
           screen.getAllByRole("button", { name: /^Open the .* card$/ }),
-        ).toHaveLength(48),
+        ).toHaveLength(49),
       // Home runs the real entrance: a one-second wheel before the grid.
       { timeout: 3000 },
     );
 
-    expect(screen.getByText("48 / 48")).toBeInTheDocument();
+    expect(screen.getByText("49 / 49")).toBeInTheDocument();
     expect(
       screen.getByRole("searchbox", { name: "Search cards" }),
     ).toBeInTheDocument();

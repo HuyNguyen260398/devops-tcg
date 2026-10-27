@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 278 220">
+  <g transform="translate(139 110) scale(0.88) translate(-139 -110)">
+  <!-- the provider's session is the whole of the pattern, so it takes the highlighter -->
+  <path d="M106 22 L172 21 L173 70 L107 71 Z" fill="#fff2c4" />
+  <g fill="#dbe7ff">
+    <path d="M58 112 L102 111 L103 150 L59 151 Z" />
+    <path d="M117 111 L161 112 L160 151 L118 150 Z" />
+    <path d="M176 112 L220 111 L221 150 L177 151 Z" />
+  </g>
+
+  <g fill="none" stroke="#1d1d1b" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+    <!-- the identity provider, holding the key it signs with and the one session it set -->
+    <path d="M106 22 L172 21 L173 70 L107 71 Z" />
+    <circle cx="119" cy="37" r="6" />
+    <path d="M125 37 L143 37 M139 37 L139 43 M133 37 L133 42" />
+    <circle cx="158" cy="38" r="8" />
+    <path d="M155 35 L156 35 M161 38 L162 38 M157 42 L158 42" />
+    <path d="M115 55 L163 55 M115 62 L148 62" />
+
+    <!-- one session, reaching every app below it -->
+    <path d="M139 72 L139 91 M80 91 L198 91 M80 91 L80 110 M139 91 L139 110 M198 91 L198 110" stroke-dasharray="5 5" />
+
+    <!-- the first app, the only one that asked for the password -->
+    <path d="M58 112 L102 111 L103 150 L59 151 Z" />
+    <path d="M58 120 L102 119" />
+    <path d="M64 129 L96 128 L96 138 L64 139 Z" />
+    <path d="M69 133.5 L70 133.5 M75 133.5 L76 133.5 M81 133.5 L82 133.5 M90 131 L90 136" />
+
+    <!-- and the two it never asked again -->
+    <path d="M117 111 L161 112 L160 151 L118 150 Z" />
+    <path d="M117 119 L161 120" />
+    <path d="M131 135 L137 141 L148 128" />
+    <path d="M176 112 L220 111 L221 150 L177 151 Z" />
+    <path d="M176 120 L220 119" />
+    <path d="M190 135 L196 141 L207 128" />
+
+    <!-- the user, with one key -->
+    <circle cx="60" cy="168" r="7" />
+    <path d="M47 191 C47 177 73 177 73 191" />
+    <circle cx="80" cy="190" r="4" />
+    <path d="M84 190 L96 190 M92 190 L92 194" />
+
+    <!-- the passwords each app used to keep, struck -->
+    <path d="M190 163 L224 162 L225 174 L191 175 Z" stroke-dasharray="4 4" />
+    <path d="M195 171 L229 170 L230 182 L196 183 Z" stroke-dasharray="4 4" />
+    <path d="M200 179 L234 178 L235 190 L201 191 Z" stroke-dasharray="4 4" />
+    <path d="M186 160 L238 194 M238 160 L186 194" />
+  </g>
+  </g>
+</svg>

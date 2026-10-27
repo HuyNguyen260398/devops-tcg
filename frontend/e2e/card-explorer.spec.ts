@@ -15,15 +15,15 @@ test("opens on a grid of every card", async ({ page }, testInfo) => {
 
   await arrive(page);
 
-  await expect(tiles(page)).toHaveCount(48);
-  await expect(page.getByText("48 / 48")).toBeVisible();
+  await expect(tiles(page)).toHaveCount(49);
+  await expect(page.getByText("49 / 49")).toBeVisible();
 });
 
 test("filters the grid on every keystroke", async ({ page }, testInfo) => {
   wideOnly(testInfo);
 
   await arrive(page);
-  await expect(tiles(page)).toHaveCount(48);
+  await expect(tiles(page)).toHaveCount(49);
 
   const field = page.getByRole("searchbox", { name: "Search cards" });
 
@@ -38,10 +38,10 @@ test("filters the grid on every keystroke", async ({ page }, testInfo) => {
   await expect(
     page.getByRole("button", { name: "Open the Kafka card" }),
   ).toBeVisible();
-  await expect(page.getByText("1 / 48")).toBeVisible();
+  await expect(page.getByText("1 / 49")).toBeVisible();
 
   await field.fill("");
-  await expect(tiles(page)).toHaveCount(48);
+  await expect(tiles(page)).toHaveCount(49);
 });
 
 test("finds a card by its category and by a keyword", async ({
@@ -121,7 +121,7 @@ test("deals every tile the same height, whatever the filter", async ({
   wideOnly(testInfo);
 
   await arrive(page);
-  await expect(tiles(page)).toHaveCount(48);
+  await expect(tiles(page)).toHaveCount(49);
 
   const heights = () =>
     page.$$eval("button[aria-label^='Open the']", (els) => [
@@ -139,7 +139,7 @@ test("deals every tile the same height, whatever the filter", async ({
   // which is what used to stretch them.
   for (const query of ["aws", "redis", "terraform state"]) {
     await page.getByRole("searchbox", { name: "Search cards" }).fill(query);
-    await expect(tiles(page)).not.toHaveCount(48);
+    await expect(tiles(page)).not.toHaveCount(49);
     expect(await heights()).toEqual([unfiltered]);
   }
 });
@@ -155,7 +155,7 @@ test("offers a way back when nothing matches", async ({ page }, testInfo) => {
 
   await page.getByRole("button", { name: "Clear the filters" }).click();
 
-  await expect(tiles(page)).toHaveCount(48);
+  await expect(tiles(page)).toHaveCount(49);
 });
 
 test("opens a tile as a flippable card and returns focus on Escape", async ({
@@ -289,7 +289,7 @@ test("filters the deck from the sheet and keeps the filter once dismissed", asyn
   const field = page.getByRole("searchbox", { name: "Search cards" });
 
   await field.pressSequentially("redis");
-  await expect(page.getByText("2 / 48")).toBeVisible();
+  await expect(page.getByText("2 / 49")).toBeVisible();
 
   await page.getByTestId("dialog-backdrop").click();
 
@@ -350,7 +350,7 @@ test("scrolls the grid inside the shell rather than scrolling the page", async (
   wideOnly(testInfo);
 
   await arrive(page);
-  await expect(tiles(page)).toHaveCount(48);
+  await expect(tiles(page)).toHaveCount(49);
 
   const documentOverflow = await page.evaluate(
     () =>
