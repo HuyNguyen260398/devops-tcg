@@ -58,9 +58,10 @@ its ID and manages only records required by `tcg.nghuy.link`.
 ConceptCardData + local WebP
   -> Next.js static export
   -> frontend/out
-  -> aws s3 sync --delete
-  -> sw.js + manifest.webmanifest re-uploaded with Cache-Control: no-cache
-  -> CloudFront invalidation
+  -> aws s3 sync --delete --exclude sw.js
+  -> manifest.webmanifest re-uploaded with Cache-Control: no-cache
+  -> CloudFront invalidation, then wait for it to complete
+  -> sw.js uploaded last, with Cache-Control: no-cache
 ```
 
 ## Installable App (PWA)
@@ -76,10 +77,22 @@ under the notch or the home indicator.
 their contents. The worker precaches the whole export on install, so the deck
 works offline after one visit; serves navigations network-first and
 everything else cache-first; and deletes every older `devops-tcg-*` cache on
-activate. A deploy that changes any file therefore ships a new worker, and an
-installed app picks it up on its next launch. The deploy re-uploads `sw.js`
-with `Cache-Control: no-cache` so neither CloudFront nor the browser can hold
-an old worker. The CSP needs no change: `worker-src` and `manifest-src` fall
+activate. A navigation that has not answered within 3 seconds gets the cached
+shell instead, so weak signal never strands a launch, and a good online answer
+for `/` refreshes the cached shell. A deploy that changes any file therefore
+ships a new worker, and an installed app picks it up on its next launch.
+
+The deploy publishes `sw.js` last: after the rest of the export is synced and
+the CloudFront invalidation has completed. A worker that went live while the
+edge still served the old shell would precache that old shell into its new
+cache. It is uploaded with `Cache-Control: no-cache` so neither CloudFront nor
+the browser can hold an old worker, and the deploy role needs
+`cloudfront:GetInvalidation` for the wait.
+
+`skipWaiting` and `clients.claim` move a tab that is already open onto the new
+cache at once. That is safe only while the deck is one page with no client
+navigation or dynamic import: a route added later would fetch its RSC payload
+from the new export into old HTML. The CSP needs no change: `worker-src` and `manifest-src` fall
 back to `default-src 'self'`.
 
 The browser makes no application API calls and receives no application

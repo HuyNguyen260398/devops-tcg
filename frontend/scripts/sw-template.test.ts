@@ -2,7 +2,7 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import vm from "node:vm";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { renderServiceWorker } from "./build-sw.mjs";
 
 const ORIGIN = "https://tcg.nghuy.link";
@@ -83,7 +83,20 @@ const startWorker = (
 
   vm.runInNewContext(
     renderServiceWorker(template, { urls: ["/"], version: "new" }),
-    { self, caches: caches.api, fetch, URL, Request, Response, Promise },
+    {
+      self,
+      caches: caches.api,
+      fetch,
+      URL,
+      Request,
+      Response,
+      Promise,
+      // Read through globalThis so a test's fake timers reach the worker.
+      setTimeout: (...args: Parameters<typeof setTimeout>) =>
+        globalThis.setTimeout(...args),
+      clearTimeout: (id: ReturnType<typeof setTimeout>) =>
+        globalThis.clearTimeout(id),
+    },
   );
 
   const dispatch = (type: string, request?: FakeRequest) => {
@@ -103,6 +116,12 @@ const startWorker = (
 
   return { caches: caches.store, fetch, dispatch };
 };
+
+afterEach(() => {
+  vi.useRealTimers();
+});
+
+const text = async (response: Response | undefined) => response?.text();
 
 describe("the service worker", () => {
   // An installed app updated by a deploy: the old deck's cache goes, the new
@@ -161,5 +180,88 @@ describe("the service worker", () => {
     expect([...worker.caches.get("devops-tcg-new")!.keys()]).toEqual([
       "/_next/static/x.js",
     ]);
+  });
+
+  // A worker that installed while the edge still served an old shell would
+  // otherwise keep it until the next deploy; an online launch repairs it.
+  it("refreshes the cached shell from an online launch", async () => {
+    const worker = startWorker(
+      { "devops-tcg-new": { "/": "old shell" } },
+      async () => new Response("new shell", { status: 200 }),
+    );
+
+    const { response } = worker.dispatch("fetch", {
+      method: "GET",
+      url: `${ORIGIN}/?from=share`,
+      mode: "navigate",
+    });
+
+    expect(await text(await response)).toBe("new shell");
+    expect(await text(worker.caches.get("devops-tcg-new")!.get("/"))).toBe(
+      "new shell",
+    );
+  });
+
+  it("never caches a failed navigation as the shell", async () => {
+    const worker = startWorker(
+      { "devops-tcg-new": { "/": "old shell" } },
+      async () => new Response("bad gateway", { status: 502 }),
+    );
+
+    const { response } = worker.dispatch("fetch", {
+      method: "GET",
+      url: `${ORIGIN}/`,
+      mode: "navigate",
+    });
+
+    expect((await response)!.status).toBe(502);
+    expect(await text(worker.caches.get("devops-tcg-new")!.get("/"))).toBe(
+      "old shell",
+    );
+  });
+
+  // On a train the signal is more often weak than absent: a request that never
+  // answers must not keep the installed app on a blank launch.
+  it("opens the cached shell when the network stalls", async () => {
+    vi.useFakeTimers();
+    const worker = startWorker(
+      { "devops-tcg-new": { "/": "shell" } },
+      () => new Promise<Response>(() => undefined),
+    );
+
+    const { response } = worker.dispatch("fetch", {
+      method: "GET",
+      url: `${ORIGIN}/`,
+      mode: "navigate",
+    });
+    await vi.advanceTimersByTimeAsync(3000);
+
+    expect(await text(await response)).toBe("shell");
+  });
+
+  it("waits out a slow network when there is no shell to fall back to", async () => {
+    vi.useFakeTimers();
+    const worker = startWorker(
+      { "devops-tcg-new": {} },
+      () =>
+        new Promise<Response>((resolve) =>
+          globalThis.setTimeout(() => resolve(new Response("late")), 5000),
+        ),
+    );
+
+    let settled = false;
+    const { response } = worker.dispatch("fetch", {
+      method: "GET",
+      url: `${ORIGIN}/`,
+      mode: "navigate",
+    });
+    void response!.then(() => {
+      settled = true;
+    });
+
+    await vi.advanceTimersByTimeAsync(3000);
+    expect(settled).toBe(false);
+    await vi.advanceTimersByTimeAsync(2000);
+    expect(await text(await response)).toBe("late");
   });
 });

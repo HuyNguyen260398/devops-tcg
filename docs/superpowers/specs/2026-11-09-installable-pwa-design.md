@@ -88,14 +88,18 @@ the rounded corners. In a browser tab the insets are zero and nothing moves.
 - **activate**: delete every other `devops-tcg-*` cache, `clients.claim()`.
 - **fetch** (same-origin GET only):
   - navigations: network first, so an online reader always gets the deployed
-    page; fall back to the cached `/`.
+    page; fall back to the cached `/` when the network fails or has not
+    answered within 3 seconds; a good online answer for `/` refreshes the
+    cached shell. *(added after the final review)*
   - everything else: cache first, then network, and cache-on-success for
     anything under `/_next/static/`, `/images/`, `/fonts/`, `/icons/`.
 - Registered from a small client component in the layout after `load`, in
   production builds only.
 - Hosting: `aws s3 sync` cannot set per-file headers, so the deploy re-uploads
-  `sw.js` and `manifest.webmanifest` with `Cache-Control: no-cache` and explicit
-  content types. The existing `/*` invalidation already covers CloudFront. The
+  `manifest.webmanifest` with `Cache-Control: no-cache` and an explicit content
+  type, and publishes `sw.js` the same way but last — after the invalidation
+  has completed — so a new worker never precaches a stale edge. *(changed after
+  the final review; needs `cloudfront:GetInvalidation` on the deploy role)* The existing `/*` invalidation already covers CloudFront. The
   CSP needs no change: `worker-src` and `manifest-src` fall back to
   `default-src 'self'`.
 - `docs/architecture.md` → "Intentionally Absent" is amended: the Cache

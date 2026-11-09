@@ -45,14 +45,43 @@ self.addEventListener("activate", (event) => {
   );
 });
 
-// Online, a navigation always goes to the network, so a reader who has signal
-// sees the deployed page. Offline, the cached shell stands in.
+// How long a launch waits on the network before opening the cached shell. On
+// a train the signal is more often weak than absent, and a request that never
+// answers would otherwise hold the installed app on a blank screen.
+const NAVIGATION_TIMEOUT = 3000;
+
+// Online, a navigation goes to the network, so a reader with signal sees the
+// deployed page — and a good answer for "/" refreshes the cached shell, which
+// repairs one a worker might have precached from a stale edge. Offline, or on
+// a network that stalls, the cached shell stands in.
 const handleNavigation = async (request) => {
+  const cache = await caches.open(CACHE_NAME);
+  const isShell = new URL(request.url).pathname === "/";
+  const network = fetch(request).then(async (response) => {
+    if (isShell && response.ok && !response.redirected) {
+      await cache.put("/", response.clone());
+    }
+    return response;
+  });
+  const shell = await cache.match("/");
+
+  if (shell === undefined) {
+    try {
+      return await network;
+    } catch {
+      return Response.error();
+    }
+  }
+
+  let timer;
+  const stalled = new Promise((resolve) => {
+    timer = setTimeout(() => resolve(shell), NAVIGATION_TIMEOUT);
+  });
+
   try {
-    return await fetch(request);
-  } catch {
-    const cache = await caches.open(CACHE_NAME);
-    return (await cache.match("/")) ?? Response.error();
+    return await Promise.race([network.catch(() => shell), stalled]);
+  } finally {
+    clearTimeout(timer);
   }
 };
 
