@@ -22,7 +22,9 @@ export function Dialog({ label, className, onClose, children }: DialogProps) {
 
     const surface = surfaceRef.current;
 
-    if (surface !== null) {
+    // A child that already took focus on mount (the search sheet's field)
+    // keeps it; otherwise the first control does.
+    if (surface !== null && !surface.contains(document.activeElement)) {
       (focusableWithin(surface)[0] ?? surface).focus();
     }
 
@@ -65,7 +67,7 @@ export function Dialog({ label, className, onClose, children }: DialogProps) {
   }, [onClose]);
 
   return (
-    <div className="app-dialog fixed inset-0 z-40 flex items-center justify-center p-4">
+    <div className="app-dialog fixed inset-0 z-40 flex items-center justify-center">
       {/* aria-hidden and pointer-only: the close button and Escape are the
           announced ways out, and this is the shortcut for a mouse. */}
       <div

@@ -1,7 +1,10 @@
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   DEFAULT_THEME,
   THEME_STORAGE_KEY,
+  THEME_COLORS,
   applyTheme,
   readStoredTheme,
   resolveTheme,
@@ -67,5 +70,38 @@ describe("applyTheme", () => {
     expect(root.getAttribute("data-theme")).toBe("sketch");
     applyTheme(root, "neon");
     expect(root.getAttribute("data-theme")).toBe("neon");
+  });
+
+  it("repaints the browser chrome to the theme's paper", () => {
+    const meta = document.createElement("meta");
+    meta.name = "theme-color";
+    meta.content = THEME_COLORS.neon;
+    document.head.append(meta);
+
+    applyTheme(document.documentElement, "sketch");
+    expect(meta.content).toBe(THEME_COLORS.sketch);
+    applyTheme(document.documentElement, "neon");
+    expect(meta.content).toBe(THEME_COLORS.neon);
+
+    meta.remove();
+  });
+
+  it("changes the theme even with no theme-color tag", () => {
+    const root = document.createElement("html");
+    expect(() => applyTheme(root, "sketch")).not.toThrow();
+  });
+});
+
+describe("THEME_COLORS", () => {
+  it("repeats each theme's --paper token", () => {
+    const css = readFileSync(
+      path.resolve(__dirname, "../app/globals.css"),
+      "utf8",
+    );
+    const paper = (block: string) =>
+      css.slice(css.indexOf(block)).match(/--paper:\s*(#[0-9a-f]+);/i)?.[1];
+
+    expect(paper(":root {")).toBe(THEME_COLORS.neon);
+    expect(paper('[data-theme="sketch"] {')).toBe(THEME_COLORS.sketch);
   });
 });

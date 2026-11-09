@@ -278,17 +278,34 @@ body {
   min-height: 100vh;
   min-height: 100dvh;
   overflow: hidden;
+  /* Nothing on the page scrolls the document, so an overscroll can only be
+     Android's pull-to-refresh — which, in the installed app, reloads the deck
+     out from under a reader mid-reel. */
+  overscroll-behavior: none;
   background-color: var(--paper);
   background-image: var(--stage-image);
   color: var(--ink);
   font-family: var(--font-body);
 }
 
+/* The viewport is viewport-fit=cover, so an installed app paints behind the
+   notch, the home indicator and the rounded corners. Each edge keeps its own
+   padding and gives way to the inset only where the inset is larger — in a
+   browser tab every inset is zero and nothing moves. */
 .app-shell {
   height: 100vh;
   height: 100dvh;
-  padding-top: clamp(0.75rem, 3vh, 2rem);
-  padding-bottom: clamp(0.75rem, 3vh, 2rem);
+  padding-top: max(clamp(0.75rem, 3vh, 2rem), env(safe-area-inset-top));
+  padding-bottom: max(clamp(0.75rem, 3vh, 2rem), env(safe-area-inset-bottom));
+  padding-left: max(1rem, env(safe-area-inset-left));
+  padding-right: max(1rem, env(safe-area-inset-right));
+}
+
+@media (min-width: 640px) {
+  .app-shell {
+    padding-left: max(1.5rem, env(safe-area-inset-left));
+    padding-right: max(1.5rem, env(safe-area-inset-right));
+  }
 }
 
 .app-stage {
@@ -702,6 +719,11 @@ button,
    context inside the card's preserve-3d subtree. */
 .card-thumbnail {
   filter: var(--thumb-filter);
+  /* A long press on the art would open the image menu and swallow the tap or
+     swipe it began as. */
+  -webkit-touch-callout: none;
+  -webkit-user-drag: none;
+  user-select: none;
 }
 
 /* Each theme has its own artwork: the photograph for neon, a drawing for
@@ -730,6 +752,20 @@ button,
 
 /* One modal for the whole application: the card dialog and the mobile search
    sheet are the same box with different contents. */
+.app-dialog {
+  padding-top: max(1rem, env(safe-area-inset-top));
+  padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  padding-left: max(1rem, env(safe-area-inset-left));
+  padding-right: max(1rem, env(safe-area-inset-right));
+}
+
+/* Opaque, unlike a panel: the sheet sits over a card whose text would
+   otherwise show through the result count. */
+.card-search-sheet {
+  background: var(--control);
+  box-shadow: var(--card-shadow-flat);
+}
+
 .app-dialog-backdrop {
   background: var(--scrim);
   animation: dialog-fade var(--travel) var(--travel-ease);
@@ -752,6 +788,14 @@ button,
   }
 }
 
+/* The bar draws its own clear button, sized as a touch target; the engine's
+   own would sit beside it as a second, smaller X. */
+.search-input::-webkit-search-cancel-button,
+.search-input::-webkit-search-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
 /* The chip strip scrolls sideways on a phone; a visible scrollbar under four
    chips reads as a broken layout rather than as an affordance. */
 .search-chips {
@@ -761,6 +805,22 @@ button,
 
 .search-chips::-webkit-scrollbar {
   display: none;
+}
+
+/* Below the grid boundary the strip runs past the edge of the sheet. With no
+   scrollbar, a chip cut off mid-word is the only hint there is more, so the
+   trailing edge fades instead. The wide layout fits every chip on one row and
+   keeps its hard edge. */
+@media (max-width: 1023px) {
+  .search-chips {
+    -webkit-mask-image: linear-gradient(
+      to right,
+      #000 calc(100% - 2rem),
+      transparent
+    );
+    mask-image: linear-gradient(to right, #000 calc(100% - 2rem), transparent);
+    padding-right: 2rem;
+  }
 }
 
 .card-grid {

@@ -306,6 +306,18 @@ belongs in that middle half is the *subject*, not the composition's bounding
 box. Kubernetes Pod shifts its whole scene left for exactly that reason: the
 pod itself sits centred, and the discarded pod beside it is what a phone loses.
 
+The site is an installable PWA (see `docs/architecture.md` → "Installable
+App"). `pnpm build` runs `scripts/build-sw.mjs` after `next build`, which writes
+`out/sw.js` with the export's file list and a content hash inlined — so a new
+file under `public/` is precached with no change to the worker. The worker is
+hand-written in `scripts/sw-template.js`; it is registered only in production
+builds, so `pnpm dev` never has one. Icons are committed PNGs rendered from
+`public/icons/*.svg` by `node scripts/generate-icons.mjs` — rerun it after
+editing a source. `THEME_COLORS` in `src/lib/theme.ts` repeats each theme's
+`--paper` for `<meta name="theme-color">`, and a unit test holds them equal.
+Below 1024px every search control is a 44px target and the field types at
+16px, or iOS zooms the page into it; `e2e/pwa.spec.ts` asserts both.
+
 The frontend ships only `next`, `react`, and `react-dom` as dependencies —
 icons are inline SVG, there is no state library, and no runtime asset is
 fetched from a third-party host. Keep it that way unless a spec says otherwise.

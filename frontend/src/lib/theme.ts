@@ -6,6 +6,15 @@ export const DEFAULT_THEME: Theme = "neon";
 
 export const THEME_STORAGE_KEY = "devops-tcg-theme";
 
+// The browser chrome around the page — Android's status bar, an installed
+// app's title bar — is painted from <meta name="theme-color">, which cannot
+// read a CSS custom property. These repeat each theme's --paper token from
+// globals.css and must be kept in step with it.
+export const THEME_COLORS: Readonly<Record<Theme, string>> = {
+  neon: "#050714",
+  sketch: "#ece7db",
+};
+
 export const resolveTheme = (value: unknown): Theme =>
   typeof value === "string" && (THEMES as readonly string[]).includes(value)
     ? (value as Theme)
@@ -32,4 +41,7 @@ export const storeTheme = (theme: Theme): void => {
 
 export const applyTheme = (root: HTMLElement, theme: Theme): void => {
   root.setAttribute("data-theme", theme);
+  root.ownerDocument
+    .querySelector('meta[name="theme-color"]')
+    ?.setAttribute("content", THEME_COLORS[theme]);
 };
