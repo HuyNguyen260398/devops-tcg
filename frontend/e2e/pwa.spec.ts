@@ -159,4 +159,21 @@ test.describe("search sheet on a phone", () => {
     await done.tap();
     await expect(page.getByRole("dialog")).toHaveCount(0);
   });
+
+  test("puts keyboard focus back on the search button after the sheet", async ({
+    page,
+  }) => {
+    await arrive(page);
+    await page.getByRole("button", { name: "Search the deck" }).focus();
+    await page.keyboard.press("Enter");
+    await expect(page.getByRole("searchbox")).toBeFocused();
+
+    await page.keyboard.type("redis");
+    await page.keyboard.press("Escape");
+
+    await expect(page.getByRole("dialog")).toHaveCount(0);
+    await expect(
+      page.getByRole("button", { name: "Search the deck, filter active" }),
+    ).toBeFocused();
+  });
 });

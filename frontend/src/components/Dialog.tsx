@@ -1,25 +1,40 @@
 "use client";
 
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { focusableWithin, nextFocusTarget } from "@/lib/focusTrap";
 
 interface DialogProps {
   readonly label: string;
   readonly className?: string;
   readonly onClose: () => void;
+  // Where focus goes on close if the control that opened the dialog has left
+  // the page in the meantime — a search that empties the deck rebuilds the bar
+  // that held the search button.
+  readonly fallbackFocus?: () => HTMLElement | null;
   readonly children: ReactNode;
 }
 
-export function Dialog({ label, className, onClose, children }: DialogProps) {
+export function Dialog({
+  label,
+  className,
+  onClose,
+  fallbackFocus,
+  children,
+}: DialogProps) {
   const surfaceRef = useRef<HTMLDivElement>(null);
-  const opener = useRef<Element | null>(null);
+  // Read during the first render, not in an effect: a child with autoFocus
+  // (the search sheet's field) takes focus during commit, before any effect
+  // here runs, and would otherwise be remembered as the opener.
+  const [opener] = useState<Element | null>(() =>
+    typeof document === "undefined" ? null : document.activeElement,
+  );
+  const fallbackRef = useRef(fallbackFocus);
+  fallbackRef.current = fallbackFocus;
 
   // Focus enters on mount and goes back on unmount, so a reader who opened the
   // dialog from a grid tile is returned to that tile rather than to the top of
   // the page.
   useEffect(() => {
-    opener.current = document.activeElement;
-
     const surface = surfaceRef.current;
 
     // A child that already took focus on mount (the search sheet's field)
@@ -29,9 +44,14 @@ export function Dialog({ label, className, onClose, children }: DialogProps) {
     }
 
     return () => {
-      if (opener.current instanceof HTMLElement) opener.current.focus();
+      if (opener instanceof HTMLElement && opener.isConnected) {
+        opener.focus();
+        return;
+      }
+
+      fallbackRef.current?.()?.focus();
     };
-  }, []);
+  }, [opener]);
 
   // Captured on the document, so the trap sees Tab before anything inside the
   // dialog can act on it and before the deck's own document-level shortcuts.

@@ -101,4 +101,54 @@ describe("Dialog", () => {
     expect(opener).toHaveFocus();
     opener.remove();
   });
+
+  // The search sheet's field takes focus as it mounts, before the dialog's own
+  // effects run. The opener is still the control that was focused before the
+  // dialog appeared, not the field.
+  it("returns focus to the opener even when a child takes focus on mount", async () => {
+    const opener = document.createElement("button");
+
+    document.body.append(opener);
+    opener.focus();
+
+    const { unmount } = render(
+      <Dialog label="Example dialog" onClose={vi.fn()}>
+        {/* eslint-disable-next-line jsx-a11y/no-autofocus */}
+        <input aria-label="field" autoFocus />
+      </Dialog>,
+    );
+
+    expect(screen.getByRole("textbox", { name: "field" })).toHaveFocus();
+
+    unmount();
+    await Promise.resolve();
+
+    expect(opener).toHaveFocus();
+    opener.remove();
+  });
+
+  it("falls back when the opener has left the page", async () => {
+    const opener = document.createElement("button");
+    const replacement = document.createElement("button");
+
+    document.body.append(opener, replacement);
+    opener.focus();
+
+    const { unmount } = render(
+      <Dialog
+        label="Example dialog"
+        onClose={vi.fn()}
+        fallbackFocus={() => replacement}
+      >
+        <button type="button">first</button>
+      </Dialog>,
+    );
+
+    opener.remove();
+    unmount();
+    await Promise.resolve();
+
+    expect(replacement).toHaveFocus();
+    replacement.remove();
+  });
 });

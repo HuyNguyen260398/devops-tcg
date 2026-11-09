@@ -11,6 +11,7 @@ interface SearchSheetProps {
   readonly totalCount: number;
   readonly onFilterChange: (filter: CardFilter) => void;
   readonly onClose: () => void;
+  readonly fallbackFocus?: () => HTMLElement | null;
 }
 
 export function SearchSheet({
@@ -20,6 +21,7 @@ export function SearchSheet({
   totalCount,
   onFilterChange,
   onClose,
+  fallbackFocus,
 }: SearchSheetProps) {
   return (
     // Anchored to the top rather than centred: the field must stay clear of the
@@ -28,6 +30,7 @@ export function SearchSheet({
       label="Search the deck"
       className="card-search-sheet max-w-[420px] self-start rounded-card border border-rule p-4"
       onClose={onClose}
+      fallbackFocus={fallbackFocus}
     >
       {/* A touch screen has no Escape key, and a backdrop tap is a guess; the
           sheet says how to leave it. Done rather than Close: the filter stays

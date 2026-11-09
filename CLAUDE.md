@@ -233,7 +233,8 @@ typing in the search bar filters both layouts on every keystroke and the count
 is a polite live region; a grid tile opens a dialog whose Escape returns focus
 to that tile, Escape being its only announced way out; the dialog's
 Previous/Next wrap through the filtered results only;
-a dismissed search sheet keeps its filter and marks the header trigger; the grid
+a dismissed search sheet keeps its filter and marks the header trigger, and
+hands keyboard focus back to the live search button; the grid
 scrolls inside the locked shell rather than scrolling the document; a page
 load shows the `Loading the deck` wheel for at least 1s, then reels the deck
 once or fades the grid in, and nothing else ever replays it.
