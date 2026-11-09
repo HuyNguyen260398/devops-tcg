@@ -120,4 +120,19 @@ test.describe("search sheet on a phone", () => {
       page.getByRole("button", { name: "Search the deck, filter active" }),
     ).toBeVisible();
   });
+
+  // A phone turned sideways is 320px tall, and the sheet's rows are now 44px
+  // each; the way out must not be the part that falls off the screen.
+  test("keeps Done on screen with the phone turned sideways", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 700, height: 320 });
+    await arrive(page);
+    await page.getByRole("button", { name: /Search the deck/ }).click();
+
+    const done = page.getByRole("button", { name: "Done" });
+    await expect(done).toBeInViewport({ ratio: 1 });
+    await done.tap();
+    await expect(page.getByRole("dialog")).toHaveCount(0);
+  });
 });
