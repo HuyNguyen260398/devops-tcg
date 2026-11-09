@@ -69,6 +69,30 @@ test.describe("installable app", () => {
 
     await context.setOffline(false);
   });
+
+  // A shared link or a launcher shortcut opens with a query string, which the
+  // precache never listed; offline, the cached shell must still answer it.
+  test("opens a shared link offline from the cached shell", async ({
+    page,
+    context,
+  }) => {
+    await arrive(page);
+    await page.evaluate(() => navigator.serviceWorker.ready);
+    await expect
+      .poll(() =>
+        page.evaluate(() => navigator.serviceWorker.controller !== null),
+      )
+      .toBe(true);
+
+    await context.setOffline(true);
+    await arrive(page, "/?from=share");
+
+    await expect(
+      page.locator("img.card-thumbnail-neon:visible").first(),
+    ).toBeVisible();
+
+    await context.setOffline(false);
+  });
 });
 
 test.describe("search sheet on a phone", () => {
