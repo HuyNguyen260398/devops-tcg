@@ -254,7 +254,8 @@ jobs: `preflight` fails in seconds when a variable or the role ARN is missing;
 `static-export` artifact; `deploy` holds the protected `production`
 environment and the only `id-token: write` in the file, and does OIDC apply →
 validates that `site_url` matches the `SITE_DOMAIN` variable → downloads that
-artifact → `s3 sync --delete` → CloudFront invalidation → HTTPS smoke check;
+artifact → `s3 sync --delete` (holding back `sw.js`) → CloudFront
+invalidation, awaited → `sw.js` published last → HTTPS smoke check;
 `notify` runs `if: always()` and writes the stage roll-up to the job summary
 and to Slack. The export is built once and published as tested — the AWS stage
 has no Node in it to rebuild with. `notify` never fails the run: the Slack post

@@ -118,7 +118,9 @@ Configure these repository variables:
 Both IAM roles must trust GitHub’s OIDC provider. Keep the plan role read-only
 for production resources and grant the deploy role only the S3, CloudFront,
 ACM, Route 53, DynamoDB-lock, and Terraform-state permissions required by this
-stack.
+stack. The deploy waits for its CloudFront invalidation before
+publishing the service worker, so the deploy role needs
+`cloudfront:GetInvalidation` alongside `cloudfront:CreateInvalidation`.
 
 ## First Deployment
 
