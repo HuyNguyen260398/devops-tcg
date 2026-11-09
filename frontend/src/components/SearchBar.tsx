@@ -12,8 +12,10 @@ interface SearchBarProps {
   readonly onFilterChange: (filter: CardFilter) => void;
 }
 
+// 44px tall below the grid boundary, where the chips are touch targets; the
+// wide layout keeps the compact row its search column is sized for.
 const chipClassName = (selected: boolean) =>
-  `search-chip shrink-0 rounded-full border px-3 py-1.5 text-[0.6rem] font-bold uppercase tracking-[0.16em] transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--paper)] ${
+  `search-chip flex h-11 shrink-0 items-center rounded-full border px-4 text-[0.65rem] lg:h-auto lg:px-3 lg:py-1.5 lg:text-[0.6rem] font-bold uppercase tracking-[0.16em] transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--paper)] ${
     selected
       ? "border-type-chip-border bg-type-chip text-type-chip-ink"
       : "border-control-border bg-control text-control-ink hover:border-[color:var(--control-hover-border)] hover:bg-[color:var(--control-hover)]"
@@ -51,6 +53,8 @@ export function SearchBar({
           <circle cx="11" cy="11" r="7" />
           <path d="m20 20-3.5-3.5" />
         </svg>
+        {/* 16px below the grid boundary: iOS Safari zooms the whole page into
+            any field whose text is smaller, and leaves it zoomed. */}
         <input
           id={fieldId}
           type="search"
@@ -62,14 +66,14 @@ export function SearchBar({
           onChange={(event) =>
             onFilterChange({ ...filter, query: event.target.value })
           }
-          className="search-input h-10 w-full rounded-full border border-control-border bg-control pl-9 pr-10 text-sm text-control-ink placeholder:text-ink-faint focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]"
+          className="search-input h-11 w-full rounded-full border border-control-border bg-control pl-9 pr-12 text-base lg:h-10 lg:pr-10 lg:text-sm text-control-ink placeholder:text-ink-faint focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]"
         />
         {filter.query !== "" && (
           <button
             type="button"
             aria-label="Clear the search text"
             onClick={() => onFilterChange({ ...filter, query: "" })}
-            className="absolute right-2 flex h-7 w-7 items-center justify-center rounded-full text-ink-faint transition-colors duration-200 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]"
+            className="absolute right-0 flex h-11 w-11 items-center lg:right-2 lg:h-7 lg:w-7 justify-center rounded-full text-ink-faint transition-colors duration-200 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]"
           >
             <svg
               viewBox="0 0 24 24"
@@ -77,7 +81,7 @@ export function SearchBar({
               stroke="currentColor"
               strokeWidth="2"
               strokeLinecap="round"
-              className="h-3.5 w-3.5"
+              className="h-4 w-4 lg:h-3.5 lg:w-3.5"
               aria-hidden="true"
               focusable="false"
             >

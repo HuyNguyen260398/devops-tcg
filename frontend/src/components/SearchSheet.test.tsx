@@ -47,17 +47,28 @@ describe("SearchSheet", () => {
     expect(onClose).not.toHaveBeenCalled();
   });
 
-  it("carries nothing but the search bar", () => {
+  it("carries the search bar and a way out, nothing more", () => {
     setup({ query: "aws", type: "NETWORK" });
 
-    expect(screen.queryByRole("button", { name: "Done" })).toBeNull();
+    expect(screen.getByRole("heading", { name: "Search" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Done" })).toBeInTheDocument();
     expect(
       screen.queryByRole("button", { name: "Clear all filters" }),
     ).toBeNull();
   });
 
-  // With no Done button, dismissal is a press outside the sheet — the gesture a
-  // phone actually has, since it has no Escape key either.
+  // A phone has no Escape key, so the sheet names its own way out.
+  it("closes from its Done button", async () => {
+    const user = userEvent.setup();
+    const { onClose, onFilterChange } = setup({ query: "aws", type: null });
+
+    await user.click(screen.getByRole("button", { name: "Done" }));
+
+    expect(onClose).toHaveBeenCalledTimes(1);
+    expect(onFilterChange).not.toHaveBeenCalled();
+  });
+
+  // Dismissal by a press outside the sheet still works as a shortcut.
   it("closes when the sheet is pressed away", async () => {
     const user = userEvent.setup();
     const { onClose } = setup();

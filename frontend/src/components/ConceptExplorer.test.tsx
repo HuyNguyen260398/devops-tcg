@@ -309,6 +309,47 @@ describe("ConceptExplorer on a narrow viewport", () => {
     expect(screen.getByRole("button", { name: "Shuffle" })).toBeDisabled();
   });
 
+  // A keyboard reader who opened the sheet from the bar is put back on that
+  // button when it closes, not dropped at the top of the page.
+  it("returns focus to the search button when the sheet closes", async () => {
+    const user = userEvent.setup();
+
+    setViewportWidth(375);
+    mount();
+
+    await screen.findByRole("button", { name: /^Proxy card, front shown$/ });
+    screen.getByRole("button", { name: "Search the deck" }).focus();
+    await user.keyboard("{Enter}");
+    await user.type(await screen.findByRole("searchbox"), "redis");
+    await user.keyboard("{Escape}");
+
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+    expect(
+      screen.getByRole("button", { name: "Search the deck, filter active" }),
+    ).toHaveFocus();
+  });
+
+  // Nothing matching swaps the deck for the empty state, which carries its own
+  // bar — the button that opened the sheet is gone, so focus goes to the one
+  // that replaced it.
+  it("returns focus to the live search button when nothing matches", async () => {
+    const user = userEvent.setup();
+
+    setViewportWidth(375);
+    mount();
+
+    await screen.findByRole("button", { name: /^Proxy card, front shown$/ });
+    screen.getByRole("button", { name: "Search the deck" }).focus();
+    await user.keyboard("{Enter}");
+    await user.type(await screen.findByRole("searchbox"), "zzz");
+    await user.keyboard("{Escape}");
+
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+    expect(
+      screen.getByRole("button", { name: "Search the deck, filter active" }),
+    ).toHaveFocus();
+  });
+
   it("lets a space be typed into the search field", async () => {
     const user = userEvent.setup();
 

@@ -76,6 +76,7 @@ export function ConceptExplorer({
     intro ? "holding" : "done",
   );
   const searchSlotRef = useRef<HTMLDivElement>(null);
+  const searchTriggerRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     if (typeof window.matchMedia !== "function") {
@@ -181,6 +182,7 @@ export function ConceptExplorer({
   const searchControl =
     isWide === false ? (
       <SearchTrigger
+        ref={searchTriggerRef}
         compact
         isFilterActive={isFilterActive}
         onOpen={() => setIsSearchOpen(true)}
@@ -268,6 +270,7 @@ export function ConceptExplorer({
           totalCount={cards.length}
           onFilterChange={setFilter}
           onClose={() => setIsSearchOpen(false)}
+          fallbackFocus={() => searchTriggerRef.current}
         />
       )}
     </div>

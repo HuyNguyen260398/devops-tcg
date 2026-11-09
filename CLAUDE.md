@@ -233,7 +233,8 @@ typing in the search bar filters both layouts on every keystroke and the count
 is a polite live region; a grid tile opens a dialog whose Escape returns focus
 to that tile, Escape being its only announced way out; the dialog's
 Previous/Next wrap through the filtered results only;
-a dismissed search sheet keeps its filter and marks the header trigger; the grid
+a dismissed search sheet keeps its filter and marks the header trigger, and
+hands keyboard focus back to the live search button; the grid
 scrolls inside the locked shell rather than scrolling the document; a page
 load shows the `Loading the deck` wheel for at least 1s, then reels the deck
 once or fades the grid in, and nothing else ever replays it.
@@ -254,7 +255,8 @@ jobs: `preflight` fails in seconds when a variable or the role ARN is missing;
 `static-export` artifact; `deploy` holds the protected `production`
 environment and the only `id-token: write` in the file, and does OIDC apply →
 validates that `site_url` matches the `SITE_DOMAIN` variable → downloads that
-artifact → `s3 sync --delete` → CloudFront invalidation → HTTPS smoke check;
+artifact → `s3 sync --delete` (holding back `sw.js`) → CloudFront
+invalidation, awaited → `sw.js` published last → HTTPS smoke check;
 `notify` runs `if: always()` and writes the stage roll-up to the job summary
 and to Slack. The export is built once and published as tested — the AWS stage
 has no Node in it to rebuild with. `notify` never fails the run: the Slack post
@@ -305,6 +307,18 @@ roughly `x 574..1826` at 320px, against `x 138..2262` from 480px up. What
 belongs in that middle half is the *subject*, not the composition's bounding
 box. Kubernetes Pod shifts its whole scene left for exactly that reason: the
 pod itself sits centred, and the discarded pod beside it is what a phone loses.
+
+The site is an installable PWA (see `docs/architecture.md` → "Installable
+App"). `pnpm build` runs `scripts/build-sw.mjs` after `next build`, which writes
+`out/sw.js` with the export's file list and a content hash inlined — so a new
+file under `public/` is precached with no change to the worker. The worker is
+hand-written in `scripts/sw-template.js`; it is registered only in production
+builds, so `pnpm dev` never has one. Icons are committed PNGs rendered from
+`public/icons/*.svg` by `node scripts/generate-icons.mjs` — rerun it after
+editing a source. `THEME_COLORS` in `src/lib/theme.ts` repeats each theme's
+`--paper` for `<meta name="theme-color">`, and a unit test holds them equal.
+Below 1024px every search control is a 44px target and the field types at
+16px, or iOS zooms the page into it; `e2e/pwa.spec.ts` asserts both.
 
 The frontend ships only `next`, `react`, and `react-dom` as dependencies —
 icons are inline SVG, there is no state library, and no runtime asset is

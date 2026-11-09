@@ -129,3 +129,23 @@ test.describe("theme switching", () => {
     expect(overflows).toBe(false);
   });
 });
+
+// Android paints its status bar, and an installed app its title bar, from
+// <meta name="theme-color"> before the page's own paint. A stored sketch choice
+// must reach that tag from the pre-paint script, not after hydration, or the
+// chrome flashes neon around a sketch page. The page's scripts are refused here
+// so only the inline script can have set it.
+test("paints the browser chrome sketch before hydration", async ({ page }) => {
+  await page.route("**/_next/static/chunks/**", (route) => route.abort());
+  await page.addInitScript(() =>
+    window.localStorage.setItem("devops-tcg-theme", "sketch"),
+  );
+  // A bare goto: with no scripts there is no intro to arrive through.
+  await page.goto("/");
+
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "sketch");
+  await expect(page.locator('meta[name="theme-color"]')).toHaveAttribute(
+    "content",
+    "#ece7db",
+  );
+});
