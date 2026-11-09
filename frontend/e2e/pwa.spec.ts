@@ -177,3 +177,47 @@ test.describe("search sheet on a phone", () => {
     ).toBeFocused();
   });
 });
+
+// An installed iPhone app paints behind a notch inset (59px on a 390x844
+// iPhone) far taller than the home-indicator inset (34px). Padding each end by
+// its own inset would leave the card low; the shell gives both ends the larger
+// one, so the card stays centred and clear of both.
+test.describe("installed on a notched phone", () => {
+  test.beforeEach(({}, testInfo) => {
+    test.skip(testInfo.project.name !== "mobile", "a phone layout");
+  });
+
+  test("keeps the card centred between the notch and the home indicator", async ({
+    page,
+    context,
+  }) => {
+    const cdp = await context.newCDPSession(page);
+    await cdp.send("Emulation.setSafeAreaInsetsOverride", {
+      insets: { top: 59, bottom: 34, left: 0, right: 0 },
+    });
+    await page.setViewportSize({ width: 390, height: 844 });
+    await arrive(page);
+
+    const card = page.locator(".concept-card[data-face]");
+    await expect(card).toBeVisible();
+
+    const bounds = (await card.boundingBox())!;
+    const above = bounds.y;
+    const below = 844 - (bounds.y + bounds.height);
+
+    expect(
+      Math.abs(above - below),
+      `card sits ${above} from the top and ${below} from the bottom`,
+    ).toBeLessThanOrEqual(1);
+
+    const title = (await page
+      .getByRole("heading", { level: 1 })
+      .boundingBox())!;
+    const bar = (await page
+      .getByRole("navigation", { name: "Card controls" })
+      .boundingBox())!;
+
+    expect(title.y).toBeGreaterThanOrEqual(59);
+    expect(bar.y + bar.height).toBeLessThanOrEqual(844 - 34);
+  });
+});

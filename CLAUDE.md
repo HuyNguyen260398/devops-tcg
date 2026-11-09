@@ -318,7 +318,12 @@ builds, so `pnpm dev` never has one. Icons are committed PNGs rendered from
 editing a source. `THEME_COLORS` in `src/lib/theme.ts` repeats each theme's
 `--paper` for `<meta name="theme-color">`, and a unit test holds them equal.
 Below 1024px every search control is a 44px target and the field types at
-16px, or iOS zooms the page into it; `e2e/pwa.spec.ts` asserts both.
+16px, or iOS zooms the page into it; `e2e/pwa.spec.ts` asserts both. The shell
+pads top and bottom by the *larger* of the two safe-area insets, so the card
+stays centred under a notch taller than the home indicator; Chromium can
+emulate the insets (`Emulation.setSafeAreaInsetsOverride` over CDP), and the
+notched-phone spec in `e2e/pwa.spec.ts` measures it — macOS screenshots alone
+cannot, because a browser tab has none.
 
 The frontend ships only `next`, `react`, and `react-dom` as dependencies —
 icons are inline SVG, there is no state library, and no runtime asset is

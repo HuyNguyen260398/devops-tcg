@@ -291,12 +291,23 @@ body {
 /* The viewport is viewport-fit=cover, so an installed app paints behind the
    notch, the home indicator and the rounded corners. Each edge keeps its own
    padding and gives way to the inset only where the inset is larger — in a
-   browser tab every inset is zero and nothing moves. */
+   browser tab every inset is zero and nothing moves.
+
+   Top and bottom take the same value — the larger of the two insets — because
+   the narrow layout centres the card by matching its chrome and padding at both
+   ends. A notch is far taller than a home indicator (59px against 34px on an
+   iPhone), so padding each end by its own inset would leave the card low. */
 .app-shell {
+  --shell-block: max(
+    clamp(0.75rem, 3vh, 2rem),
+    env(safe-area-inset-top),
+    env(safe-area-inset-bottom)
+  );
+
   height: 100vh;
   height: 100dvh;
-  padding-top: max(clamp(0.75rem, 3vh, 2rem), env(safe-area-inset-top));
-  padding-bottom: max(clamp(0.75rem, 3vh, 2rem), env(safe-area-inset-bottom));
+  padding-top: var(--shell-block);
+  padding-bottom: var(--shell-block);
   padding-left: max(1rem, env(safe-area-inset-left));
   padding-right: max(1rem, env(safe-area-inset-right));
 }
