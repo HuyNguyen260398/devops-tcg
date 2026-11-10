@@ -20,7 +20,10 @@ const keyOf = (input: string | FakeRequest, ignoreSearch = false) => {
   return ignoreSearch ? url.pathname : url.pathname + url.search;
 };
 
-const fakeCaches = (initial: Record<string, Record<string, string>>) => {
+const fakeCaches = (
+  initial: Record<string, Record<string, string>>,
+  log: string[],
+) => {
   const store = new Map<string, Map<string, Response>>(
     Object.entries(initial).map(([name, entries]) => [
       name,
@@ -48,7 +51,13 @@ const fakeCaches = (initial: Record<string, Record<string, string>>) => {
       put: async (request: string | FakeRequest, response: Response) => {
         entries.set(keyOf(request), response);
       },
-      addAll: async () => undefined,
+      addAll: async (requests: Request[]) => {
+        log.push(`addAll ${name}`);
+        for (const request of requests) {
+          log.push(`  ${keyOf(request.url)} cache=${request.cache}`);
+          entries.set(keyOf(request.url), new Response("precached"));
+        }
+      },
     };
   };
 
@@ -62,42 +71,53 @@ const fakeCaches = (initial: Record<string, Record<string, string>>) => {
   };
 };
 
+// A worker resolves a relative Request against its own location; Node's
+// Request has no base, so the harness supplies the one a deployed worker has.
+class WorkerRequest extends Request {
+  constructor(input: string, init?: RequestInit) {
+    super(new URL(input, ORIGIN), init);
+  }
+}
+
 const startWorker = (
   initial: Record<string, Record<string, string>>,
   fetchImpl: (request: FakeRequest) => Promise<Response>,
+  urls: readonly string[] = ["/"],
 ) => {
   const template = readFileSync(
     path.resolve(__dirname, "sw-template.js"),
     "utf8",
   );
   const handlers = new Map<string, (event: unknown) => void>();
-  const caches = fakeCaches(initial);
+  // One timeline for cache writes and lifecycle calls, so a test can assert
+  // their order.
+  const log: string[] = [];
+  const caches = fakeCaches(initial, log);
   const fetch = vi.fn(fetchImpl);
   const self = {
     location: { origin: ORIGIN },
     clients: { claim: vi.fn(async () => undefined) },
-    skipWaiting: vi.fn(async () => undefined),
+    skipWaiting: vi.fn(async () => {
+      log.push("skipWaiting");
+    }),
     addEventListener: (type: string, handler: (event: unknown) => void) =>
       handlers.set(type, handler),
   };
 
-  vm.runInNewContext(
-    renderServiceWorker(template, { urls: ["/"], version: "new" }),
-    {
-      self,
-      caches: caches.api,
-      fetch,
-      URL,
-      Request,
-      Response,
-      Promise,
-      // Read through globalThis so a test's fake timers reach the worker.
-      setTimeout: (...args: Parameters<typeof setTimeout>) =>
-        globalThis.setTimeout(...args),
-      clearTimeout: (id: ReturnType<typeof setTimeout>) =>
-        globalThis.clearTimeout(id),
-    },
-  );
+  vm.runInNewContext(renderServiceWorker(template, { urls, version: "new" }), {
+    self,
+    caches: caches.api,
+    fetch,
+    URL,
+    Request: WorkerRequest,
+    Response,
+    Promise,
+    // Read through globalThis so a test's fake timers reach the worker.
+    setTimeout: (...args: Parameters<typeof setTimeout>) =>
+      globalThis.setTimeout(...args),
+    clearTimeout: (id: ReturnType<typeof setTimeout>) =>
+      globalThis.clearTimeout(id),
+  });
 
   const dispatch = (type: string, request?: FakeRequest) => {
     const waits: Promise<unknown>[] = [];
@@ -114,7 +134,7 @@ const startWorker = (
     return { settled: Promise.all(waits), response };
   };
 
-  return { caches: caches.store, fetch, dispatch };
+  return { caches: caches.store, fetch, dispatch, log };
 };
 
 afterEach(() => {
@@ -263,5 +283,23 @@ describe("the service worker", () => {
     expect(settled).toBe(false);
     await vi.advanceTimersByTimeAsync(2000);
     expect(await text(await response)).toBe("late");
+  });
+
+  // The precache must be the deployed export, not whatever the browser's HTTP
+  // cache held, and the new worker may take over only once all of it is in.
+  it("precaches the export past the HTTP cache before taking over", async () => {
+    const worker = startWorker({}, async () => new Response(""), [
+      "/",
+      "/_next/static/chunks/app.js",
+    ]);
+
+    await worker.dispatch("install").settled;
+
+    expect(worker.log).toEqual([
+      "addAll devops-tcg-new",
+      "  / cache=reload",
+      "  /_next/static/chunks/app.js cache=reload",
+      "skipWaiting",
+    ]);
   });
 });

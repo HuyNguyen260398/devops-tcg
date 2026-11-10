@@ -66,6 +66,18 @@ describe("renderServiceWorker", () => {
     expect(rendered).not.toContain("__SW_");
   });
 
+  // String.replace treats $& and $' in a replacement string as patterns, so a
+  // file name carrying one would splice template text into the list.
+  it("inlines file names containing $ patterns verbatim", () => {
+    const rendered = renderServiceWorker(
+      'const V = "__SW_VERSION__"; const P = __SW_PRECACHE__;',
+      { urls: ["/images/a$&b$'c.webp"], version: "v$&" },
+    );
+
+    expect(rendered).toContain('"/images/a$&b$\'c.webp"');
+    expect(rendered).toContain('const V = "v$&"');
+  });
+
   it("refuses a template that has lost a placeholder", () => {
     expect(() =>
       renderServiceWorker("const V = 1;", { urls: [], version: "x" }),

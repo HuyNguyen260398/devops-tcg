@@ -65,9 +65,13 @@ export const renderServiceWorker = (template, { urls, version }) => {
     throw new Error("sw-template.js is missing a placeholder");
   }
 
-  return template
-    .replace("__SW_VERSION__", version)
-    .replace("__SW_PRECACHE__", JSON.stringify(urls, null, 2));
+  return (
+    template
+      // Function replacers: a replacement string would read $& and $' in a file
+      // name as patterns and splice template text into the list.
+      .replace("__SW_VERSION__", () => version)
+      .replace("__SW_PRECACHE__", () => JSON.stringify(urls, null, 2))
+  );
 };
 
 export const buildServiceWorker = async (outDir) => {

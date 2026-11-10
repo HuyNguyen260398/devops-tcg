@@ -73,7 +73,10 @@ no signal. Alongside that, a mobile UX pass using the ui-ux-pro-max guidelines.
 ### Safe areas
 
 `.app-shell` pads every edge with `max(<current padding>,
-env(safe-area-inset-*))`, and the modal layer does the same, so the title clears
+env(safe-area-inset-*))` — top and bottom both take the larger of the two
+insets, since the narrow layout centres the card by matching both ends *(changed
+after the final review: an iPhone's 59px notch against its 34px home indicator
+left the card 25px low)* — and the modal layer does the same, so the title clears
 the notch, the toolbar clears the home indicator, and landscape content clears
 the rounded corners. In a browser tab the insets are zero and nothing moves.
 
